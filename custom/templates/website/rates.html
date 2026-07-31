@@ -1,52 +1,46 @@
 {% extends 'website/website_base.html' %}
 {% load static %}
 
-{% block title %}Rates &amp; Fees — Our Repayment Schedule | Moroma Finance{% endblock %}
+{% block title %}Rates &amp; Fees — Repayment Schedule | Moroma Finance{% endblock %}
 {% block meta_desc %}Moroma Finance rates and fees: every loan is priced from our published repayment schedule. Use the calculator to see your exact fortnightly repayment and total repayable.{% endblock %}
 
 {% block hero %}
-<section class="page-hero">
-  <div class="container">
-    <span class="eyebrow"><i class="bi bi-percent"></i> Rates &amp; Fees</span>
-    <h1>No fine print. No surprises.</h1>
-    <p>We believe you should know exactly what a loan costs before you sign. Here's how our pricing works — in plain language.</p>
+<section class="mf-phero">
+  <div class="mf-wrap">
+    <span class="mf-kick">Rates &amp; Fees</span>
+    <h1 class="mf-h1">No fine print.<br>No <em>surprises</em>.</h1>
+    <p>Every figure we quote comes straight from our published repayment schedule. Here's how it works — in plain language.</p>
   </div>
 </section>
 {% endblock %}
 
 {% block content %}
 
-<section class="section">
-  <div class="container">
-    <div class="rateband split reveal" style="margin-bottom:3rem;">
-      <div>
-        <span class="eyebrow on-orange">How our pricing works</span>
-        <h2 style="color:#fff; margin:1rem 0 .6rem; font-size:clamp(1.7rem,3.6vw,2.4rem);">Priced from our repayment schedule</h2>
-        <p style="opacity:.92; margin:0; max-width:48ch;">Moroma Finance does not use a single flat rate. Your interest is set by our published
-          <strong>Moroma Finance Repayment Schedule</strong>, based on how much you borrow and how many fortnights you
-          repay over. A shorter term carries less interest; a longer term carries more. Whatever you choose, the
-          fortnightly repayment and total repayable are agreed with you before you sign.</p>
-      </div>
-      <div style="text-align:center; position:relative;">
-        <i class="bi bi-table" style="font-size:3.4rem; color:var(--d-orange-300);"></i>
-        <div style="font-family:var(--font-head); font-weight:600; letter-spacing:.05em; opacity:.9; margin-top:.6rem;">SET BY SCHEDULE</div>
-        <a href="#calculator" class="btn-d btn-white" style="margin-top:1.4rem;">Check your repayment</a>
+<!-- How pricing works -->
+<section class="mf-sec">
+  <div class="mf-wrap mf-split">
+    <div class="rv">
+      <span class="mf-kick">How our pricing works</span>
+      <h2 class="mf-h2">Priced from the schedule, not a flat rate</h2>
+      <p class="mf-lede">Moroma Finance does not use a single flat rate. Your interest is set by our published <strong>Personal Loan Repayment Schedule</strong>, based on how much you borrow and how many fortnights you repay over. A shorter term carries less interest; a longer term carries more.</p>
+      <p class="mf-lede">Whatever you choose, the fortnightly repayment and total repayable are agreed with you <strong>before you sign</strong>.</p>
+      <div class="mf-btnrow">
+        <a href="#calculator" class="mf-btn mf-btn--ink">Check your repayment <i class="bi bi-arrow-down"></i></a>
       </div>
     </div>
-
-    <div class="grid grid-3">
-      <div class="card reveal">
-        <div class="ic"><i class="bi bi-eye-fill"></i></div>
+    <div class="mf-cells rv" style="grid-template-columns:1fr;">
+      <div class="mf-cell">
+        <span class="cell-no">PRINCIPLE / 1</span>
         <h3>Shown up front</h3>
         <p>Before you accept, you'll see your loan amount, your fortnightly repayment and your total repayable — in writing.</p>
       </div>
-      <div class="card reveal">
-        <div class="ic"><i class="bi bi-calendar2-check"></i></div>
-        <h3>Fortnightly repayments</h3>
+      <div class="mf-cell mf-cell--gold">
+        <span class="cell-no">PRINCIPLE / 2</span>
+        <h3>Matched to your pay</h3>
         <p>Repayments are spread across fortnights and matched to your pay cycle, so they stay manageable.</p>
       </div>
-      <div class="card accent reveal">
-        <div class="ic"><i class="bi bi-slash-circle"></i></div>
+      <div class="mf-cell">
+        <span class="cell-no">PRINCIPLE / 3</span>
         <h3>No hidden charges</h3>
         <p>What we quote is what you repay. Any fee that ever applies to your loan is disclosed to you before you sign.</p>
       </div>
@@ -54,70 +48,77 @@
   </div>
 </section>
 
-<!-- Repayment calculator -->
-<section class="section bg-soft" id="calculator">
-  <div class="container">
-    <div class="section-head reveal">
-      <span class="eyebrow"><i class="bi bi-calculator"></i> Repayment Calculator</span>
-      <h2>Work out your repayment</h2>
-      <p>Slide to the amount you need and how many fortnights you'd like to repay over. Every figure comes straight from our published Moroma Finance repayment schedule.</p>
+<!-- Calculator -->
+<section class="mf-sec mf-sec--paper2" id="calculator">
+  <div class="mf-wrap">
+    <div class="mf-head-row rv">
+      <span class="mf-num">CALC /</span>
+      <h2 class="mf-h2">Work out your repayment</h2>
     </div>
 
     {{ repayment_table|json_script:"repayment-table" }}
 
-    <div class="calc reveal">
-      <div class="calc-controls">
-        <div class="calc-field">
-          <div class="calc-label">
-            <span><i class="bi bi-cash-coin text-green"></i> How much do you need?</span>
-            <output id="calcAmountOut" for="calcAmount">K1,000</output>
-          </div>
-          <input type="range" class="slider" id="calcAmount" min="500" max="5000" step="50" value="1000"
-                 aria-label="Loan amount in Kina">
-          <div class="calc-scale"><span>K500</span><span>K5,000</span></div>
+    <div class="mf-calc rv">
+      <div class="mf-calc__controls">
+        <div class="mf-cfield">
+          <div class="c-top"><span><i class="bi bi-cash-coin text-green"></i> How much do you need?</span><span class="mf-dots"></span><output id="calcAmountOut" for="calcAmount">K1,000</output></div>
+          <input type="range" class="mf-range" id="calcAmount" min="500" max="5000" step="50" value="1000" aria-label="Loan amount in Kina">
+          <div class="mf-cscale"><span>K500</span><span>K5,000</span></div>
         </div>
-
-        <div class="calc-field">
-          <div class="calc-label">
-            <span><i class="bi bi-calendar2-week text-orange"></i> Over how many fortnights?</span>
-            <output id="calcTermOut" for="calcTerm">10 fortnights</output>
-          </div>
-          <input type="range" class="slider orange" id="calcTerm" min="0" max="0" step="1" value="0"
-                 aria-label="Repayment term in fortnights">
-          <div class="calc-scale"><span id="calcTermMin">5</span><span id="calcTermMax">30</span></div>
+        <div class="mf-cfield">
+          <div class="c-top"><span><i class="bi bi-calendar2-week text-green"></i> Over how many fortnights?</span><span class="mf-dots"></span><output id="calcTermOut" for="calcTerm">10 fortnights</output></div>
+          <input type="range" class="mf-range" id="calcTerm" min="0" max="0" step="1" value="0" aria-label="Repayment term in fortnights">
+          <div class="mf-cscale"><span id="calcTermMin">7</span><span id="calcTermMax">36</span></div>
         </div>
+        <p style="font-family:var(--mf-mono); font-size:.7rem; letter-spacing:.06em; color:var(--mf-ink-60); margin:0;">AMOUNTS IN K50 STEPS · MINIMUM TERM VARIES BY AMOUNT</p>
       </div>
 
-      <div class="calc-result">
-        <div class="calc-pmt-label">Your fortnightly repayment</div>
-        <div class="calc-pmt" id="calcPmt">K140.00</div>
-        <div class="calc-pmt-sub" id="calcPmtSub">every fortnight for 10 fortnights</div>
-        <div class="calc-rows">
-          <div><span>Loan amount</span><b id="calcRowAmt">K1,000.00</b></div>
-          <div><span>Interest</span><b id="calcRowInt">K400.00</b></div>
-          <div class="total"><span>Total repayable</span><b id="calcRowTotal">K1,400.00</b></div>
+      <div class="mf-calc__out">
+        <div class="mf-stamp mf-stamp--green">Schedule</div>
+        <div class="mf-slip__head"><span>Your fortnightly repayment</span><span>MFL</span></div>
+        <div class="mf-bigfig" id="calcPmt">K151.11</div>
+        <div class="mf-bigfig-sub" id="calcPmtSub">every fortnight for 9 fortnights</div>
+        <div style="margin-top:1.6rem;">
+          <div class="mf-slip__row"><span>Loan amount</span><span class="mf-dots"></span><span class="v" id="calcRowAmt">K1,000.00</span></div>
+          <div class="mf-slip__row"><span>Interest</span><span class="mf-dots"></span><span class="v" id="calcRowInt">K360.00</span></div>
+          <div class="mf-slip__total"><span>Total repayable</span><span class="mf-dots"></span><span class="v" id="calcRowTotal">K1,360.00</span></div>
         </div>
-        <a href="{% url 'register' %}" class="btn-d btn-orange" style="position:relative;">Apply for this loan <i class="bi bi-arrow-right"></i></a>
+        <a href="{% url 'register' %}" class="mf-btn mf-btn--gold" style="margin-top:1.8rem;">Apply for this loan <i class="bi bi-arrow-right"></i></a>
       </div>
     </div>
 
-    <p class="calc-note">
-      Indicative only, based on the Moroma Finance Repayment Schedule 2026. Longer terms carry a higher
-      interest rate. Your final amount, term and fortnightly repayment are confirmed in your loan offer
-      and are subject to assessment, eligibility and T&amp;C.
+    <p class="mf-table-note rv">
+      INDICATIVE ONLY — BASED ON THE MOROMA FINANCE PERSONAL LOAN REPAYMENT SCHEDULE, EFFECTIVE 1ST DECEMBER 2025 UNTIL FURTHER NOTICE.
+      YOUR FINAL AMOUNT, TERM AND FORTNIGHTLY REPAYMENT ARE CONFIRMED IN YOUR LOAN OFFER, SUBJECT TO ASSESSMENT, ELIGIBILITY AND T&amp;C.
     </p>
   </div>
 </section>
 
-<section class="section">
-  <div class="container">
-    <div class="cta reveal">
-      <h2>See your real numbers</h2>
-      <p>Apply online and we'll show you your exact repayment schedule before you commit to anything.</p>
-      <div class="hero-actions">
-        <a href="{% url 'register' %}" class="btn-d btn-white btn-lg">Apply Now <i class="bi bi-arrow-right"></i></a>
-        <a href="{% url 'contact' %}" class="btn-d btn-lg" style="background:rgba(255,255,255,.15); color:#fff; border-color:rgba(255,255,255,.45);">Ask a question</a>
-      </div>
+<!-- Sample of the schedule -->
+<section class="mf-sec">
+  <div class="mf-wrap">
+    <div class="mf-head-row rv">
+      <span class="mf-num">TABLE /</span>
+      <h2 class="mf-h2">Straight from the schedule</h2>
+    </div>
+    <div class="rv" style="overflow-x:auto;">
+      <table class="mf-table">
+        <thead>
+          <tr><th>Loan amount</th><th>7 F/N</th><th>12 F/N</th><th>18 F/N</th><th>24 F/N</th><th>30 F/N</th><th>36 F/N</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>K500</td><td>—</td><td>—</td><td>47.78</td><td>40.83</td><td>36.67</td><td>33.89</td></tr>
+          <tr><td>K1,000</td><td>—</td><td>123.33</td><td>95.56</td><td>81.67</td><td>73.33</td><td>67.78</td></tr>
+          <tr><td>K2,000</td><td>365.71</td><td>246.67</td><td>191.11</td><td>163.33</td><td>146.67</td><td>135.56</td></tr>
+          <tr><td>K3,000</td><td>548.57</td><td>370.00</td><td>286.67</td><td>245.00</td><td>220.00</td><td>203.33</td></tr>
+          <tr><td>K5,000</td><td>914.29</td><td>616.67</td><td>477.78</td><td>408.33</td><td>366.67</td><td>338.89</td></tr>
+        </tbody>
+      </table>
+      <p class="mf-table-note">FORTNIGHTLY REPAYMENT IN KINA · “—” = TERM NOT OFFERED FOR THAT AMOUNT (MINIMUM 14 F/N BELOW K1,000, 9 F/N BELOW K2,000) · FULL SCHEDULE AVAILABLE AT ANY BRANCH</p>
+    </div>
+    <div class="mf-btnrow mf-mt rv">
+      <a href="{% url 'register' %}" class="mf-btn mf-btn--ink mf-btn--lg">Apply Now <i class="bi bi-arrow-right"></i></a>
+      <a href="{% url 'contact' %}" class="mf-btn mf-btn--lg">Ask a question</a>
     </div>
   </div>
 </section>
@@ -155,11 +156,6 @@
     return Object.keys(t).map(Number).sort(function (a, b) { return a - b; });
   }
 
-  function paint(el, pct, colour, track) {
-    el.style.background = 'linear-gradient(90deg, ' + colour + ' 0%, ' + colour + ' ' + pct +
-                          '%, ' + track + ' ' + pct + '%, ' + track + ' 100%)';
-  }
-
   var lastTerm = 10;
 
   function render() {
@@ -192,9 +188,6 @@
     rowAmt.textContent = money(amount);
     rowInt.textContent = money(total - amount);
     rowTotal.textContent = money(total);
-
-    paint(amountEl, (amount - 500) / (5000 - 500) * 100, '#0f6e3a', '#d2ead9');
-    paint(termEl, terms.length > 1 ? idx / (terms.length - 1) * 100 : 0, '#f0a500', '#fff7e3');
   }
 
   amountEl.addEventListener('input', render);

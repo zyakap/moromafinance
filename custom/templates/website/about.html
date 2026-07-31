@@ -5,11 +5,11 @@
 {% block meta_desc %}Moroma Finance Limited is a Papua New Guinean finance company providing accessible, responsible lending to eligible salaried employees — with branches in Port Moresby, Mt Hagen, Mendi, Madang, Banz and Goroka.{% endblock %}
 
 {% block hero %}
-<section class="page-hero">
-  <div class="container">
-    <span class="eyebrow"><i class="bi bi-building"></i> Moroma Finance Limited</span>
-    <h1>Accessible. Responsible. Customer-focused.</h1>
-    <p>Providing practical financial solutions to eligible salaried employees while maintaining responsible lending, reliable records and professional customer service.</p>
+<section class="mf-phero">
+  <div class="mf-wrap">
+    <span class="mf-kick">Moroma Finance Limited</span>
+    <h1 class="mf-h1">Accessible. Responsible.<br><em>Customer-focused.</em></h1>
+    <p>Practical financial solutions for eligible salaried employees — delivered with responsible lending, reliable records and professional customer service.</p>
   </div>
 </section>
 {% endblock %}
@@ -17,153 +17,117 @@
 {% block content %}
 
 <!-- Who we are -->
-<section class="section">
-  <div class="container split">
-    <div class="reveal">
-      <span class="eyebrow"><i class="bi bi-flag-fill"></i> Who we are</span>
-      <h2 style="font-size:clamp(1.8rem,3.6vw,2.6rem); margin:1rem 0 .9rem;">A Papua New Guinean finance company</h2>
-      <p class="text-muted2">Moroma Finance Limited is a Papua New Guinean finance company providing accessible lending services to eligible salaried employees. We support our clients through a branch network and a central Head Office that manages credit assessment, loan processing, approvals, data management and portfolio administration.</p>
-      <p class="text-muted2">We combine local customer service with centralised credit control. Our branches promote the company, receive enquiries and applications, assist clients and maintain local relationships — while Head Office performs the key processing, approval and record-management functions, so every lending decision is consistent and accountable.</p>
-      <ul class="checklist" style="margin-top:1.2rem;">
-        <li><i class="bi bi-check-circle-fill"></i> Personal and payroll-based lending for eligible salaried employees</li>
-        <li><i class="bi bi-check-circle-fill"></i> Professional client service from enquiry through repayment completion</li>
-        <li><i class="bi bi-check-circle-fill"></i> Accurate loan account maintenance and statement issuance</li>
-        <li><i class="bi bi-check-circle-fill"></i> Responsible lending based on affordability, employment and payroll verification</li>
+<section class="mf-sec">
+  <div class="mf-wrap mf-split">
+    <div class="rv">
+      <span class="mf-kick">01 · Who we are</span>
+      <h2 class="mf-h2">A Papua New Guinean finance company</h2>
+      <p class="mf-lede">Moroma Finance Limited is a Papua New Guinean finance company providing accessible lending services to eligible salaried employees. We support our clients through a branch network and a central Head Office that manages credit assessment, loan processing, approvals, data management and portfolio administration.</p>
+      <p class="mf-lede">We combine local customer service with centralised credit control. Our branches promote the company, receive enquiries and applications, assist clients and maintain local relationships — while Head Office performs the key processing, approval and record-management functions, so every lending decision is consistent and accountable.</p>
+      <ul class="mf-ticks">
+        <li>Personal and payroll-based lending for eligible salaried employees</li>
+        <li>Professional client service from enquiry through repayment completion</li>
+        <li>Accurate loan account maintenance and statement issuance</li>
+        <li>Responsible lending based on affordability, employment and payroll verification</li>
       </ul>
     </div>
-    <div class="reveal">
-      <div class="hero-art" style="min-height:340px;">
-        <div class="hero-disc" style="width:min(360px,88%);"><img src="{% static 'clientfiles/moroma_logo.svg' %}" alt="Moroma Finance"></div>
-        <div class="chip chip-1 orange"><i class="bi bi-people-fill"></i><span><span class="lbl">Serving</span><span class="val">6 provinces</span></span></div>
-        <div class="chip chip-2 green"><i class="bi bi-hand-thumbs-up-fill"></i><span><span class="lbl">Built on</span><span class="val">Trust</span></span></div>
+    <div class="rv">
+      <div class="mf-slip">
+        <div class="mf-stamp">Est. PNG</div>
+        <div class="mf-slip__head"><span>Company file</span><span>MFL</span></div>
+        <div class="mf-slip__row"><span>Company</span><span class="mf-dots"></span><span class="v">Moroma Finance Ltd</span></div>
+        <div class="mf-slip__row"><span>Head Office</span><span class="mf-dots"></span><span class="v">Port Moresby, NCD</span></div>
+        <div class="mf-slip__row"><span>Managing Director</span><span class="mf-dots"></span><span class="v">Moses Kevin Tosa</span></div>
+        <div class="mf-slip__row"><span>Branches</span><span class="mf-dots"></span><span class="v">6 nationwide</span></div>
+        <div class="mf-slip__total"><span>Focus</span><span class="mf-dots"></span><span class="v">Salaried employees</span></div>
+      </div>
+      <div class="mf-slip" style="margin-top:2rem;">
+        <div class="mf-slip__head"><span>Branch network</span><span>06</span></div>
+        <div class="mf-slip__row"><span>01</span><span class="mf-dots"></span><span class="v">Port Moresby · HO</span></div>
+        <div class="mf-slip__row"><span>02</span><span class="mf-dots"></span><span class="v">Mt Hagen</span></div>
+        <div class="mf-slip__row"><span>03</span><span class="mf-dots"></span><span class="v">Mendi</span></div>
+        <div class="mf-slip__row"><span>04</span><span class="mf-dots"></span><span class="v">Madang</span></div>
+        <div class="mf-slip__row"><span>05</span><span class="mf-dots"></span><span class="v">Banz</span></div>
+        <div class="mf-slip__row"><span>06</span><span class="mf-dots"></span><span class="v">Goroka</span></div>
       </div>
     </div>
   </div>
 </section>
 
 <!-- Vision & Mission -->
-<section class="section">
-  <div class="container">
-    <div class="rateband reveal" style="text-align:center;">
-      <span class="eyebrow on-orange">Vision &amp; Mission</span>
-      <h2 style="color:#fff; margin:1.2rem auto .8rem; max-width:30ch; font-size:clamp(1.6rem,3.4vw,2.3rem); position:relative;">A trusted Papua New Guinean finance company recognised for responsible lending, reliable service and accessible financial solutions.</h2>
-      <p style="opacity:.92; max-width:58ch; margin:0 auto; position:relative;">Our mission is to provide timely, transparent and customer-focused lending services that support the financial needs of eligible employees while protecting the sustainability of the company.</p>
+<section class="mf-sec mf-sec--ink">
+  <div class="mf-wrap mf-split">
+    <div class="rv">
+      <span class="mf-kick">02 · Vision</span>
+      <h2 class="mf-h2" style="color:#fff;">A trusted Papua New Guinean finance company recognised for <em style="color:var(--mf-gold-hot);">responsible lending</em>, reliable service and accessible financial solutions.</h2>
+    </div>
+    <div class="rv">
+      <span class="mf-kick">03 · Mission</span>
+      <p style="font-family:var(--mf-serif); font-size:1.35rem; line-height:1.45; color:#eaf3ec; margin:0;">To provide timely, transparent and customer-focused lending services that support the financial needs of eligible employees while protecting the sustainability of the company.</p>
+      <ul class="mf-ticks mf-mt">
+        <li>Formal verification and affordability assessment on every application</li>
+        <li>Approval only by authorised Head Office officers</li>
+        <li>Clear product information and transparent loan terms</li>
+        <li>Confidential handling of client, payroll and banking information</li>
+      </ul>
     </div>
   </div>
 </section>
 
 <!-- Values -->
-<section class="section bg-soft">
-  <div class="container">
-    <div class="section-head reveal">
-      <span class="eyebrow"><i class="bi bi-gem"></i> Our core values</span>
-      <h2>What we stand for</h2>
-      <p>The commitments that shape every loan we write.</p>
+<section class="mf-sec">
+  <div class="mf-wrap">
+    <div class="mf-head-row rv">
+      <span class="mf-num">04 /</span>
+      <h2 class="mf-h2">Core values</h2>
     </div>
-    <div class="grid grid-3">
-      <div class="card reveal">
-        <div class="ic"><i class="bi bi-shield-check"></i></div>
-        <h3>Integrity</h3>
-        <p>We act honestly and protect client and company information.</p>
-      </div>
-      <div class="card reveal">
-        <div class="ic"><i class="bi bi-clipboard2-check-fill"></i></div>
-        <h3>Accountability</h3>
-        <p>We take responsibility for decisions, records and service delivery.</p>
-      </div>
-      <div class="card reveal">
-        <div class="ic"><i class="bi bi-briefcase-fill"></i></div>
-        <h3>Professionalism</h3>
-        <p>We maintain appropriate conduct, communication and documentation.</p>
-      </div>
-      <div class="card reveal">
-        <div class="ic"><i class="bi bi-headset"></i></div>
-        <h3>Customer Service</h3>
-        <p>We respond respectfully and provide clear guidance to clients.</p>
-      </div>
-      <div class="card reveal">
-        <div class="ic"><i class="bi bi-balance-scale"></i></div>
-        <h3>Responsible Lending</h3>
-        <p>We assess affordability and avoid lending that places clients under unreasonable financial pressure.</p>
-      </div>
-      <div class="card accent reveal">
-        <div class="ic"><i class="bi bi-people-fill"></i></div>
-        <h3>Teamwork</h3>
-        <p>Branches and Head Office work together to complete applications and maintain accurate accounts.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Branch network -->
-<section class="section">
-  <div class="container">
-    <div class="section-head reveal">
-      <span class="eyebrow"><i class="bi bi-geo-alt-fill"></i> Our branch network</span>
-      <h2>Close to where you work</h2>
-      <p>Six locations across Papua New Guinea, backed by our Head Office in Port Moresby.</p>
-    </div>
-    <div class="grid grid-3">
-      <div class="card reveal"><div class="ic"><i class="bi bi-building-fill"></i></div><h3>Port Moresby</h3><p>Head Office — National Capital District.</p></div>
-      <div class="card reveal"><div class="ic"><i class="bi bi-geo-fill"></i></div><h3>Mt Hagen</h3><p>Western Highlands Province.</p></div>
-      <div class="card reveal"><div class="ic"><i class="bi bi-geo-fill"></i></div><h3>Mendi</h3><p>Southern Highlands Province.</p></div>
-      <div class="card reveal"><div class="ic"><i class="bi bi-geo-fill"></i></div><h3>Madang</h3><p>Madang Province.</p></div>
-      <div class="card reveal"><div class="ic"><i class="bi bi-geo-fill"></i></div><h3>Banz</h3><p>Second Floor, Koime Kulup, Gar, Banz — along Main Road towards Banz from Kujip. Digicel/WhatsApp: 7174 5116.</p></div>
-      <div class="card reveal"><div class="ic"><i class="bi bi-geo-fill"></i></div><h3>Goroka</h3><p>Eastern Highlands Province.</p></div>
+    <div class="mf-cells mf-cells--3 rv">
+      <div class="mf-cell"><span class="cell-no">VALUE / 1</span><h3>Integrity</h3><p>We act honestly and protect client and company information.</p></div>
+      <div class="mf-cell"><span class="cell-no">VALUE / 2</span><h3>Accountability</h3><p>We take responsibility for decisions, records and service delivery.</p></div>
+      <div class="mf-cell"><span class="cell-no">VALUE / 3</span><h3>Professionalism</h3><p>We maintain appropriate conduct, communication and documentation.</p></div>
+      <div class="mf-cell"><span class="cell-no">VALUE / 4</span><h3>Customer Service</h3><p>We respond respectfully and provide clear guidance to clients.</p></div>
+      <div class="mf-cell mf-cell--gold"><span class="cell-no">VALUE / 5</span><h3>Responsible Lending</h3><p>We assess affordability and avoid lending that places clients under unreasonable financial pressure.</p></div>
+      <div class="mf-cell"><span class="cell-no">VALUE / 6</span><h3>Teamwork</h3><p>Branches and Head Office work together to complete applications and maintain accurate accounts.</p></div>
     </div>
   </div>
 </section>
 
 <!-- Who we serve -->
-<section class="section bg-cream">
-  <div class="container split">
-    <div class="reveal">
-      <span class="eyebrow"><i class="bi bi-person-badge-fill"></i> Who we serve</span>
-      <h2 style="font-size:clamp(1.8rem,3.6vw,2.6rem); margin:1rem 0 .9rem;">Lending to Papua New Guinea's workforce</h2>
-      <p class="text-muted2">Moroma Finance principally serves eligible salaried employees from public-sector institutions and other approved organisations, including:</p>
-      <ul class="checklist" style="margin-top:1rem;">
-        <li><i class="bi bi-check-circle-fill"></i> National government departments and agencies</li>
-        <li><i class="bi bi-check-circle-fill"></i> Provincial governments and district administrations</li>
-        <li><i class="bi bi-check-circle-fill"></i> Provincial Health Authorities, hospitals and health-sector organisations</li>
-        <li><i class="bi bi-check-circle-fill"></i> Education departments, schools and teachers</li>
-        <li><i class="bi bi-check-circle-fill"></i> Police, Correctional Services, Defence, Fire Services and other disciplined services</li>
-        <li><i class="bi bi-check-circle-fill"></i> Statutory authorities and state-owned enterprises</li>
-      </ul>
-    </div>
-    <div class="reveal">
-      <div class="rateband" style="background:linear-gradient(135deg,var(--d-green-700),var(--d-green));">
-        <h3 style="color:#fff; margin:0 0 .8rem; position:relative;">How we lend responsibly</h3>
-        <p style="opacity:.92; font-size:.95rem; position:relative;">Every application completes formal verification and affordability assessment by an authorised Head Office officer before approval. We check identity, employment, payroll information and repayment capacity — and we keep your personal, payroll and banking information confidential.</p>
-        <p style="opacity:.92; font-size:.95rem; margin:1rem 0 0; position:relative;">Clear product information, transparent loan terms, accurate statements and reasonable assistance when you raise a concern — that's our customer commitment.</p>
+<section class="mf-sec mf-sec--paper2">
+  <div class="mf-wrap mf-split">
+    <div class="rv">
+      <span class="mf-kick">05 · Who we serve</span>
+      <h2 class="mf-h2">Lending to PNG's <em>workforce</em></h2>
+      <p class="mf-lede">Moroma Finance principally serves eligible salaried employees from public-sector institutions and other approved organisations.</p>
+      <div class="mf-btnrow">
+        <a href="{% url 'register' %}" class="mf-btn mf-btn--ink">Become a client <i class="bi bi-arrow-right"></i></a>
       </div>
+    </div>
+    <div class="rv">
+      <ul class="mf-ticks">
+        <li>National government departments and agencies</li>
+        <li>Provincial governments and district administrations</li>
+        <li>Provincial Health Authorities, hospitals and health-sector organisations</li>
+        <li>Education departments, schools and teachers</li>
+        <li>Police, Correctional Services, Defence, Fire Services and other disciplined services</li>
+        <li>Statutory authorities and state-owned enterprises</li>
+      </ul>
     </div>
   </div>
 </section>
 
 <!-- Contact strip -->
-<section class="section">
-  <div class="container">
-    <div class="section-head reveal">
-      <span class="eyebrow"><i class="bi bi-chat-dots-fill"></i> Say hello</span>
-      <h2>Talk to the MOROMA team</h2>
-      <p>We're happy to answer any question about our loans, your application or your account.</p>
+<section class="mf-sec">
+  <div class="mf-wrap">
+    <div class="mf-head-row rv">
+      <span class="mf-num">06 /</span>
+      <h2 class="mf-h2">Say hello</h2>
     </div>
-    <div class="grid grid-3">
-      <div class="card reveal" style="text-align:center;">
-        <div class="ic" style="margin:0 auto 1.1rem;"><i class="bi bi-envelope-fill"></i></div>
-        <h3>Email</h3>
-        <p><a href="mailto:sales@moromafinance.com.pg" class="text-green">sales@moromafinance.com.pg</a></p>
-      </div>
-      <div class="card accent reveal" style="text-align:center;">
-        <div class="ic" style="margin:0 auto 1.1rem;"><i class="bi bi-telephone-fill"></i></div>
-        <h3>Phone</h3>
-        <p><a href="tel:+67570107473" class="text-green">7010 7473</a> &nbsp;/&nbsp; <a href="tel:+67583029377" class="text-green">8302 9377</a></p>
-      </div>
-      <div class="card reveal" style="text-align:center;">
-        <div class="ic" style="margin:0 auto 1.1rem;"><i class="bi bi-geo-alt-fill"></i></div>
-        <h3>Head Office</h3>
-        <p>P.O Box 489, Boroko Food World (Gordons),<br>N.C.D, Port Moresby, PNG</p>
-      </div>
+    <div class="rv">
+      <div class="mf-contactrow"><span class="k">Email</span><span class="v"><a href="mailto:sales@moromafinance.com.pg">sales@moromafinance.com.pg</a></span></div>
+      <div class="mf-contactrow"><span class="k">Phone</span><span class="v"><a href="tel:+67570107473">7010 7473</a> &nbsp;/&nbsp; <a href="tel:+67583029377">8302 9377</a></span></div>
+      <div class="mf-contactrow"><span class="k">Head Office</span><span class="v">P.O Box 489, Boroko Food World (Gordons)<small>N.C.D, Port Moresby, Papua New Guinea</small></span></div>
+      <div class="mf-contactrow" style="border-bottom:none;"><span class="k">Banz Branch</span><span class="v">Second Floor, Koime Kulup, Gar, Banz<small>Digicel/WhatsApp: 7174 5116</small></span></div>
     </div>
   </div>
 </section>

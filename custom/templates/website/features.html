@@ -1,14 +1,14 @@
 {% extends 'website/website_base.html' %}
 {% load static %}
 
-{% block title %}Our Loans — Personal Loans &amp; Refinancing | Moroma Finance{% endblock %}
+{% block title %}Our Loans — Personal, Refinancing &amp; Top-Up | Moroma Finance{% endblock %}
 {% block meta_desc %}Explore Moroma Finance loan services: personal loans from K500 to K5,000, refinancing and top-up loans, and special offers for trusted clients.{% endblock %}
 
 {% block hero %}
-<section class="page-hero">
-  <div class="container">
-    <span class="eyebrow"><i class="bi bi-wallet2"></i> Loan Services</span>
-    <h1>Loans built around your pay</h1>
+<section class="mf-phero">
+  <div class="mf-wrap">
+    <span class="mf-kick">Loan Services</span>
+    <h1 class="mf-h1">Loans built around<br>your <em>pay</em>.</h1>
     <p>Simple products, clear terms and repayments that fit your fortnight. Choose what suits you and apply from your phone.</p>
   </div>
 </section>
@@ -16,96 +16,94 @@
 
 {% block content %}
 
-<section class="section">
-  <div class="container">
-    <div class="grid grid-3">
-
-      <div class="card reveal">
-        <div class="ic"><i class="bi bi-cash-coin"></i></div>
+<!-- Products -->
+<section class="mf-sec">
+  <div class="mf-wrap">
+    <div class="mf-head-row rv">
+      <span class="mf-num">01 /</span>
+      <h2 class="mf-h2">Three ways to borrow</h2>
+    </div>
+    <div class="mf-cells mf-cells--3 rv">
+      <div class="mf-cell">
+        <span class="cell-no">PRODUCT / A</span>
         <h3>Personal Loan</h3>
         <p>Finance for approved personal, family, education, medical, emergency and other lawful needs. Apply online, get a decision fast and receive funds straight to your bank account.</p>
-        <ul class="checklist">
-          <li><i class="bi bi-check-circle-fill"></i> Borrow from <strong>K500 up to K5,000</strong></li>
-          <li><i class="bi bi-check-circle-fill"></i> Repayment set by our published repayment schedule</li>
-          <li><i class="bi bi-check-circle-fill"></i> Fortnightly repayments matched to your pay</li>
-          <li><i class="bi bi-check-circle-fill"></i> Same-day approval for eligible clients</li>
+        <ul class="mf-ticks" style="margin-top:1.1rem;">
+          <li>Borrow <b>K500 – K5,000</b></li>
+          <li>7 – 36 fortnights</li>
+          <li>Priced from the published schedule</li>
+          <li>Same-day approval for eligible clients</li>
         </ul>
-        <a href="{% url 'register' %}" class="btn-d btn-orange" style="margin-top:1.5rem;">Apply for a Personal Loan <i class="bi bi-arrow-right"></i></a>
+        <div class="mf-btnrow" style="margin-top:1.3rem;"><a href="{% url 'register' %}" class="mf-btn mf-btn--ink">Apply <i class="bi bi-arrow-right"></i></a></div>
       </div>
-
-      <div class="card reveal">
-        <div class="ic"><i class="bi bi-arrow-repeat"></i></div>
+      <div class="mf-cell mf-cell--gold">
+        <span class="cell-no">PRODUCT / B</span>
         <h3>Refinancing</h3>
-        <p>Refinancing for eligible clients — internal refinancing of your existing Moroma Finance loan, or external refinancing of a qualifying loan held with another finance company.</p>
-        <ul class="checklist">
-          <li><i class="bi bi-check-circle-fill"></i> Consolidate existing loans into one</li>
-          <li><i class="bi bi-check-circle-fill"></i> One repayment, one due date, less stress</li>
-          <li><i class="bi bi-check-circle-fill"></i> Free up room in your fortnightly budget</li>
-          <li><i class="bi bi-check-circle-fill"></i> Subject to credit assessment, settlement verification and approval</li>
+        <p>Internal refinancing of your existing Moroma Finance loan, or external refinancing of a qualifying loan held with another finance company.</p>
+        <ul class="mf-ticks" style="margin-top:1.1rem;">
+          <li>Consolidate loans into one</li>
+          <li>One repayment, one due date</li>
+          <li>Free up your fortnightly budget</li>
+          <li>Subject to credit assessment &amp; settlement verification</li>
         </ul>
-        <a href="{% url 'contact' %}" class="btn-d btn-green" style="margin-top:1.5rem;">Talk to us about refinancing <i class="bi bi-arrow-right"></i></a>
+        <div class="mf-btnrow" style="margin-top:1.3rem;"><a href="{% url 'contact' %}" class="mf-btn">Talk to us <i class="bi bi-arrow-right"></i></a></div>
       </div>
-
-      <div class="card reveal">
-        <div class="ic"><i class="bi bi-plus-circle-fill"></i></div>
+      <div class="mf-cell">
+        <span class="cell-no">PRODUCT / C</span>
         <h3>Top-Up Loans</h3>
         <p>Additional finance for eligible existing clients, subject to your repayment performance and our current credit policy.</p>
-        <ul class="checklist">
-          <li><i class="bi bi-check-circle-fill"></i> For existing clients with a good repayment record</li>
-          <li><i class="bi bi-check-circle-fill"></i> Top up without starting from scratch</li>
-          <li><i class="bi bi-check-circle-fill"></i> Same transparent repayment schedule</li>
+        <ul class="mf-ticks" style="margin-top:1.1rem;">
+          <li>For clients with a good repayment record</li>
+          <li>Top up without starting over</li>
+          <li>Same transparent schedule</li>
         </ul>
-        <a href="{% url 'contact' %}" class="btn-d btn-green" style="margin-top:1.5rem;">Ask about a top-up <i class="bi bi-arrow-right"></i></a>
+        <div class="mf-btnrow" style="margin-top:1.3rem;"><a href="{% url 'contact' %}" class="mf-btn">Ask about a top-up <i class="bi bi-arrow-right"></i></a></div>
       </div>
-
     </div>
   </div>
 </section>
 
-<!-- Special offers -->
-<section class="section bg-soft">
-  <div class="container split">
-    <div class="reveal">
-      <span class="eyebrow"><i class="bi bi-gift-fill"></i> Special Offers</span>
-      <h2 style="font-size:clamp(1.8rem,3.6vw,2.5rem); margin:1rem 0 .8rem;">Become a trusted client, unlock more</h2>
-      <p class="text-muted2">At Moroma Finance, loyalty counts. Repay well and you become a <strong>trusted client</strong> — which opens the door to our best offers.</p>
-      <ul class="checklist">
-        <li><i class="bi bi-star-fill" style="color:var(--d-orange)"></i> Priority approval on your next loan</li>
-        <li><i class="bi bi-star-fill" style="color:var(--d-orange)"></i> Access to higher borrowing limits</li>
-        <li><i class="bi bi-star-fill" style="color:var(--d-orange)"></i> Exclusive seasonal offers for repeat clients</li>
-        <li><i class="bi bi-star-fill" style="color:var(--d-orange)"></i> A dedicated point of contact</li>
+<!-- Trusted clients -->
+<section class="mf-sec mf-sec--ink">
+  <div class="mf-wrap mf-split">
+    <div class="rv">
+      <span class="mf-kick">02 · Special offers</span>
+      <h2 class="mf-h2" style="color:#fff;">Become a trusted client, <em style="color:var(--mf-gold-hot);">unlock more</em></h2>
+      <p style="color:rgba(234,243,236,.78); max-width:52ch;">At Moroma Finance, loyalty counts. Repay well and you become a <b>trusted client</b> — which opens the door to our best offers.</p>
+      <p style="font-family:var(--mf-mono); font-size:.72rem; letter-spacing:.1em; color:rgba(234,243,236,.6); margin-top:1.4rem;">T&amp;C APPLY · OFFERS AT THE DISCRETION OF MOROMA FINANCE LTD</p>
+    </div>
+    <div class="rv">
+      <ul class="mf-ticks">
+        <li>Priority approval on your next loan</li>
+        <li>Access to higher borrowing limits</li>
+        <li>Exclusive seasonal offers for repeat clients</li>
+        <li>A dedicated point of contact</li>
       </ul>
-      <p class="text-muted2" style="margin-top:1rem; font-size:.86rem;"><em>Terms &amp; conditions apply. Offers are at the discretion of Moroma Finance Ltd.</em></p>
-    </div>
-    <div class="reveal">
-      <div class="rateband">
-        <span class="eyebrow on-orange">Trusted client benefits</span>
-        <h2 style="color:#fff; margin:1rem 0 .6rem;">"Become a trusted Client to benefit from our special offers."</h2>
-        <p style="opacity:.92; margin:0 0 1.6rem;">It starts with your first loan. Apply today and build your history with us.</p>
-        <a href="{% url 'register' %}" class="btn-d btn-white">Get started <i class="bi bi-arrow-right"></i></a>
+      <div class="mf-btnrow mf-mt">
+        <a href="{% url 'clients' %}" class="mf-btn mf-btn--gold">Trusted client benefits <i class="bi bi-arrow-right"></i></a>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Eligibility -->
-<section class="section">
-  <div class="container">
-    <div class="section-head reveal">
-      <span class="eyebrow"><i class="bi bi-clipboard-check"></i> Eligibility</span>
-      <h2>What you'll need to apply</h2>
-      <p>Have these ready and your application will move quickly.</p>
+<!-- Requirements -->
+<section class="mf-sec">
+  <div class="mf-wrap">
+    <div class="mf-head-row rv">
+      <span class="mf-num">03 /</span>
+      <h2 class="mf-h2">What you'll need to apply</h2>
     </div>
-    <div class="grid grid-3">
-      <div class="card reveal"><div class="ic"><i class="bi bi-file-earmark-text"></i></div><h3>Application form</h3><p>A completed and signed Moroma Finance loan application form.</p></div>
-      <div class="card reveal"><div class="ic"><i class="bi bi-person-badge"></i></div><h3>Identification</h3><p>A copy of your current work ID card, plus acceptable ID (NID or driver's licence).</p></div>
-      <div class="card reveal"><div class="ic"><i class="bi bi-receipt"></i></div><h3>Two latest payslips</h3><p>So we can confirm your salary and repayment capacity.</p></div>
-      <div class="card reveal"><div class="ic"><i class="bi bi-file-earmark-check"></i></div><h3>Pay Variation Advice</h3><p>A completed Employee/Pay Variation Advice (PVA) from your payroll.</p></div>
-      <div class="card reveal"><div class="ic"><i class="bi bi-briefcase"></i></div><h3>Employment confirmation</h3><p>A letter from your Senior Payroll Officer or HR Manager confirming your salary and repayment capability.</p></div>
-      <div class="card reveal"><div class="ic"><i class="bi bi-bank"></i></div><h3>Bank statement</h3><p>Your payroll account statement for the last 2–3 months.</p></div>
+    <div class="mf-ledger rv">
+      <div class="mf-lrow"><span class="idx">01</span><h3>Application form</h3><p>A completed and signed Moroma Finance loan application form.</p><span class="go"><i class="bi bi-file-earmark-text"></i></span></div>
+      <div class="mf-lrow"><span class="idx">02</span><h3>Identification</h3><p>A copy of your current work ID card, plus acceptable ID (NID or driver's licence).</p><span class="go"><i class="bi bi-person-badge"></i></span></div>
+      <div class="mf-lrow"><span class="idx">03</span><h3>Two latest payslips</h3><p>So we can confirm your salary and repayment capacity.</p><span class="go"><i class="bi bi-receipt"></i></span></div>
+      <div class="mf-lrow"><span class="idx">04</span><h3>Pay Variation Advice</h3><p>A completed Employee/Pay Variation Advice (PVA) from your payroll.</p><span class="go"><i class="bi bi-file-earmark-check"></i></span></div>
+      <div class="mf-lrow"><span class="idx">05</span><h3>Employment confirmation</h3><p>A letter from your Senior Payroll Officer or HR Manager confirming your salary and repayment capability.</p><span class="go"><i class="bi bi-briefcase"></i></span></div>
+      <div class="mf-lrow"><span class="idx">06</span><h3>Bank statement</h3><p>Your payroll account statement for the last 2–3 months.</p><span class="go"><i class="bi bi-bank"></i></span></div>
     </div>
-    <div style="text-align:center; margin-top:2.5rem;">
-      <a href="{% url 'register' %}" class="btn-d btn-orange btn-lg">Apply Now <i class="bi bi-arrow-right"></i></a>
+    <div class="mf-btnrow mf-mt rv">
+      <a href="{% url 'register' %}" class="mf-btn mf-btn--gold mf-btn--lg">Apply Now <i class="bi bi-arrow-right"></i></a>
+      <a href="{% url 'rates' %}" class="mf-btn mf-btn--lg">Check the rates first</a>
     </div>
   </div>
 </section>

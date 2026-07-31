@@ -1,194 +1,177 @@
 {% extends 'website/website_base.html' %}
 {% load static %}
 
-{% block title %}Moroma Finance Ltd — Your Local Finance Partner{% endblock %}
-{% block meta_desc %}Moroma Finance Ltd is your local finance partner, providing quick, reliable and accessible finance solutions for your urgent needs. Same-day approvals, flexible repayment terms, lowest interest rates.{% endblock %}
+{% block title %}Moroma Finance Ltd — Personal Loans for PNG's Salaried Workforce{% endblock %}
+{% block meta_desc %}Moroma Finance Ltd provides accessible, responsible personal loans from K500 to K5,000 for eligible salaried employees across Papua New Guinea. Same-day approvals, repayments matched to your fortnightly pay.{% endblock %}
 
 {% block hero %}
-<section class="hero">
-  <span class="blob blob-orange"></span>
-  <span class="blob blob-green"></span>
-  <div class="container hero-grid">
-    <div class="hero-copy">
-      <span class="eyebrow"><i class="bi bi-shield-check"></i> Moroma Finance Ltd</span>
-      <h1>Your local <span class="u">finance partner</span>.</h1>
-      <p class="hero-lead">Quick, reliable and accessible finance solutions for your urgent needs — same-day approvals, flexible repayment terms and no unnecessary fees. Serving Port Moresby, Mt Hagen, Mendi, Madang, Banz and Goroka.</p>
-      <div class="hero-actions">
-        <a href="{% url 'register' %}" class="btn-d btn-orange btn-lg">Apply for a Loan <i class="bi bi-arrow-right"></i></a>
-        <a href="{% url 'features' %}" class="btn-d btn-ghost btn-lg">View Loan Options</a>
-      </div>
-      <div class="hero-trust">
-        <span><i class="bi bi-check-circle-fill"></i> Same-day approvals</span>
-        <span><i class="bi bi-check-circle-fill"></i> Flexible repayment terms</span>
-        <span><i class="bi bi-check-circle-fill"></i> No unnecessary fees &amp; charges</span>
+<section class="mf-hero">
+  <div class="mf-wrap">
+    <div class="rv">
+      <span class="mf-kick">Moroma Finance Ltd · Est. Papua New Guinea</span>
+      <h1 class="mf-h1">Your pay,<br>working <span class="mf-underline">harder</span><br>for you.</h1>
+      <p class="mf-lede">Personal loans from <b>K500 to K5,000</b> for eligible salaried employees — assessed responsibly, approved the same day, repaid in fortnightly instalments that match your pay cycle.</p>
+      <div class="mf-btnrow">
+        <a href="{% url 'register' %}" class="mf-btn mf-btn--ink mf-btn--lg">Apply for a Loan <i class="bi bi-arrow-right"></i></a>
+        <a href="{% url 'rates' %}" class="mf-btn mf-btn--lg">Repayment Schedule</a>
       </div>
     </div>
 
-    <div class="hero-art">
-      <div class="hero-disc"><img src="{% static 'clientfiles/moroma_logo.svg' %}" alt="Moroma Finance"></div>
-      <div class="chip chip-1 green"><i class="bi bi-cash-stack"></i><span><span class="lbl">Personal Loan</span><span class="val">K500 – K5,000</span></span></div>
-      <div class="chip chip-2 orange"><i class="bi bi-lightning-charge-fill"></i><span><span class="lbl">Approval</span><span class="val">Same day</span></span></div>
-      <div class="chip chip-3 green"><i class="bi bi-phone"></i><span><span class="lbl">Apply from</span><span class="val">Your phone</span></span></div>
+    <!-- Sample pay advice -->
+    <div class="mf-slip rv hero-figure">
+      <div class="mf-stamp">Approved</div>
+      <div class="mf-slip__head"><span>Pay Advice — Sample</span><span>MFL-2026</span></div>
+      <div class="mf-slip__row"><span>Loan amount</span><span class="mf-dots"></span><span class="v">K2,000.00</span></div>
+      <div class="mf-slip__row"><span>Term</span><span class="mf-dots"></span><span class="v">12 fortnights</span></div>
+      <div class="mf-slip__row"><span>Interest</span><span class="mf-dots"></span><span class="v">K960.04</span></div>
+      <div class="mf-slip__total"><span>Fortnightly deduction</span><span class="mf-dots"></span><span class="v">K246.67</span></div>
+      <p style="font-family:var(--mf-mono); font-size:.66rem; letter-spacing:.08em; color:var(--mf-ink-60); margin:1rem 0 0;">PER PUBLISHED REPAYMENT SCHEDULE · EFFECTIVE 1 DEC 2025</p>
     </div>
   </div>
 </section>
+
+<!-- Branch ticker -->
+<div class="mf-ticker" aria-hidden="true">
+  <div class="mf-ticker__track">
+    <span>Port Moresby <b>·</b> Head Office</span><span>Mt Hagen</span><span>Mendi</span><span>Madang</span><span>Banz <b>·</b> 7174 5116</span><span>Goroka</span><span>Sales <b>7010 7473</b></span><span>Same-day approvals</span><span>K500 – K5,000</span><span>7 – 36 fortnights</span>
+    <span>Port Moresby <b>·</b> Head Office</span><span>Mt Hagen</span><span>Mendi</span><span>Madang</span><span>Banz <b>·</b> 7174 5116</span><span>Goroka</span><span>Sales <b>7010 7473</b></span><span>Same-day approvals</span><span>K500 – K5,000</span><span>7 – 36 fortnights</span>
+  </div>
+</div>
 {% endblock %}
 
 {% block content %}
 
-<!-- Trust strip -->
-<div class="strip">
-  <div class="container strip-inner">
-    <span><i class="bi bi-geo-alt-fill"></i> Proudly Papua New Guinean</span>
-    <span><i class="bi bi-people-fill"></i> Trusted by working Papua New Guineans</span>
-    <span><i class="bi bi-lock-fill"></i> Safe &amp; confidential</span>
-  </div>
-</div>
-
-<!-- Loan services -->
-<section class="section">
-  <div class="container">
-    <div class="section-head reveal">
-      <span class="eyebrow"><i class="bi bi-wallet2"></i> Loan Services</span>
-      <h2>Money when you need it, on terms that work</h2>
-      <p>Whatever the reason — school fees, an emergency, or consolidating what you owe — Moroma Finance has a loan for you.</p>
-    </div>
-
-    <div class="grid grid-4">
-      <div class="card reveal">
-        <div class="ic"><i class="bi bi-cash-coin"></i></div>
-        <h3>Personal Loan</h3>
-        <p>Quick cash for life's needs — school fees, medical, travel or the unexpected. Simple, honest and fast.</p>
-        <a href="{% url 'features' %}" class="more">Learn more <i class="bi bi-arrow-right"></i></a>
-      </div>
-      <div class="card reveal">
-        <div class="ic"><i class="bi bi-arrow-repeat"></i></div>
-        <h3>Refinancing</h3>
-        <p>Roll your existing loans into one manageable repayment and free up your fortnightly pay.</p>
-        <a href="{% url 'features' %}" class="more">Learn more <i class="bi bi-arrow-right"></i></a>
-      </div>
-      <div class="card reveal">
-        <div class="ic"><i class="bi bi-table"></i></div>
-        <h3>Set Repayments</h3>
-        <p>Your fortnightly repayment is read straight from our published repayment schedule — check it before you apply.</p>
-        <a href="{% url 'rates' %}" class="more">See the schedule <i class="bi bi-arrow-right"></i></a>
-      </div>
-      <div class="card accent reveal">
-        <div class="ic"><i class="bi bi-gift-fill"></i></div>
-        <h3>Special Offers</h3>
-        <p>Become a trusted client and unlock better rates, bigger limits and priority approval. <em>T&amp;C apply.</em></p>
-        <a href="{% url 'clients' %}" class="more">Trusted clients <i class="bi bi-arrow-right"></i></a>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- How it works -->
-<section class="section bg-soft">
-  <div class="container">
-    <div class="section-head reveal">
-      <span class="eyebrow"><i class="bi bi-list-check"></i> How it works</span>
-      <h2>Approved in three simple steps</h2>
-      <p>No long queues, no piles of paperwork. Apply from your phone and get a decision fast.</p>
+<section class="mf-sec">
+  <div class="mf-wrap">
+    <div class="mf-head-row rv">
+      <span class="mf-num">01 /</span>
+      <h2 class="mf-h2">How it works</h2>
     </div>
-    <div class="grid grid-3 steps">
-      <div class="step reveal">
-        <h4>Register &amp; apply</h4>
-        <p>Create your Moroma Finance account and complete a short application online — it only takes minutes.</p>
+    <div class="mf-ledger rv">
+      <div class="mf-lrow">
+        <span class="idx">01</span>
+        <h3>Register online</h3>
+        <p>Create your account and complete your profile — employment, income and bank details — right from your phone.</p>
+        <span class="go"><i class="bi bi-arrow-right"></i></span>
       </div>
-      <div class="step reveal">
-        <h4>Get approved</h4>
-        <p>We review your details and repayment capacity, then confirm your loan amount and fortnightly repayment.</p>
+      <div class="mf-lrow">
+        <span class="idx">02</span>
+        <h3>We verify</h3>
+        <p>Head Office confirms your identity, employment and payroll details, and assesses what you can comfortably repay.</p>
+        <span class="go"><i class="bi bi-arrow-right"></i></span>
       </div>
-      <div class="step reveal">
-        <h4>Receive your cash</h4>
-        <p>Funds are paid straight to your bank account, and repayments are made easily from your pay.</p>
+      <div class="mf-lrow">
+        <span class="idx">03</span>
+        <h3>Choose your loan</h3>
+        <p>Pick your amount and term. Your fortnightly repayment comes straight from our published schedule — no surprises.</p>
+        <span class="go"><i class="bi bi-arrow-right"></i></span>
+      </div>
+      <div class="mf-lrow">
+        <span class="idx">04</span>
+        <h3>Funds in your account</h3>
+        <p>Eligible clients are approved the same day. Funds go straight to your bank account and deductions begin next pay.</p>
+        <span class="go"><i class="bi bi-arrow-right"></i></span>
       </div>
     </div>
-    <div style="text-align:center; margin-top:2.5rem;">
-      <a href="{% url 'register' %}" class="btn-d btn-green btn-lg">Start your application <i class="bi bi-arrow-right"></i></a>
-    </div>
-  </div>
-</section>
-
-<!-- Rate highlight -->
-<section class="section">
-  <div class="container">
-    <div class="rateband split reveal">
-      <div>
-        <span class="eyebrow on-orange">Simple &amp; transparent</span>
-        <h2 style="color:#fff; margin:1rem 0 .6rem; font-size:clamp(1.7rem,3.6vw,2.4rem);">Know your repayment before you apply.</h2>
-        <p style="opacity:.92; margin:0; max-width:46ch;">Every MOROMA loan is priced from our published repayment schedule. What you pay depends on how much you borrow and how many fortnights you take — a longer term costs more interest. Slide to your amount and term and see the exact figures.</p>
-      </div>
-      <div style="text-align:center; position:relative;">
-        <i class="bi bi-calculator" style="font-size:3.6rem; color:var(--d-orange-300);"></i>
-        <div style="font-family:var(--font-head); font-weight:600; letter-spacing:.05em; opacity:.9; margin-top:.6rem;">REPAYMENT CALCULATOR</div>
-        <a href="{% url 'rates' %}#calculator" class="btn-d btn-white" style="margin-top:1.4rem;">Work out your repayment</a>
-      </div>
+    <div class="mf-btnrow mf-mt rv">
+      <a href="{% url 'features' %}" class="mf-btn">See loan options <i class="bi bi-arrow-right"></i></a>
     </div>
   </div>
 </section>
 
-<!-- Why MOROMA -->
-<section class="section bg-cream">
-  <div class="container split">
-    <div class="reveal">
-      <span class="eyebrow"><i class="bi bi-heart-fill"></i> Why Moroma Finance</span>
-      <h2 style="font-size:clamp(1.8rem,3.6vw,2.6rem); margin:1rem 0 .8rem;">A lender that treats you like a person, not a number</h2>
-      <p class="text-muted2">Moroma Finance Ltd is a Papua New Guinean company built on trust. We keep lending simple, fair and fast — so you can get on with life.</p>
-      <ul class="checklist">
-        <li><i class="bi bi-check-circle-fill"></i> Same-day approvals for eligible clients</li>
-        <li><i class="bi bi-check-circle-fill"></i> Flexible repayment terms that fit your fortnightly pay</li>
-        <li><i class="bi bi-check-circle-fill"></i> Lowest interest rates, no unnecessary fees &amp; charges</li>
-        <li><i class="bi bi-check-circle-fill"></i> A friendly local team across six branches nationwide</li>
-        <li><i class="bi bi-check-circle-fill"></i> Your information kept private and secure</li>
+<!-- Products -->
+<section class="mf-sec mf-sec--paper2">
+  <div class="mf-wrap">
+    <div class="mf-head-row rv">
+      <span class="mf-num">02 /</span>
+      <h2 class="mf-h2">Loans we write</h2>
+    </div>
+    <div class="mf-cells mf-cells--3 rv">
+      <div class="mf-cell">
+        <span class="cell-no">PRODUCT / A</span>
+        <h3>Personal Loan</h3>
+        <p>Finance for approved personal, family, education, medical, emergency and other lawful needs. K500–K5,000 over 7–36 fortnights.</p>
+        <div class="mf-btnrow" style="margin-top:1.2rem;"><a href="{% url 'features' %}" class="mf-btn">Details</a></div>
+      </div>
+      <div class="mf-cell mf-cell--gold">
+        <span class="cell-no">PRODUCT / B</span>
+        <h3>Refinancing</h3>
+        <p>Internal refinancing of your Moroma loan, or external refinancing of a qualifying loan with another finance company.</p>
+        <div class="mf-btnrow" style="margin-top:1.2rem;"><a href="{% url 'features' %}" class="mf-btn">Details</a></div>
+      </div>
+      <div class="mf-cell">
+        <span class="cell-no">PRODUCT / C</span>
+        <h3>Top-Up Loans</h3>
+        <p>Additional finance for existing clients with a good repayment record — subject to our current credit policy.</p>
+        <div class="mf-btnrow" style="margin-top:1.2rem;"><a href="{% url 'features' %}" class="mf-btn">Details</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Numbers + why -->
+<section class="mf-sec">
+  <div class="mf-wrap mf-split">
+    <div class="rv">
+      <span class="mf-kick">Why Moroma</span>
+      <h2 class="mf-h2">A lender that treats you like a <em>person</em>, not a number</h2>
+      <p class="mf-lede">We combine local branch service with centralised credit control — so every decision is fast, consistent and accountable.</p>
+      <ul class="mf-ticks">
+        <li>Same-day approvals for eligible clients</li>
+        <li>Repayments priced from our published schedule — shown in full before you sign</li>
+        <li>Fortnightly deductions matched to your pay cycle</li>
+        <li>Six branches, one accountable Head Office</li>
+        <li>Your personal, payroll and banking information kept confidential</li>
       </ul>
-      <a href="{% url 'about' %}" class="btn-d btn-green" style="margin-top:1.6rem;">About Moroma Finance</a>
+      <div class="mf-btnrow mf-mt">
+        <a href="{% url 'about' %}" class="mf-btn">About the company <i class="bi bi-arrow-right"></i></a>
+      </div>
     </div>
-    <div class="reveal">
-      <div class="rateband" style="background:linear-gradient(135deg,var(--d-green-700),var(--d-green));">
-        <div class="stat-row" style="margin:0;">
-          <div class="stat"><div class="n" style="color:var(--d-orange-300)">K5,000</div><div class="l" style="color:#cfe6d7">Loan up to</div></div>
-          <div class="stat"><div class="n" style="color:var(--d-orange-300)">Same day</div><div class="l" style="color:#cfe6d7">Approvals</div></div>
-          <div class="stat"><div class="n" style="color:var(--d-orange-300)">100%</div><div class="l" style="color:#cfe6d7">Online</div></div>
-        </div>
-        <p style="color:#eafaef; margin:1.6rem 0 0; font-size:.98rem; position:relative;">
-          <i class="bi bi-quote" style="color:var(--d-orange-300); font-size:1.4rem;"></i>
-          Becoming a trusted MOROMA client meant faster approvals and better offers each time. Applying from my phone made it so easy.
-        </p>
-        <div style="margin-top:1rem; font-family:var(--font-head); font-weight:600; color:#fff; position:relative;">— A Moroma Finance client, Port Moresby</div>
+    <div class="rv">
+      <div class="mf-stats">
+        <div class="mf-stat"><div class="n">K5,000</div><div class="l">Maximum loan</div></div>
+        <div class="mf-stat"><div class="n">Same day</div><div class="l">Approvals</div></div>
+        <div class="mf-stat"><div class="n">6</div><div class="l">Branches nationwide</div></div>
+      </div>
+      <div class="mf-slip" style="margin-top:2rem;">
+        <div class="mf-slip__head"><span>Client note</span><span>Verified</span></div>
+        <blockquote class="mf-quote" style="font-size:1.25rem;">"They told me exactly what I'd repay before I signed. That honesty is why I keep coming back."</blockquote>
+        <div class="mf-quote-attr">— Trusted client · Port Moresby</div>
       </div>
     </div>
   </div>
 </section>
 
 <!-- FAQ -->
-<section class="section">
-  <div class="container">
-    <div class="section-head reveal">
-      <span class="eyebrow"><i class="bi bi-question-circle"></i> FAQ</span>
-      <h2>Questions, answered</h2>
+<section class="mf-sec mf-sec--paper2">
+  <div class="mf-wrap">
+    <div class="mf-head-row rv">
+      <span class="mf-num">03 /</span>
+      <h2 class="mf-h2">Questions, answered</h2>
     </div>
-    <div class="faq">
-      <details class="qa reveal"><summary>Who can apply for a Moroma Finance loan?</summary><p>Employed Papua New Guineans with a regular income can apply. Create an account, complete your profile and we'll assess your eligibility and repayment capacity.</p></details>
-      <details class="qa reveal"><summary>How much can I borrow?</summary><p>Personal loans range from K500 up to K5,000. Trusted clients with a good repayment history may qualify for higher limits and special offers.</p></details>
-      <details class="qa reveal"><summary>How do repayments work?</summary><p>Repayments are made in fortnightly instalments aligned to your pay cycle, so they stay manageable. You'll see the full repayment schedule before you accept your loan.</p></details>
-      <details class="qa reveal"><summary>What is the interest rate?</summary><p>Interest is set by our published Moroma Finance repayment schedule, not by a single flat rate. It depends on how much you borrow and how many fortnights you repay over — the longer the term, the more interest you pay. Use the calculator on our <a href="{% url 'rates' %}#calculator" class="text-green">Rates &amp; Fees</a> page to see the exact fortnightly repayment and total repayable for your combination before you apply.</p></details>
-      <details class="qa reveal"><summary>What do I need to apply?</summary><p>You'll need employment confirmation, two valid IDs (Work ID, NID or Driver's License) and a filled &amp; signed loan application form. Register online and our team will guide you through it.</p></details>
-      <details class="qa reveal"><summary>How long does approval take?</summary><p>Eligible clients can be approved the same day. Once approved, funds are paid directly into your bank account.</p></details>
+    <div class="mf-faq rv">
+      <details class="mf-q"><summary>Who can apply for a Moroma Finance loan?</summary><p>Eligible salaried employees — principally public-sector staff (departments, PHAs, schools, disciplined services, statutory authorities) and approved private organisations. Create an account, complete your profile and we'll assess your eligibility and repayment capacity.</p></details>
+      <details class="mf-q"><summary>How much can I borrow?</summary><p>Personal loans range from K500 up to K5,000 in K50 steps, over 7 to 36 fortnights. Trusted clients with a good repayment history may qualify for higher limits and special offers.</p></details>
+      <details class="mf-q"><summary>How do repayments work?</summary><p>Repayments are fortnightly instalments deducted in line with your pay cycle, via payroll deduction or standing order. You'll see the full schedule before you accept your loan.</p></details>
+      <details class="mf-q"><summary>What is the interest rate?</summary><p>Interest is set by our published repayment schedule, not a single flat rate. It depends on the amount and the term — use the calculator on our <a href="{% url 'rates' %}#calculator" class="text-green">Rates</a> page to see your exact fortnightly repayment before you apply.</p></details>
+      <details class="mf-q"><summary>What do I need to apply?</summary><p>A completed application form, two latest payslips, a Pay Variation Advice (PVA), an employment confirmation letter, your work ID and a 2–3 month bank statement. Register online and our team will guide you through it.</p></details>
+      <details class="mf-q"><summary>How long does approval take?</summary><p>Eligible clients can be approved the same day. Once approved, funds are paid directly into your bank account.</p></details>
     </div>
   </div>
 </section>
 
 <!-- CTA -->
-<section class="section">
-  <div class="container">
-    <div class="cta reveal">
-      <h2>Ready to become a trusted MOROMA client?</h2>
-      <p>Apply in minutes and take the first step toward faster approvals, better offers and cash when you need it.</p>
-      <div class="hero-actions">
-        <a href="{% url 'register' %}" class="btn-d btn-white btn-lg">Apply Now <i class="bi bi-arrow-right"></i></a>
-        <a href="{% url 'contact' %}" class="btn-d btn-lg" style="background:rgba(255,255,255,.15); color:#fff; border-color:rgba(255,255,255,.45);">Talk to us</a>
+<section class="mf-sec">
+  <div class="mf-wrap">
+    <div class="mf-cta rv">
+      <div class="mf-zig mf-zig--thin zig-top"></div>
+      <span class="mf-kick">Ready when you are</span>
+      <h2 class="mf-h2">See your real numbers before you commit.</h2>
+      <p>Apply online and we'll show you your exact repayment schedule up front. No fine print, no surprises — that's the Moroma way.</p>
+      <div class="mf-btnrow mf-mt">
+        <a href="{% url 'register' %}" class="mf-btn mf-btn--gold mf-btn--lg">Apply Now <i class="bi bi-arrow-right"></i></a>
+        <a href="{% url 'contact' %}" class="mf-btn mf-btn--ghostLight mf-btn--lg">Ask a question</a>
       </div>
     </div>
   </div>

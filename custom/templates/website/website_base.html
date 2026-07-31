@@ -5,16 +5,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Moroma Finance Ltd — Your Local Finance Partner in PNG{% endblock %}</title>
-  <meta name="description" content="{% block meta_desc %}Moroma Finance Ltd is your local finance partner in Papua New Guinea — same-day approvals, flexible repayment terms and the lowest interest rates. Port Moresby & Banz.{% endblock %}">
-  <meta name="keywords" content="personal loan PNG, cash loan Papua New Guinea, Moroma Finance, payday loan Port Moresby, Banz finance, fast loan approval PNG">
+  <meta name="description" content="{% block meta_desc %}Moroma Finance Ltd is your local finance partner in Papua New Guinea — accessible, responsible lending for salaried employees, with branches in Port Moresby, Mt Hagen, Mendi, Madang, Banz and Goroka.{% endblock %}">
+  <meta name="keywords" content="personal loan PNG, cash loan Papua New Guinea, Moroma Finance, payroll loan Port Moresby, salary deduction loan PNG, fast loan approval PNG">
 
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="{% static 'img/moroma_favicon.svg' %}">
 
-  <!-- Fonts: Poppins (headings) + DM Sans (body) — distinct MOROMA type system -->
+  <!-- Type: Fraunces (display serif) · Archivo (text) · IBM Plex Mono (figures) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Fraunces:ital,wght@0,480;0,560;0,640;1,480;1,560&family=IBM+Plex+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 
   <!-- Bootstrap Icons (icon font only) -->
   <link href="{% static 'website/bizland/assets/vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
@@ -32,26 +32,38 @@
 </head>
 <body>
 
-  <!-- ======= Navbar ======= -->
-  <header class="d-nav" id="dNav">
-    <div class="container d-nav-inner">
-      <a class="d-brand" href="{% url 'home' %}" aria-label="Moroma Finance home">
-        <img class="d-logo" src="{% static 'clientfiles/moroma_logo.svg' %}" alt="Moroma Finance">
+  <!-- ======= Utility strip ======= -->
+  <div class="mf-topstrip">
+    <div class="mf-wrap">
+      <span class="ts-left">Your True Partner for a Better Tomorrow</span>
+      <span class="ts-right">Sales <a href="tel:+67570107473">7010 7473</a> &nbsp;·&nbsp; <a href="mailto:sales@moromafinance.com.pg">sales@moromafinance.com.pg</a></span>
+    </div>
+  </div>
+
+  <!-- ======= Masthead ======= -->
+  <header class="mf-mast">
+    <div class="mf-wrap">
+      <a class="mf-brand" href="{% url 'home' %}" aria-label="Moroma Finance home">
+        <img src="{% static 'clientfiles/moroma_logo.svg' %}" alt="Moroma Finance">
+        <span>
+          <span class="b-name">Moroma Finance</span><br>
+          <span class="b-sub">Ltd · Papua New Guinea</span>
+        </span>
       </a>
 
-      <button class="d-nav-toggle" id="dNavToggle" aria-label="Menu"><i class="bi bi-list"></i></button>
+      <button class="mf-burger" id="mfBurger" aria-label="Menu"><i class="bi bi-list"></i></button>
 
-      <nav class="d-nav-menu" id="dNavMenu">
-        <ul class="d-nav-links">
-          <li><a class="{% if nav == 'home' %}active{% endif %}" href="{% url 'home' %}">Home</a></li>
-          <li><a class="{% if nav == 'features' %}active{% endif %}" href="{% url 'features' %}">Loans</a></li>
-          <li><a class="{% if nav == 'rates' %}active{% endif %}" href="{% url 'rates' %}">Rates &amp; Fees</a></li>
-          <li><a class="{% if nav == 'about' %}active{% endif %}" href="{% url 'about' %}">About</a></li>
-          <li><a class="{% if nav == 'contact' %}active{% endif %}" href="{% url 'contact' %}">Contact</a></li>
+      <nav class="mf-nav" id="mfNav">
+        <ul>
+          <li><a class="navlink {% if nav == 'home' %}active{% endif %}" href="{% url 'home' %}">Home</a></li>
+          <li><a class="navlink {% if nav == 'features' %}active{% endif %}" href="{% url 'features' %}">Loans</a></li>
+          <li><a class="navlink {% if nav == 'rates' %}active{% endif %}" href="{% url 'rates' %}">Rates</a></li>
+          <li><a class="navlink {% if nav == 'about' %}active{% endif %}" href="{% url 'about' %}">About</a></li>
+          <li><a class="navlink {% if nav == 'contact' %}active{% endif %}" href="{% url 'contact' %}">Contact</a></li>
         </ul>
-        <div class="d-nav-cta">
-          <a href="{% url 'login_user' %}" class="d-nav-login">Log in</a>
-          <a href="{% url 'register' %}" class="btn-d btn-orange">Apply Now</a>
+        <div class="mf-nav-cta">
+          <a href="{% url 'login_user' %}" class="login-link">Log in</a>
+          <a href="{% url 'register' %}" class="mf-btn mf-btn--gold">Apply Now</a>
         </div>
       </nav>
     </div>
@@ -61,9 +73,9 @@
 
   <main>
     {% if messages %}
-    <div class="container" style="padding-top:1.5rem;">
+    <div class="mf-wrap" style="padding-top:1.5rem;">
       {% for message in messages %}
-      <div class="d-alert d-alert-{{ message.tags }}">{{ message }}</div>
+      <div class="mf-alert mf-alert-{{ message.tags }}">{{ message }}</div>
       {% endfor %}
     </div>
     {% endif %}
@@ -72,81 +84,66 @@
   </main>
 
   <!-- ======= Footer ======= -->
-  <footer class="d-footer">
-    <div class="container">
-      <div class="f-grid">
-        <div class="f-about">
-          <a class="d-brand d-brand-onDark" href="{% url 'home' %}">
-            <img class="d-logo" src="{% static 'clientfiles/moroma_logo.svg' %}" alt="Moroma Finance">
-          </a>
-          <p>Your local finance partner — quick, reliable and accessible finance solutions for hard-working Papua New Guineans. Now serving Port Moresby and Banz.</p>
-          <div class="f-social">
-            <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
-            <a href="mailto:sales@moromafinance.com.pg" aria-label="Email"><i class="bi bi-envelope"></i></a>
-            <a href="tel:+67570107473" aria-label="Phone"><i class="bi bi-telephone"></i></a>
-          </div>
+  <footer class="mf-foot">
+    <div class="mf-zig zig"></div>
+    <div class="mf-wrap">
+      <div class="mf-foot__word">Moroma <em>Finance</em> Ltd</div>
+      <div class="mf-foot__grid">
+        <div>
+          <h5>The Company</h5>
+          <p style="font-size:.92rem; color:rgba(207,227,212,.8); margin:0 0 1rem;">Accessible, responsible, customer-focused finance for Papua New Guinea's salaried workforce. Head Office Port Moresby — branches in Mt Hagen, Mendi, Madang, Banz and Goroka.</p>
+          <a href="{% url 'register' %}" class="mf-btn mf-btn--gold">Become a Client</a>
         </div>
-
         <div>
           <h5>Loans</h5>
           <ul>
             <li><a href="{% url 'features' %}">Personal Loan</a></li>
             <li><a href="{% url 'features' %}">Refinancing</a></li>
-            <li><a href="{% url 'rates' %}">Rates &amp; Fees</a></li>
-            <li><a href="{% url 'clients' %}">Special Offers</a></li>
+            <li><a href="{% url 'features' %}">Top-Up Loans</a></li>
+            <li><a href="{% url 'rates' %}">Repayment Schedule</a></li>
           </ul>
         </div>
-
         <div>
           <h5>Company</h5>
           <ul>
             <li><a href="{% url 'about' %}">About Us</a></li>
-            <li><a href="{% url 'clients' %}">Testimonials</a></li>
+            <li><a href="{% url 'clients' %}">Trusted Clients</a></li>
             <li><a href="{% url 'dcc' %}">Responsible Lending</a></li>
             <li><a href="{% url 'contact' %}">Contact</a></li>
           </ul>
         </div>
-
         <div>
-          <h5>Get in touch</h5>
+          <h5>Head Office</h5>
           <div class="f-contact">
-            <div><i class="bi bi-envelope-fill"></i><span>sales@moromafinance.com.pg</span></div>
-            <div><i class="bi bi-telephone-fill"></i><span>7010 7473&nbsp; /&nbsp; 8302 9377</span></div>
-            <div><i class="bi bi-chat-fill"></i><span>Banz branch (Digicel/WhatsApp): 7174 5116</span></div>
             <div><i class="bi bi-geo-alt-fill"></i><span>P.O Box 489, Boroko Food World (Gordons), N.C.D, Port Moresby, PNG</span></div>
+            <div><i class="bi bi-telephone-fill"></i><span>7010 7473&nbsp; /&nbsp; 8302 9377</span></div>
+            <div><i class="bi bi-envelope-fill"></i><span>sales@moromafinance.com.pg</span></div>
+            <div><i class="bi bi-chat-fill"></i><span>Banz branch (Digicel/WhatsApp): 7174 5116</span></div>
           </div>
-          <a href="{% url 'register' %}" class="btn-d btn-orange" style="margin-top:1.1rem;">Become a Client</a>
         </div>
       </div>
-    </div>
-
-    <div class="f-bottom">
-      <div class="container">
-        <span>&copy; {% now "Y" %} Moroma Finance Ltd. All rights reserved.</span>
-        <span>Your Trusted Finance Partner · Port Moresby &amp; Banz, Papua New Guinea</span>
+      <div class="mf-foot__bar">
+        <span>&copy; {% now "Y" %} Moroma Finance Ltd · All rights reserved</span>
+        <span>Port Moresby · Mt Hagen · Mendi · Madang · Banz · Goroka</span>
       </div>
     </div>
   </footer>
 
-  <a href="#" class="btt" id="btt" aria-label="Back to top"><i class="bi bi-arrow-up-short"></i></a>
+  <a href="#" class="mf-btt" id="mfBtt" aria-label="Back to top"><i class="bi bi-arrow-up-short"></i></a>
 
   <script>
-    // Sticky nav shadow
-    var nav = document.getElementById('dNav');
+    var btt = document.getElementById('mfBtt');
     window.addEventListener('scroll', function () {
-      nav.classList.toggle('scrolled', window.scrollY > 16);
-      document.getElementById('btt').classList.toggle('show', window.scrollY > 420);
+      btt.classList.toggle('show', window.scrollY > 420);
     });
-    // Mobile menu
-    var t = document.getElementById('dNavToggle'), m = document.getElementById('dNavMenu');
-    t.addEventListener('click', function () { m.classList.toggle('open'); });
-    // Back to top
-    document.getElementById('btt').addEventListener('click', function (e) { e.preventDefault(); window.scrollTo({top:0,behavior:'smooth'}); });
-    // Reveal on scroll
+    document.getElementById('mfBurger').addEventListener('click', function () {
+      document.getElementById('mfNav').classList.toggle('open');
+    });
+    btt.addEventListener('click', function (e) { e.preventDefault(); window.scrollTo({top:0,behavior:'smooth'}); });
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
     }, { threshold: .12 });
-    document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
+    document.querySelectorAll('.rv').forEach(function (el) { io.observe(el); });
   </script>
 
   {% block extra_js %}{% endblock %}

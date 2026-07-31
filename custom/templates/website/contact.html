@@ -5,10 +5,10 @@
 {% block meta_desc %}Get in touch with Moroma Finance — email sales@moromafinance.com.pg or call 7010 7473 / 8302 9377. Head office Gordons, Port Moresby and Banz branch (7174 5116).{% endblock %}
 
 {% block hero %}
-<section class="page-hero">
-  <div class="container">
-    <span class="eyebrow"><i class="bi bi-chat-dots-fill"></i> Contact</span>
-    <h1>We're here to help</h1>
+<section class="mf-phero">
+  <div class="mf-wrap">
+    <span class="mf-kick">Contact</span>
+    <h1 class="mf-h1">We're here<br>to <em>help</em>.</h1>
     <p>Question about a loan, your application or your account? Reach out and our team will get back to you.</p>
   </div>
 </section>
@@ -16,91 +16,77 @@
 
 {% block content %}
 
-<section class="section">
-  <div class="container contact-grid">
+<section class="mf-sec">
+  <div class="mf-wrap mf-split">
 
     <!-- Details -->
-    <div class="reveal">
-      <h2 style="font-size:1.7rem; margin:0 0 .6rem;">Get in touch</h2>
-      <p class="text-muted2" style="margin-bottom:1.5rem;">Call or email us directly — we're quickest on the phone during business hours.</p>
+    <div class="rv">
+      <div class="mf-head-row">
+        <span class="mf-num">01 /</span>
+        <h2 class="mf-h2">Get in touch</h2>
+      </div>
+      <p class="mf-lede">Call or email us directly — we're quickest on the phone during business hours.</p>
 
-      <a class="contact-item" href="mailto:sales@moromafinance.com.pg">
-        <i class="bi bi-envelope-fill"></i>
-        <div><div class="k">Email us</div><div class="v">sales@moromafinance.com.pg</div></div>
-      </a>
-      <a class="contact-item" href="tel:+67570107473">
-        <i class="bi bi-telephone-fill"></i>
-        <div><div class="k">Call us</div><div class="v">7010 7473</div></div>
-      </a>
-      <a class="contact-item" href="tel:+67583029377">
-        <i class="bi bi-telephone-fill"></i>
-        <div><div class="k">Alternate line</div><div class="v">8302 9377</div></div>
-      </a>
-      <div class="contact-item">
-        <i class="bi bi-geo-alt-fill"></i>
-        <div><div class="k">Head Office — Port Moresby</div><div class="v">P.O Box 489, Boroko Food World (Gordons),<br>N.C.D, Port Moresby, PNG</div></div>
-      </div>
-      <div class="contact-item">
-        <i class="bi bi-geo-alt-fill"></i>
-        <div><div class="k">Banz Branch</div><div class="v">Second Floor, Koime Kulup, Gar, Banz,<br>along Main Road towards Banz from Kujip<br><a href="tel:+67571745116" class="text-green">Digicel/WhatsApp: 7174 5116</a></div></div>
-      </div>
-      <div class="contact-item" style="border-bottom:none;">
-        <i class="bi bi-clock-fill"></i>
-        <div><div class="k">Business hours</div><div class="v">Monday – Friday, 8:00am – 4:30pm</div></div>
-      </div>
+      <div class="mf-contactrow"><span class="k">Email</span><span class="v"><a href="mailto:sales@moromafinance.com.pg">sales@moromafinance.com.pg</a></span></div>
+      <div class="mf-contactrow"><span class="k">Call us</span><span class="v"><a href="tel:+67570107473">7010 7473</a></span></div>
+      <div class="mf-contactrow"><span class="k">Alternate line</span><span class="v"><a href="tel:+67583029377">8302 9377</a></span></div>
+      <div class="mf-contactrow"><span class="k">Head Office</span><span class="v">P.O Box 489, Boroko Food World (Gordons)<small>N.C.D, Port Moresby, PNG</small></span></div>
+      <div class="mf-contactrow"><span class="k">Banz Branch</span><span class="v">Second Floor, Koime Kulup, Gar, Banz<small>along Main Road towards Banz from Kujip<br><a href="tel:+67571745116" class="text-green">Digicel/WhatsApp: 7174 5116</a></small></span></div>
+      <div class="mf-contactrow" style="border-bottom:none;"><span class="k">Business hours</span><span class="v">Monday – Friday<small>8:00am – 4:30pm</small></span></div>
 
-      <div class="rateband" style="margin-top:1.8rem; padding:1.8rem;">
-        <h3 style="color:#fff; margin:0 0 .5rem; font-size:1.2rem; position:relative;">Ready to apply?</h3>
-        <p style="opacity:.92; margin:0 0 1.2rem; font-size:.95rem; position:relative;">You don't need to call to get started — apply online in minutes.</p>
-        <a href="{% url 'register' %}" class="btn-d btn-white" style="position:relative;">Apply Now <i class="bi bi-arrow-right"></i></a>
+      <div class="mf-cta" style="margin-top:2rem; padding:2rem 1.8rem;">
+        <div class="mf-zig mf-zig--thin zig-top"></div>
+        <h3 class="mf-h3" style="color:#fff; margin:0 0 .5rem;">Ready to apply?</h3>
+        <p style="color:rgba(234,243,236,.78); margin:0 0 1.1rem; font-size:.95rem;">You don't need to call to get started — apply online in minutes.</p>
+        <a href="{% url 'register' %}" class="mf-btn mf-btn--gold">Apply Now <i class="bi bi-arrow-right"></i></a>
       </div>
     </div>
 
     <!-- Form -->
-    <div class="reveal">
-      <div class="form-box">
-        <h2 style="font-size:1.5rem; margin:0 0 .4rem;">Send us a message</h2>
-        <p class="text-muted2" style="font-size:.92rem; margin-bottom:1.5rem;">Fill in the form and we'll get back to you as soon as we can.</p>
-
-        <form method="POST" action="{% url 'contact' %}">
-          {% csrf_token %}
-          <div class="form-row">
-            <div class="field">
-              <label for="c-name">Full name *</label>
-              <input id="c-name" type="text" name="name" placeholder="e.g. John Kaiulo" required>
-            </div>
-            <div class="field">
-              <label for="c-email">Email address *</label>
-              <input id="c-email" type="email" name="email" placeholder="you@example.com" required>
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="field">
-              <label for="c-phone">Phone number</label>
-              <input id="c-phone" type="tel" name="phone" placeholder="7XXX XXXX">
-            </div>
-            <div class="field">
-              <label for="c-type">What's it about?</label>
-              <select id="c-type" name="enquiry_type">
-                <option value="Personal Loan">Personal Loan</option>
-                <option value="Refinancing">Refinancing</option>
-                <option value="Special Offers">Special Offers</option>
-                <option value="My Application">My Application</option>
-                <option value="My Account">My Account</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-          </div>
-          <div class="field">
-            <label for="c-msg">Message *</label>
-            <textarea id="c-msg" name="message" rows="5" placeholder="Tell us how we can help..." required></textarea>
-          </div>
-          <button type="submit" class="btn-d btn-orange btn-lg" style="width:100%;">Send message <i class="bi bi-send"></i></button>
-          <p class="text-muted2" style="font-size:.8rem; margin:1rem 0 0; text-align:center;">
-            Your details are kept private and used only to answer your enquiry.
-          </p>
-        </form>
+    <div class="rv">
+      <div class="mf-head-row">
+        <span class="mf-num">02 /</span>
+        <h2 class="mf-h2">Send a message</h2>
       </div>
+      <p class="mf-lede">Fill in the form and we'll get back to you as soon as we can.</p>
+
+      <form class="mf-form" method="POST" action="{% url 'contact' %}">
+        {% csrf_token %}
+        <div class="frow">
+          <div>
+            <label for="c-name">Full name *</label>
+            <input id="c-name" type="text" name="name" placeholder="e.g. John Kaiulo" required>
+          </div>
+          <div>
+            <label for="c-email">Email address *</label>
+            <input id="c-email" type="email" name="email" placeholder="you@example.com" required>
+          </div>
+        </div>
+        <div class="frow">
+          <div>
+            <label for="c-phone">Phone number</label>
+            <input id="c-phone" type="tel" name="phone" placeholder="7XXX XXXX">
+          </div>
+          <div>
+            <label for="c-type">What's it about?</label>
+            <select id="c-type" name="enquiry_type">
+              <option value="Personal Loan">Personal Loan</option>
+              <option value="Refinancing">Refinancing</option>
+              <option value="Top-Up Loan">Top-Up Loan</option>
+              <option value="Special Offers">Special Offers</option>
+              <option value="My Application">My Application</option>
+              <option value="My Account">My Account</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+        <label for="c-msg">Message *</label>
+        <textarea id="c-msg" name="message" rows="5" placeholder="Tell us how we can help..." required></textarea>
+        <button type="submit" class="mf-btn mf-btn--gold mf-btn--lg" style="width:100%; justify-content:center;">Send message <i class="bi bi-send"></i></button>
+        <p style="font-family:var(--mf-mono); font-size:.7rem; letter-spacing:.06em; color:var(--mf-ink-60); margin:1rem 0 0; text-align:center;">
+          YOUR DETAILS ARE KEPT PRIVATE AND USED ONLY TO ANSWER YOUR ENQUIRY.
+        </p>
+      </form>
     </div>
 
   </div>

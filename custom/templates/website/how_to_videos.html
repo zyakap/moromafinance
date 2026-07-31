@@ -5,10 +5,10 @@
 {% block meta_desc %}Help and guides for Moroma Finance clients — managing your account, understanding repayments, and getting support when you need it.{% endblock %}
 
 {% block hero %}
-<section class="page-hero">
-  <div class="container">
-    <span class="eyebrow"><i class="bi bi-life-preserver"></i> Help &amp; Guides</span>
-    <h1>Help when you need it</h1>
+<section class="mf-phero">
+  <div class="mf-wrap">
+    <span class="mf-kick">Help &amp; Guides</span>
+    <h1 class="mf-h1">Help when<br>you <em>need it</em>.</h1>
     <p>Short answers to the things clients ask us most. Can't find what you need? Give us a call.</p>
   </div>
 </section>
@@ -16,48 +16,65 @@
 
 {% block content %}
 
-<section class="section">
-  <div class="container">
-    <div class="grid grid-3" style="margin-bottom:3.5rem;">
-      <div class="card reveal">
-        <div class="ic"><i class="bi bi-person-plus-fill"></i></div>
+<!-- Quick links -->
+<section class="mf-sec">
+  <div class="mf-wrap">
+    <div class="mf-head-row rv">
+      <span class="mf-num">01 /</span>
+      <h2 class="mf-h2">Quick guides</h2>
+    </div>
+    <div class="mf-cells mf-cells--3 rv">
+      <div class="mf-cell">
+        <span class="cell-no">GUIDE / 1</span>
         <h3>Getting started</h3>
         <p>Register, complete your profile and submit your first application.</p>
-        <a href="{% url 'demo' %}" class="more">How to apply <i class="bi bi-arrow-right"></i></a>
+        <div class="mf-btnrow" style="margin-top:1rem;"><a href="{% url 'register' %}" class="mf-btn">How to apply <i class="bi bi-arrow-right"></i></a></div>
       </div>
-      <div class="card reveal">
-        <div class="ic"><i class="bi bi-calculator-fill"></i></div>
+      <div class="mf-cell">
+        <span class="cell-no">GUIDE / 2</span>
         <h3>Rates &amp; repayments</h3>
         <p>Understand how our repayment schedule sets your fortnightly repayment and total repayable.</p>
-        <a href="{% url 'rates' %}" class="more">Rates &amp; fees <i class="bi bi-arrow-right"></i></a>
+        <div class="mf-btnrow" style="margin-top:1rem;"><a href="{% url 'rates' %}" class="mf-btn">Rates &amp; fees <i class="bi bi-arrow-right"></i></a></div>
       </div>
-      <div class="card accent reveal">
-        <div class="ic"><i class="bi bi-shield-check"></i></div>
+      <div class="mf-cell mf-cell--gold">
+        <span class="cell-no">GUIDE / 3</span>
         <h3>Your privacy</h3>
         <p>How we assess responsibly and keep your information safe.</p>
-        <a href="{% url 'dcc' %}" class="more">Responsible lending <i class="bi bi-arrow-right"></i></a>
+        <div class="mf-btnrow" style="margin-top:1rem;"><a href="{% url 'dcc' %}" class="mf-btn">Responsible lending <i class="bi bi-arrow-right"></i></a></div>
       </div>
-    </div>
-
-    <div class="faq">
-      <details class="qa reveal"><summary>How do I check my loan balance?</summary><p>Log in to your Moroma Finance account. Your dashboard shows your current balance, your next repayment and your full repayment schedule.</p></details>
-      <details class="qa reveal"><summary>I forgot my password — what do I do?</summary><p>Use the "forgot password" option on the login page to reset it by email. If you're still locked out, call us on 7010 7473 and we'll help.</p></details>
-      <details class="qa reveal"><summary>Can I pay my loan out early?</summary><p>Yes. Contact us and we'll confirm your payout figure so you can settle your loan ahead of schedule.</p></details>
-      <details class="qa reveal"><summary>Can I apply for another loan while one is running?</summary><p>In some cases, yes — it depends on your repayment history and capacity. Trusted clients in good standing have the best chance. Talk to us about your options.</p></details>
-      <details class="qa reveal"><summary>How do I update my bank or contact details?</summary><p>Log in and edit your profile, or call us and we'll update it for you. Keeping your details current means your funds and notices reach you.</p></details>
-      <details class="qa reveal"><summary>How do I make a complaint?</summary><p>We want to know. Email sales@moromafinance.com.pg or call 7010 7473 and we'll look into it promptly.</p></details>
     </div>
   </div>
 </section>
 
-<section class="section bg-soft">
-  <div class="container">
-    <div class="cta reveal">
-      <h2>Still need help?</h2>
+<!-- FAQ -->
+<section class="mf-sec mf-sec--paper2">
+  <div class="mf-wrap">
+    <div class="mf-head-row rv">
+      <span class="mf-num">02 /</span>
+      <h2 class="mf-h2">Frequently asked</h2>
+    </div>
+    <div class="mf-faq rv">
+      <details class="mf-q"><summary>How do I check my loan balance?</summary><p>Log in to your Moroma Finance account. Your dashboard shows your current balance, your next repayment and your full repayment schedule.</p></details>
+      <details class="mf-q"><summary>I forgot my password — what do I do?</summary><p>Use the "forgot password" option on the login page to reset it by email. If you're still locked out, call us on 7010 7473 and we'll help.</p></details>
+      <details class="mf-q"><summary>Can I pay my loan out early?</summary><p>Yes. Contact us and we'll confirm your payout figure so you can settle your loan ahead of schedule.</p></details>
+      <details class="mf-q"><summary>Can I apply for another loan while one is running?</summary><p>In some cases, yes — it depends on your repayment history and capacity. Trusted clients in good standing have the best chance. Talk to us about your options.</p></details>
+      <details class="mf-q"><summary>How do I update my bank or contact details?</summary><p>Log in and edit your profile, or call us and we'll update it for you. Keeping your details current means your funds and notices reach you.</p></details>
+      <details class="mf-q"><summary>How do I make a complaint?</summary><p>We want to know. Email sales@moromafinance.com.pg or call 7010 7473 and we'll look into it promptly.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="mf-sec">
+  <div class="mf-wrap">
+    <div class="mf-cta rv">
+      <div class="mf-zig mf-zig--thin zig-top"></div>
+      <span class="mf-kick">Still need help?</span>
+      <h2 class="mf-h2">Still need help?</h2>
       <p>Our local team is ready to answer your questions — no call centres, no runaround.</p>
-      <div class="hero-actions">
-        <a href="{% url 'contact' %}" class="btn-d btn-white btn-lg">Contact us <i class="bi bi-arrow-right"></i></a>
-        <a href="mailto:sales@moromafinance.com.pg" class="btn-d btn-lg" style="background:rgba(255,255,255,.15); color:#fff; border-color:rgba(255,255,255,.45);"><i class="bi bi-envelope-fill"></i> Email us</a>
+      <div class="mf-btnrow mf-mt">
+        <a href="{% url 'contact' %}" class="mf-btn mf-btn--gold mf-btn--lg">Contact us <i class="bi bi-arrow-right"></i></a>
+        <a href="mailto:sales@moromafinance.com.pg" class="mf-btn mf-btn--ghostLight mf-btn--lg"><i class="bi bi-envelope-fill"></i> Email us</a>
       </div>
     </div>
   </div>

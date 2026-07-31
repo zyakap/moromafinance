@@ -95,9 +95,6 @@ def contact(request):
 def dcc(request):
     return render(request, 'website/dcc.html', {'nav': 'dcc'})
 
-def demo(request):
-    return render(request, 'website/demo.html', {'nav': 'demo'})
-
 def how_to_videos(request):
     return render(request, 'website/how_to_videos.html', {'nav': 'how_to_videos'})
 

@@ -5,10 +5,10 @@
 {% block meta_desc %}Become a trusted Moroma Finance client and benefit from special offers — priority approval, higher limits and exclusive deals for loyal clients. T&C apply.{% endblock %}
 
 {% block hero %}
-<section class="page-hero">
-  <div class="container">
-    <span class="eyebrow"><i class="bi bi-gift-fill"></i> Trusted Clients</span>
-    <h1>Become a trusted client</h1>
+<section class="mf-phero">
+  <div class="mf-wrap">
+    <span class="mf-kick">Trusted Clients</span>
+    <h1 class="mf-h1">Become a<br><em>trusted</em> client.</h1>
     <p>"Become a trusted Client to benefit from our special offers." Repay well, and Moroma Finance opens the door to more.</p>
   </div>
 </section>
@@ -16,87 +16,92 @@
 
 {% block content %}
 
-<!-- How you become trusted -->
-<section class="section">
-  <div class="container">
-    <div class="section-head reveal">
-      <span class="eyebrow"><i class="bi bi-award-fill"></i> How it works</span>
-      <h2>Loyalty that pays you back</h2>
-      <p>There's no secret to it. Borrow, repay on time, and your standing with us grows.</p>
+<!-- How it works -->
+<section class="mf-sec">
+  <div class="mf-wrap">
+    <div class="mf-head-row rv">
+      <span class="mf-num">01 /</span>
+      <h2 class="mf-h2">Loyalty that pays you back</h2>
     </div>
-    <div class="grid grid-3 steps">
-      <div class="step reveal">
-        <h4>Take your first loan</h4>
+    <div class="mf-ledger rv">
+      <div class="mf-lrow">
+        <span class="idx">01</span>
+        <h3>Take your first loan</h3>
         <p>Apply online and receive your funds. Every client starts here — it's the first step in building your history with us.</p>
+        <span class="go"><i class="bi bi-arrow-right"></i></span>
       </div>
-      <div class="step reveal">
-        <h4>Repay on time</h4>
+      <div class="mf-lrow">
+        <span class="idx">02</span>
+        <h3>Repay on time</h3>
         <p>Keep your fortnightly repayments on track. A clean repayment record is what makes you a trusted client.</p>
+        <span class="go"><i class="bi bi-arrow-right"></i></span>
       </div>
-      <div class="step reveal">
-        <h4>Unlock special offers</h4>
+      <div class="mf-lrow">
+        <span class="idx">03</span>
+        <h3>Unlock special offers</h3>
         <p>Enjoy priority approval, higher limits and offers reserved for our most loyal clients.</p>
+        <span class="go"><i class="bi bi-arrow-right"></i></span>
       </div>
     </div>
   </div>
 </section>
 
 <!-- Benefits -->
-<section class="section bg-soft">
-  <div class="container">
-    <div class="section-head reveal">
-      <span class="eyebrow"><i class="bi bi-star-fill"></i> Your benefits</span>
-      <h2>What trusted clients get</h2>
+<section class="mf-sec mf-sec--paper2">
+  <div class="mf-wrap">
+    <div class="mf-head-row rv">
+      <span class="mf-num">02 /</span>
+      <h2 class="mf-h2">What trusted clients get</h2>
     </div>
-    <div class="grid grid-4">
-      <div class="card reveal"><div class="ic"><i class="bi bi-lightning-charge-fill"></i></div><h3>Priority approval</h3><p>Your application goes to the front of the queue.</p></div>
-      <div class="card reveal"><div class="ic"><i class="bi bi-graph-up-arrow"></i></div><h3>Higher limits</h3><p>Qualify to borrow more as your history with us grows.</p></div>
-      <div class="card accent reveal"><div class="ic"><i class="bi bi-tag-fill"></i></div><h3>Exclusive offers</h3><p>Seasonal deals available only to repeat clients.</p></div>
-      <div class="card reveal"><div class="ic"><i class="bi bi-person-hearts"></i></div><h3>Personal service</h3><p>A dedicated contact who knows your situation.</p></div>
+    <div class="mf-cells mf-cells--2 rv">
+      <div class="mf-cell"><span class="cell-no">BENEFIT / 1</span><h3>Priority approval</h3><p>Your application goes to the front of the queue.</p></div>
+      <div class="mf-cell"><span class="cell-no">BENEFIT / 2</span><h3>Higher limits</h3><p>Qualify to borrow more as your history with us grows.</p></div>
+      <div class="mf-cell mf-cell--gold"><span class="cell-no">BENEFIT / 3</span><h3>Exclusive offers</h3><p>Seasonal deals available only to repeat clients.</p></div>
+      <div class="mf-cell"><span class="cell-no">BENEFIT / 4</span><h3>Personal service</h3><p>A dedicated contact who knows your situation.</p></div>
     </div>
-    <p class="text-muted2" style="text-align:center; margin-top:2rem; font-size:.86rem;">
-      <em>Terms &amp; conditions apply. Special offers are granted at the discretion of Moroma Finance Ltd and are subject to assessment and eligibility.</em>
+    <p style="font-family:var(--mf-mono); font-size:.72rem; letter-spacing:.06em; color:var(--mf-ink-60); margin-top:1.5rem; text-align:center;">
+      T&amp;C APPLY · SPECIAL OFFERS ARE GRANTED AT THE DISCRETION OF MOROMA FINANCE LTD AND ARE SUBJECT TO ASSESSMENT AND ELIGIBILITY.
     </p>
   </div>
 </section>
 
 <!-- Testimonials -->
-<section class="section">
-  <div class="container">
-    <div class="section-head reveal">
-      <span class="eyebrow"><i class="bi bi-chat-quote-fill"></i> Client stories</span>
-      <h2>What our clients say</h2>
+<section class="mf-sec">
+  <div class="mf-wrap">
+    <div class="mf-head-row rv">
+      <span class="mf-num">03 /</span>
+      <h2 class="mf-h2">What our clients say</h2>
     </div>
-    <div class="grid grid-3">
-      <div class="card reveal">
-        <i class="bi bi-quote" style="font-size:2rem; color:var(--d-orange);"></i>
-        <p style="margin-bottom:1.2rem;">"I applied from my phone during my lunch break and had my money the same day. No queues, no stress."</p>
-        <div style="font-family:var(--font-head); font-weight:600;">Personal Loan client</div>
-        <div class="text-muted2" style="font-size:.85rem;">Port Moresby</div>
+    <div class="mf-cells mf-cells--3 rv">
+      <div class="mf-cell">
+        <span class="cell-no">CLIENT / A</span>
+        <blockquote class="mf-quote" style="font-size:1.15rem; margin:0 0 1rem;">"I applied from my phone during my lunch break and had my money the same day. No queues, no stress."</blockquote>
+        <div class="mf-quote-attr">Personal Loan client · Port Moresby</div>
       </div>
-      <div class="card reveal">
-        <i class="bi bi-quote" style="font-size:2rem; color:var(--d-orange);"></i>
-        <p style="margin-bottom:1.2rem;">"Refinancing with MOROMA put all my loans into one repayment. My fortnight finally makes sense again."</p>
-        <div style="font-family:var(--font-head); font-weight:600;">Refinancing client</div>
-        <div class="text-muted2" style="font-size:.85rem;">NCD</div>
+      <div class="mf-cell mf-cell--gold">
+        <span class="cell-no">CLIENT / B</span>
+        <blockquote class="mf-quote" style="font-size:1.15rem; margin:0 0 1rem;">"Refinancing with MOROMA put all my loans into one repayment. My fortnight finally makes sense again."</blockquote>
+        <div class="mf-quote-attr">Refinancing client · NCD</div>
       </div>
-      <div class="card reveal">
-        <i class="bi bi-quote" style="font-size:2rem; color:var(--d-orange);"></i>
-        <p style="margin-bottom:1.2rem;">"They told me exactly what I'd repay before I signed. That honesty is why I keep coming back."</p>
-        <div style="font-family:var(--font-head); font-weight:600;">Trusted client</div>
-        <div class="text-muted2" style="font-size:.85rem;">Papua New Guinea</div>
+      <div class="mf-cell">
+        <span class="cell-no">CLIENT / C</span>
+        <blockquote class="mf-quote" style="font-size:1.15rem; margin:0 0 1rem;">"They told me exactly what I'd repay before I signed. That honesty is why I keep coming back."</blockquote>
+        <div class="mf-quote-attr">Trusted client · Papua New Guinea</div>
       </div>
     </div>
   </div>
 </section>
 
-<section class="section">
-  <div class="container">
-    <div class="cta reveal">
-      <h2>Start building your trusted status</h2>
+<!-- CTA -->
+<section class="mf-sec">
+  <div class="mf-wrap">
+    <div class="mf-cta rv">
+      <div class="mf-zig mf-zig--thin zig-top"></div>
+      <span class="mf-kick">Start today</span>
+      <h2 class="mf-h2">Start building your trusted status</h2>
       <p>Your first loan is the first step. Apply today and unlock what comes next.</p>
-      <div class="hero-actions">
-        <a href="{% url 'register' %}" class="btn-d btn-white btn-lg">Apply Now <i class="bi bi-arrow-right"></i></a>
+      <div class="mf-btnrow mf-mt">
+        <a href="{% url 'register' %}" class="mf-btn mf-btn--gold mf-btn--lg">Apply Now <i class="bi bi-arrow-right"></i></a>
       </div>
     </div>
   </div>

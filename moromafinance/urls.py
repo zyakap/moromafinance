@@ -7,7 +7,7 @@ from django.contrib import admin
 from django.urls import include, path, re_path
 from django.views.generic import RedirectView
 
-from custom.views import home, about, contact, clients, dcc, demo, how_to_videos, features, rates, brochure
+from custom.views import home, about, contact, clients, dcc, how_to_videos, features, rates, brochure
 from moromafinance.media_views import protected_media
 
 urlpatterns = [
@@ -36,7 +36,6 @@ urlpatterns = [
     path('contact/', contact, name='contact'),
     path('clients/', clients, name='clients'),
     path('dcc/', dcc, name='dcc'),
-    path('demo/', demo, name='demo'),
     path('how-to-videos/', how_to_videos, name='how_to_videos'),
     path('features/', features, name='features'),
     path('rates/', rates, name='rates'),

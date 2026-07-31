@@ -5,10 +5,10 @@
 {% block meta_desc %}Moroma Finance at a glance: personal loans from K500 to K5,000, refinancing, top-up loans and special offers for trusted clients. Your local finance partner.{% endblock %}
 
 {% block hero %}
-<section class="page-hero">
-  <div class="container">
-    <span class="eyebrow"><i class="bi bi-file-earmark-text-fill"></i> Our Flyer</span>
-    <h1>Moroma Finance at a glance</h1>
+<section class="mf-phero">
+  <div class="mf-wrap">
+    <span class="mf-kick">Our Flyer</span>
+    <h1 class="mf-h1">Moroma Finance<br>at a <em>glance</em>.</h1>
     <p>Everything we offer, on one page — share it with a workmate, wantok or friend.</p>
   </div>
 </section>
@@ -16,55 +16,55 @@
 
 {% block content %}
 
-<section class="section">
-  <div class="container" style="max-width:860px;">
-
-    <!-- Digital flyer card -->
-    <div class="reveal" style="border-radius:28px; overflow:hidden; box-shadow:var(--d-shadow-lg); border:1px solid var(--d-line);">
-
-      <!-- Flyer head -->
-      <div style="background:linear-gradient(120deg,var(--d-orange),var(--d-orange-600)); padding:2.5rem 2.5rem 3rem; color:#fff; position:relative; overflow:hidden;">
-        <div style="position:absolute; width:240px; height:240px; border-radius:50%; background:rgba(255,255,255,.14); right:-70px; top:-90px;"></div>
-        <div style="font-family:var(--font-head); font-weight:600; letter-spacing:.18em; font-size:.75rem; text-transform:uppercase; position:relative;">Moroma Finance Ltd</div>
-        <h2 style="color:#fff; font-size:clamp(2.2rem,6vw,3.4rem); font-weight:800; margin:.5rem 0 .6rem; position:relative;">MOROMA FINANCE</h2>
-        <p style="font-style:italic; font-size:1.1rem; margin:0; max-width:34ch; position:relative;">Become a trusted Client to benefit from our special offers.</p>
+<section class="mf-sec">
+  <div class="mf-wrap mf-split">
+    <!-- What we offer -->
+    <div class="rv">
+      <div class="mf-head-row">
+        <span class="mf-num">01 /</span>
+        <h2 class="mf-h2">What we offer</h2>
       </div>
-
-      <!-- Flyer body -->
-      <div style="background:#fff; padding:2.5rem;">
-        <div class="split" style="gap:2rem; align-items:center;">
-          <div>
-            <h3 style="font-size:1.5rem; margin:0 0 1.2rem;">Loan Services</h3>
-            <ul class="checklist" style="margin:0;">
-              <li><i class="bi bi-circle-fill" style="color:var(--d-orange); font-size:.6rem; margin-top:.5rem;"></i> <span><strong>Personal Loan</strong></span></li>
-              <li><i class="bi bi-circle-fill" style="color:var(--d-orange); font-size:.6rem; margin-top:.5rem;"></i> <span><strong>Refinancing</strong></span></li>
-              <li><i class="bi bi-circle-fill" style="color:var(--d-orange); font-size:.6rem; margin-top:.5rem;"></i> <span><strong>Interest set by our repayment schedule</strong></span></li>
-              <li><i class="bi bi-circle-fill" style="color:var(--d-orange); font-size:.6rem; margin-top:.5rem;"></i> <span><strong>Special Offers</strong> for our trusted clients. <em>(T&amp;C apply)</em></span></li>
-            </ul>
-          </div>
-          <div style="display:grid; place-items:center;">
-            <div class="hero-disc" style="width:min(230px,80%);"><img src="{% static 'clientfiles/moroma_logo.svg' %}" alt="Moroma Finance"></div>
-          </div>
-        </div>
-
-        <div style="margin-top:2.5rem; padding-top:2rem; border-top:1px solid var(--d-line);">
-          <h3 style="font-size:1.35rem; margin:0 0 .4rem;">Your local finance partner.</h3>
-          <p class="text-muted2" style="margin:0 0 1.6rem;">Apply online in minutes — no queues, no paperwork.</p>
-
-          <h4 style="font-size:1.05rem; margin:0 0 .9rem;">Contact Info:</h4>
-          <div class="f-contact" style="color:var(--d-ink-2);">
-            <div><i class="bi bi-globe" style="color:var(--d-orange);"></i><a href="mailto:sales@moromafinance.com.pg">sales@moromafinance.com.pg</a></div>
-            <div><i class="bi bi-telephone-fill" style="color:var(--d-orange);"></i><span><a href="tel:+67570107473">7010 7473</a> &nbsp;/&nbsp; <a href="tel:+67583029377">8302 9377</a></span></div>
-          </div>
-
-          <div class="hero-actions" style="margin-top:1.8rem;">
-            <a href="{% url 'register' %}" class="btn-d btn-orange btn-lg">Apply Now <i class="bi bi-arrow-right"></i></a>
-            <a href="javascript:window.print()" class="btn-d btn-ghost btn-lg"><i class="bi bi-printer"></i> Print this page</a>
-          </div>
-        </div>
+      <div class="mf-slip">
+        <div class="mf-stamp">Moroma</div>
+        <div class="mf-slip__head"><span>Personal Loan</span><span>MFL</span></div>
+        <div class="mf-slip__row"><span>Amount</span><span class="mf-dots"></span><span class="v">K500 – K5,000</span></div>
+        <div class="mf-slip__row"><span>Steps</span><span class="mf-dots"></span><span class="v">K50 increments</span></div>
+        <div class="mf-slip__row"><span>Term</span><span class="mf-dots"></span><span class="v">7 – 36 fortnights</span></div>
+        <div class="mf-slip__row"><span>Approval</span><span class="mf-dots"></span><span class="v">Same day (eligible)</span></div>
+        <div class="mf-slip__total"><span>Repayments</span><span class="mf-dots"></span><span class="v">Fortnightly</span></div>
       </div>
+      <ul class="mf-ticks" style="margin-top:1.5rem;">
+        <li>Refinancing — internal &amp; external</li>
+        <li>Top-Up Loans for existing clients</li>
+        <li>Interest set by our published repayment schedule</li>
+        <li>Special Offers for trusted clients <em>(T&amp;C apply)</em></li>
+      </ul>
     </div>
 
+    <!-- Contact + CTA -->
+    <div class="rv">
+      <div class="mf-head-row">
+        <span class="mf-num">02 /</span>
+        <h2 class="mf-h2">Your local finance partner</h2>
+      </div>
+      <p class="mf-lede">Apply online in minutes — no queues, no paperwork to carry around.</p>
+
+      <div class="mf-slip" style="margin-bottom:1.5rem;">
+        <div class="mf-slip__head"><span>Contact Info</span><span>06 branches</span></div>
+        <div class="mf-slip__row"><span>Email</span><span class="mf-dots"></span><span class="v">sales@moromafinance.com.pg</span></div>
+        <div class="mf-slip__row"><span>Phone</span><span class="mf-dots"></span><span class="v">7010 7473 / 8302 9377</span></div>
+        <div class="mf-slip__row"><span>Banz</span><span class="mf-dots"></span><span class="v">7174 5116 (Digicel)</span></div>
+        <div class="mf-slip__total"><span>HO</span><span class="mf-dots"></span><span class="v">Gordons, Port Moresby</span></div>
+      </div>
+
+      <div class="mf-btnrow">
+        <a href="{% url 'register' %}" class="mf-btn mf-btn--gold mf-btn--lg">Apply Now <i class="bi bi-arrow-right"></i></a>
+        <a href="{% url 'contact' %}" class="mf-btn mf-btn--lg">Contact us</a>
+      </div>
+
+      <div class="mf-zig" style="margin-top:2rem;"></div>
+      <p style="font-family:var(--mf-serif); font-style:italic; font-size:1.3rem; color:var(--mf-green); margin:1.5rem 0 0; line-height:1.3;">"Your True Partner for a Better Tomorrow"</p>
+    </div>
   </div>
 </section>
 

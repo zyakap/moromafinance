@@ -1,5 +1,5 @@
 from django.urls import path, re_path
-from custom.views import home, about, contact, dcc, demo
+from custom.views import home, about, contact, dcc
 from . import views
 from .functions import register_additional_loan, trupng_payment, register_default, register_loan_holiday, set_repayment_dates, add_2_set_repayment_dates, classify_loan_complete,consolidate_loans, targeted_consolidate_loans
 
