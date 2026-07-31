@@ -1,201 +1,277 @@
 <!DOCTYPE html>
+<!-- MOROMA FINANCE LIMITED — Personal Loan Application (auto-generated).
+     Layout follows the client's in-use paper form (client_documents/
+     "2.MOROMA Fin APPLIC FORM 2025 Final in use.pdf"), designed to fit one
+     ISO A4 page. wkhtmltopdf-safe: tables only, no flexbox/SVG. -->
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Loan Application Form</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{domain}}/static/generate/application_form/styles.css">
-  <style>body { background: #fff; }</style>
+<meta charset="utf-8">
+<title>Moroma Finance — Personal Loan Application</title>
+<style>
+  @page { size: A4; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: Arial, Helvetica, sans-serif; font-size: 7.4pt; color: #112419; background: #fff; }
+  table { border-collapse: collapse; width: 100%; }
+  td { vertical-align: bottom; }
+
+  /* Header */
+  .hdr td { vertical-align: middle; padding: 2px 4px; }
+  .hdr-logo img { width: 130px; }
+  .hdr-co { text-align: center; }
+  .hdr-co .co-name { font-size: 12.5pt; font-weight: 800; color: #0f6e3a; letter-spacing: .5px; }
+  .hdr-co .co-line { font-size: 6.6pt; color: #2f4237; line-height: 1.45; }
+  .hdr-co .co-tag { font-size: 7pt; font-style: italic; color: #b67f00; font-weight: 700; }
+  .hdr-dc { width: 88px; }
+  .dc-box { border: 1.2pt solid #0f6e3a; padding: 4px 5px; font-size: 6.6pt; text-align: center; color: #0f6e3a; }
+  .dc-box b { font-size: 9.5pt; letter-spacing: 1px; }
+
+  .titlebar { background: #0f6e3a; color: #fff; font-weight: 800; font-size: 8.6pt;
+              letter-spacing: 1.2px; text-align: center; padding: 2.5pt 0; margin-top: 2pt; }
+
+  /* Part banners */
+  .part { background: #e8f4ec; color: #084524; font-weight: 800; font-size: 7.2pt;
+          letter-spacing: .8px; padding: 1.6pt 4pt; margin-top: 3pt;
+          border-left: 3pt solid #0f6e3a; }
+
+  /* Field grids */
+  .f td { padding: 2pt 4pt 1pt 4pt; border-bottom: .55pt solid #9db5a6; }
+  .f .lbl { display: block; font-size: 5.6pt; text-transform: uppercase; letter-spacing: .3px; color: #64796c; }
+  .f .val { display: block; font-size: 7.6pt; font-weight: 700; color: #112419; min-height: 8.5pt; }
+  .f .nb  { border-bottom: none; }
+
+  /* Tick boxes */
+  .bx { display: inline-block; width: 7pt; height: 7pt; border: .7pt solid #112419;
+        text-align: center; font-size: 6.5pt; font-weight: 800; line-height: 7pt;
+        vertical-align: middle; margin-right: 2pt; color: #0f6e3a; }
+  .opt { font-size: 6.9pt; margin-right: 6pt; white-space: nowrap; }
+
+  /* Terms */
+  .tc { font-size: 5.9pt; line-height: 1.32; color: #112419; }
+  .tc p { margin: 1.2pt 0; }
+  .tc b { color: #084524; }
+
+  /* Signatures */
+  .sig td { padding: 10pt 6pt 1pt 6pt; }
+  .sig .line { border-bottom: .8pt solid #112419; height: 9pt; }
+  .sig .slbl { font-size: 5.8pt; text-transform: uppercase; color: #64796c; padding-top: 1pt; }
+  .stampbox { border: .8pt dashed #64796c; height: 34pt; margin: 4pt 6pt 0 6pt;
+              font-size: 6pt; color: #64796c; text-align: center; padding-top: 12pt; }
+
+  /* Office use + requirements */
+  .office { border: .9pt solid #0f6e3a; margin-top: 3pt; padding: 2pt 4pt; }
+  .office .oh { font-size: 6.2pt; font-weight: 800; color: #084524; letter-spacing: .6px; }
+  .req { font-size: 5.9pt; line-height: 1.35; margin-top: 3pt; border-top: .8pt solid #0f6e3a; padding-top: 2pt; }
+  .req b { color: #084524; }
+</style>
 </head>
 <body>
-<div class="doc-page">
 
-  <!-- Header -->
-  <div class="doc-header">
-    <img src="{{domain}}/static/img/logo.png" class="doc-logo" alt="Logo">
-    <div class="doc-title">Loan Application Form</div>
-  </div>
-  <hr class="doc-divider">
+<!-- ======= Letterhead (per the client's in-use paper form) ======= -->
+<table class="hdr">
+  <tr>
+    <td class="hdr-logo" style="width:140px;"><img src="{{domain}}/static/clientfiles/brandlogo.png" alt="Moroma Finance"></td>
+    <td class="hdr-co">
+      <div class="co-name">MOROMA FINANCE LIMITED</div>
+      <div class="co-line">P.O Box 764, Vision City, Waigani, National Capital District, PNG<br>
+      Phone: 70392811 / 76525470 / 72346391 &nbsp;·&nbsp; Email: moromafinance@gmail.com</div>
+      <div class="co-tag">"Your True Partner for a Better Tomorrow"</div>
+    </td>
+    <td class="hdr-dc">
+      <div class="dc-box">Deduction Code:<br><b>{{ bank_config.alesco_dc|default:settings.ALESCO_DC }}</b></div>
+    </td>
+  </tr>
+</table>
 
-  <!-- Personal Information -->
-  <div class="section">
-    <div class="section-title">Personal Information</div>
-    <div class="field-row">
-      <div class="field w3">
-        <span class="field-label">Full Name</span>
-        <span class="field-value">{{ user.first_name }} {{ user.last_name }}</span>
-      </div>
-      <div class="field">
-        <span class="field-label">Date of Birth</span>
-        <span class="field-value">{{ user.date_of_birth }}</span>
-      </div>
-      <div class="field">
-        <span class="field-label">Gender</span>
-        <span class="field-value">{{ user.gender }}</span>
-      </div>
-    </div>
-    <div class="field-row">
-      <div class="field">
-        <span class="field-label">Marital Status</span>
-        <span class="field-value">{{ user.marital_status }}</span>
-      </div>
-      <div class="field">
-        <span class="field-label">ID Type</span>
-        <span class="field-value">NID</span>
-      </div>
-      <div class="field w2">
-        <span class="field-label">ID Number</span>
-        <span class="field-value">{{ user.nid_number }}</span>
-      </div>
-    </div>
-    <div class="field-row">
-      <div class="field w2">
-        <span class="field-label">Place of Origin</span>
-        <span class="field-value">{{ user.place_of_origin }}</span>
-      </div>
-      <div class="field w3">
-        <span class="field-label">Current Residential Address</span>
-        <span class="field-value">{{ user.residential_address }}</span>
-      </div>
-    </div>
-  </div>
+<div class="titlebar">PERSONAL LOAN APPLICATION</div>
 
-  <!-- Contact Information -->
-  <div class="section">
-    <div class="section-title">Contact Information</div>
-    <div class="field-row">
-      <div class="field w2">
-        <span class="field-label">Email Address</span>
-        <span class="field-value">{{ user.email }}</span>
-      </div>
-      <div class="field w2">
-        <span class="field-label">Work Email</span>
-        <span class="field-value">{{ user.work_email }}</span>
-      </div>
-    </div>
-    <div class="field-row">
-      <div class="field">
-        <span class="field-label">Mobile 1</span>
-        <span class="field-value">{{ user.mobile1 }}</span>
-      </div>
-      <div class="field">
-        <span class="field-label">Mobile 2</span>
-        <span class="field-value">{{ user.mobile2 }}</span>
-      </div>
-      <div class="field w2">
-        <span class="field-label">Work Phone</span>
-        <span class="field-value">{{ user.work_phone }}</span>
-      </div>
-    </div>
-  </div>
+<!-- ======= PART 1 — PERSONAL DETAILS ======= -->
+<div class="part">PART 1 — PERSONAL DETAILS</div>
+<table class="f">
+  <tr>
+    <td style="width:15%;"><span class="lbl">Title (Dr/Pr/Mr/Mrs/Miss)</span><span class="val"></span></td>
+    <td style="width:28%;"><span class="lbl">Surname (Father's name)</span><span class="val">{{ user.last_name|upper }}</span></td>
+    <td style="width:32%;"><span class="lbl">Given Name(s)</span><span class="val">{{ user.first_name }}{% if user.middle_name %} {{ user.middle_name }}{% endif %}</span></td>
+    <td style="width:25%;"><span class="lbl">Date of Application</span><span class="val">{{ today }}</span></td>
+  </tr>
+  <tr>
+    <td><span class="lbl">Date of Birth</span><span class="val">{{ user.date_of_birth|date:"d/m/Y" }}</span></td>
+    <td><span class="lbl">Age</span><span class="val">{{ age }}</span></td>
+    <td><span class="lbl">Gender</span><span class="val"><span class="bx">{% if user.gender == 'MALE' %}X{% endif %}</span><span class="opt">M</span> <span class="bx">{% if user.gender == 'FEMALE' %}X{% endif %}</span><span class="opt">F</span></span></td>
+    <td><span class="lbl">Marital Status</span><span class="val">{{ user.marital_status }}</span></td>
+  </tr>
+  <tr>
+    <td colspan="2"><span class="lbl">NID / Birth Certificate No.</span><span class="val">{{ user.nid_number }}</span></td>
+    <td><span class="lbl">Passport No.</span><span class="val">{{ user.passport_number }}</span></td>
+    <td><span class="lbl">Driver's Licence No.</span><span class="val">{{ user.drivers_license_number }}</span></td>
+  </tr>
+  <tr>
+    <td colspan="4"><span class="lbl">Business / Residential Address (Allotment · Section · Suburb · Street/Settlement/Village)</span><span class="val">{{ user.residential_address }}{% if user.residential_province %}, {{ user.residential_province }}{% endif %}</span></td>
+  </tr>
+  <tr>
+    <td colspan="1"><span class="lbl">Office Tel</span><span class="val">{{ user.work_phone }}</span></td>
+    <td><span class="lbl">Mobile</span><span class="val">{{ user.mobile1 }}</span></td>
+    <td colspan="2"><span class="lbl">E-mail</span><span class="val">{{ user.email }}</span></td>
+  </tr>
+  <tr>
+    <td colspan="2"><span class="lbl">Name of Spouse</span><span class="val">{{ spouse_name }}</span></td>
+    <td colspan="2"><span class="lbl">Spouse Address / Contact</span><span class="val"></span></td>
+  </tr>
+</table>
 
-  <!-- Work Information -->
-  <div class="section">
-    <div class="section-title">Work Information</div>
-    <div class="field-row">
-      <div class="field w2">
-        <span class="field-label">Job Title</span>
-        <span class="field-value">{{ user.job_title }}</span>
-      </div>
-      <div class="field w3">
-        <span class="field-label">Organisation</span>
-        <span class="field-value">{{ user.employer }}</span>
-      </div>
-      <div class="field">
-        <span class="field-label">Start Date</span>
-        <span class="field-value">{{ user.start_date }}</span>
-      </div>
-    </div>
-    <div class="field-row">
-      <div class="field">
-        <span class="field-label">Office Address</span>
-        <span class="field-value">{{ user.office_address }}</span>
-      </div>
-    </div>
-  </div>
+<!-- ======= APPLICANT'S EMPLOYMENT DETAILS ======= -->
+<div class="part">APPLICANT'S EMPLOYMENT DETAILS</div>
+<table class="f">
+  <tr>
+    <td style="width:40%;"><span class="lbl">Name of Employer</span><span class="val">{{ user.employer }}</span></td>
+    <td colspan="2" style="width:60%;"><span class="lbl">Office Location / Employer's Postal Address</span><span class="val">{{ user.office_address }}</span></td>
+  </tr>
+  <tr>
+    <td><span class="lbl">Telephone</span><span class="val">{{ user.work_phone }}</span></td>
+    <td style="width:30%;"><span class="lbl">Employer's File Ref</span><span class="val"></span></td>
+    <td style="width:30%;"><span class="lbl">Facsimile</span><span class="val"></span></td>
+  </tr>
+  <tr>
+    <td><span class="lbl">Employee's Occupation</span><span class="val">{{ user.job_title }}</span></td>
+    <td><span class="lbl">Status</span><span class="val"><span class="bx"></span><span class="opt">Permanent</span> <span class="bx"></span><span class="opt">Contract</span></span></td>
+    <td><span class="lbl">Section</span><span class="val"></span></td>
+  </tr>
+  <tr>
+    <td><span class="lbl">Wage Frequency</span><span class="val"><span class="bx">{% if user.pay_frequency == 'FN' %}X{% endif %}</span><span class="opt">Fortnightly</span> <span class="bx">{% if user.pay_frequency == 'MN' %}X{% endif %}</span><span class="opt">Monthly</span></span></td>
+    <td><span class="lbl">Pay — Gross</span><span class="val">K{{ user.gross_pay|floatformat:2 }}</span></td>
+    <td><span class="lbl">Pay — Net</span><span class="val">K{{ user.net_pay|floatformat:2 }}</span></td>
+  </tr>
+  <tr>
+    <td><span class="lbl">Superannuation Fund No.</span><span class="val">{{ user.super_member_code }}</span></td>
+    <td><span class="lbl">Employee File No.</span><span class="val">{{ user.employee_file_number }}</span></td>
+    <td><span class="lbl">Years of Service</span><span class="val">{{ years_service }}</span></td>
+  </tr>
+</table>
 
-  <!-- Bank Information -->
-  <div class="section">
-    <div class="section-title">Bank Information</div>
-    <div class="field-row">
-      <div class="field w2">
-        <span class="field-label">Bank</span>
-        <span class="field-value">{{ user.bank }}</span>
-      </div>
-      <div class="field w2">
-        <span class="field-label">Branch</span>
-        <span class="field-value">{{ user.bank_branch }}</span>
-      </div>
-    </div>
-    <div class="field-row">
-      <div class="field w2">
-        <span class="field-label">Account Name</span>
-        <span class="field-value">{{ user.bank_account_name }}</span>
-      </div>
-      <div class="field w2">
-        <span class="field-label">Account Number</span>
-        <span class="field-value">{{ user.bank_account_number }}</span>
-      </div>
-    </div>
-  </div>
+<!-- ======= BANK ACCOUNT DETAILS ======= -->
+<div class="part">BANK ACCOUNT DETAILS</div>
+<table class="f">
+  <tr>
+    <td style="width:30%;"><span class="lbl">Account Name</span><span class="val">{{ user.bank_account_name }}</span></td>
+    <td style="width:25%;"><span class="lbl">Bank</span><span class="val">{{ user.bank }}</span></td>
+    <td style="width:20%;"><span class="lbl">Branch</span><span class="val">{{ user.bank_branch }}</span></td>
+    <td style="width:25%;"><span class="lbl">Account No.</span><span class="val">{{ user.bank_account_number }}</span></td>
+  </tr>
+  <tr>
+    <td colspan="4"><span class="lbl">Account Type (tick where appropriate)</span><span class="val">
+      <span class="bx">{% if user.bank_account_type == 'SAVINGS' %}X{% endif %}</span><span class="opt">Savings</span>
+      <span class="bx">{% if user.bank_account_type == 'CURRENT' %}X{% endif %}</span><span class="opt">Trans</span>
+      <span class="bx"></span><span class="opt">Cheq</span>
+      <span class="bx">{% if user.bank_account_type == 'TERM DEPOSIT' %}X{% endif %}</span><span class="opt">Others</span>
+    </span></td>
+  </tr>
+</table>
 
-  <!-- Loan Information -->
-  <div class="section">
-    <div class="section-title">Loan Information</div>
-    <div class="field-row">
-      <div class="field">
-        <span class="field-label">Loan Type</span>
-        <span class="field-value">{{ loan.loan_type }}</span>
-      </div>
-      <div class="field">
-        <span class="field-label">Amount (K)</span>
-        <span class="field-value">{{ loan.amount }}</span>
-      </div>
-      <div class="field">
-        <span class="field-label">Repayment (K)</span>
-        <span class="field-value">{{ loan.repayment_amount }}</span>
-      </div>
-      <div class="field">
-        <span class="field-label">No. of Fortnights</span>
-        <span class="field-value">{{ loan.number_of_fortnights }}</span>
-      </div>
-      <div class="field w2">
-        <span class="field-label">Repayment Start Date</span>
-        <span class="field-value">{{ loan.repayment_start_date }}</span>
-      </div>
-    </div>
-  </div>
+<!-- ======= PART 2 — LOAN INFORMATION ======= -->
+<div class="part">PART 2 — LOAN INFORMATION</div>
+<table class="f">
+  <tr>
+    <td colspan="3"><span class="lbl">Purpose</span><span class="val">{{ loan.purpose_of_loan }}</span></td>
+  </tr>
+  <tr>
+    <td style="width:36%;"><span class="lbl">Tick appropriate box</span><span class="val">
+      <span class="bx">{% if existing_client %}X{% endif %}</span><span class="opt">Existing client</span>
+      <span class="bx">{% if not existing_client %}X{% endif %}</span><span class="opt">New client</span>
+    </span></td>
+    <td colspan="2"><span class="lbl">Previous loan completed</span><span class="val">
+      <span class="bx">{% if prev_loan_completed %}X{% endif %}</span><span class="opt">Yes</span>
+      <span class="bx">{% if not prev_loan_completed %}X{% endif %}</span><span class="opt">No</span>
+    </span></td>
+  </tr>
+  <tr>
+    <td><span class="lbl">Amount Applied for</span><span class="val">K{{ loan.amount|floatformat:2 }}</span></td>
+    <td style="width:30%;"><span class="lbl">No. of Fortnights to Repay</span><span class="val">{{ loan.number_of_fortnights }}</span></td>
+    <td style="width:34%;"><span class="lbl">Fortnightly Repayment Amount</span><span class="val">K{{ loan.repayment_amount|floatformat:2 }}</span></td>
+  </tr>
+  <tr>
+    <td><span class="lbl">Date to Start Repayment</span><span class="val">{{ loan.repayment_start_date|date:"d/m/Y" }}</span></td>
+    <td><span class="lbl">Date of Last Repayment Due</span><span class="val">{{ loan.expected_end_date|date:"d/m/Y" }}</span></td>
+    <td><span class="lbl">Date to Cease Repayment</span><span class="val">{{ loan.expected_end_date|date:"d/m/Y" }}</span></td>
+  </tr>
+</table>
 
-  <!-- Terms & Consent -->
-  <div class="section">
-    <div class="section-title">Terms, Conditions &amp; Credit Data Consent</div>
-    <div class="consent-text">
-      1. I attach a separate Terms &amp; Conditions document with this that will be the Loan Agreement between me and {{ settings.COMPANY_NAME }}.<br>
-      2. I give full consent and authorize {{ settings.COMPANY_NAME }} to:<br>
-      &nbsp;&nbsp;a) Obtain credit report containing personal financial &amp; credit information in relation to the undersigned from a Credit Agency;<br>
-      &nbsp;&nbsp;b) Utilize the credit report to assist in the assessment of any loan or credit application by the borrower;<br>
-      &nbsp;&nbsp;c) Exchange personal financial and credit information in relation to the undersigned borrower with other credit providers including details of loans obtained from {{ settings.COMPANY_NAME }} or other affiliates; and<br>
-      &nbsp;&nbsp;d) Inform a Credit Reporting Agency of any default in repayment of the credit provided to the undersigned borrower(s).
-    </div>
-    <p class="consent-note">It is acknowledged that the borrower certifies that the information contained within this is true and correct in every particular.</p>
-  </div>
-
-  <!-- Signature -->
-  <div class="sig-row">
-    <div class="sig-block">
-      <div class="sig-line"></div>
-      <div class="sig-label">Signature</div>
-    </div>
-    <div class="sig-block">
-      <div class="sig-line"></div>
-      <div class="sig-label">Full Name</div>
-    </div>
-    <div class="sig-block">
-      <div class="sig-line"></div>
-      <div class="sig-label">Date</div>
-    </div>
-  </div>
-
+<!-- ======= PART 3 — TERMS AND CONDITIONS ======= -->
+<div class="part">PART 3 — TERMS AND CONDITIONS</div>
+<div class="tc">
+  <p><b>3.1</b> I agree to the terms of Loan in accordance with the repayment schedule of <b>Moroma Finance Ltd</b> and thus I accept the above stated loan amount.</p>
+  <p><b>3.2</b> I agree to repay the Loan on fortnightly instalments without defaulting during the period of the loan repayment.</p>
+  <p><b>3.3</b> I agree that any defaults incurred will result in overdue charges amounting to 25% of the fortnightly rate and I must settle all outstanding arrears that accumulate.</p>
+  <p><b>3.4</b> I authorize direct debit of my bank account by Standing Order Authority or Payroll Deduction by my employer the fortnightly repayment amount due and credited to <b>Moroma Finance Ltd</b> Deduction Code <b>{{ bank_config.alesco_dc|default:settings.ALESCO_DC }}</b> or to its {{ bank_config.bank }} {{ bank_config.bank_branch }} Branch Cheque Account No. <b>{{ bank_config.bank_acc_num }}</b>.</p>
+  <p><b>3.5</b> I agree that I will make withdrawals from my Salary Accounts after how much I agree to pay fortnightly to <b>Moroma Finance Ltd</b> is effected.</p>
+  <p><b>3.6</b> I agree that term reference in 3.3 (above) also applies on the difference of the reduced amount paid for loan repayment per pay period ending.</p>
+  <p><b>3.7</b> I agree that I will offset any outstanding balance of this loan from the proceeds of my Superannuation Fund Contributions, savings at Bank, property rental income and elsewhere and or Finish pay entitlements to <b>Moroma Finance Ltd</b>, should I be terminated or made redundant or death.</p>
+  <p><b>3.8</b> I agree that I will notify <b>Moroma Finance Ltd</b> immediately of any change in my employment status and / or bank account.</p>
+  <p><b>3.9</b> I as a public sector worker agree to repay the loan amount and any fees and charges in full without tempering the established deduction.</p>
+  <p><b>3.10</b> I understand that my loan application will be rejected if my application form is not properly filled and necessary documents are not provided, and</p>
+  <p><b>3.11</b> I have read and understood every particulars of the loan and do accept the Terms and Conditions (of the Loan) as stated in the aforesaid application.</p>
 </div>
+
+<!-- ======= PART 4 — CLIENT SEARCH AUTHORITY ======= -->
+<div class="part">PART 4 — CLIENT SEARCH AUTHORITY</div>
+<div class="tc">
+  <p>I hereby authorize and consent to <b>Moroma Finance Ltd</b> collecting and disclosing information which it may or may not have in its possession about me with any of its subsidiaries, agents, third party assignees, other financial institution, Credit Bureaus or other person or corporation as permitted by applicable laws.</p>
+</div>
+
+<!-- ======= PART 5 — DECLARATION & IRREVOCABLE SALARY DEDUCTION AUTHORITY ======= -->
+<div class="part">PART 5 — DECLARATION &amp; IRREVOCABLE SALARY DEDUCTION AUTHORITY</div>
+<div class="tc">
+  <p>I do solemnly declare hereby that the written details contained herein are true and correct in every particular as expressed and are given in support of my application for a Credit Facility in the form of Loan from <b>Moroma Finance Ltd</b>. I shall be responsible on full indemnity basis for all costs incurred by <b>Moroma Finance Ltd</b>, including legal costs in the course of recovering and administration of this loan agreement entered herewith.</p>
+  <p>I hereby authorize my Employer/Paymaster of <b>{{ user.employer }}</b> (Organisation name) to deduct the sum of <b>K{{ loan.repayment_amount|floatformat:2 }}</b> per
+    <span class="bx">{% if user.pay_frequency == 'FN' %}X{% endif %}</span><span class="opt">Fortnight</span>
+    <span class="bx">{% if user.pay_frequency == 'MN' %}X{% endif %}</span><span class="opt">month</span>
+    from my wage/salary and credit to <b>Moroma Finance Ltd</b> Cheque Account No. <b>{{ bank_config.bank_acc_num }}</b> with {{ bank_config.bank }} Bank {{ bank_config.bank_branch }} Branch.</p>
+  <p>In the event that I am terminated or resign or die or take any kind of leave, my outstanding loan with Moroma Finance Ltd must be settled first. This irrevocable salary deduction authority will only cease upon completion of my loan and I will not temper, revoke or manipulate it.</p>
+</div>
+
+<table class="sig">
+  <tr>
+    <td style="width:40%;"><div class="line"></div><div class="slbl">Customer Signature</div></td>
+    <td style="width:30%;"><div class="line"></div><div class="slbl">Name in full</div></td>
+    <td style="width:30%;"><div class="line"></div><div class="slbl">Date</div></td>
+  </tr>
+  <tr>
+    <td><div class="line"></div><div class="slbl">Employer / Paymaster's Name</div></td>
+    <td><div class="line"></div><div class="slbl">Position</div></td>
+    <td><div class="line"></div><div class="slbl">Signature &amp; Date</div></td>
+  </tr>
+</table>
+<div class="stampbox">Stamp / Common Seal of Organization</div>
+
+<!-- ======= OFFICE USE ======= -->
+<div class="office">
+  <div class="oh">MOROMA FINANCE LTD — OFFICE USE ONLY</div>
+  <table class="f">
+    <tr>
+      <td style="width:34%;"><span class="lbl">Approved Amount — Loan of K</span><span class="val"></span></td>
+      <td colspan="2"><span class="lbl">Approved and paid in Cash to / Deposit made to Mr / Mrs / Miss</span><span class="val"></span></td>
+    </tr>
+    <tr>
+      <td><span class="lbl">Bank</span><span class="val"></span></td>
+      <td style="width:33%;"><span class="lbl">Branch</span><span class="val"></span></td>
+      <td style="width:33%;"><span class="lbl">Account No.</span><span class="val"></span></td>
+    </tr>
+    <tr>
+      <td><span class="lbl">Authorization Manager (Signature)</span><span class="val"></span></td>
+      <td><span class="lbl">Name in full</span><span class="val"></span></td>
+      <td><span class="lbl">Date</span><span class="val"></span></td>
+    </tr>
+  </table>
+</div>
+
+<!-- ======= REQUIREMENTS FOOTER ======= -->
+<div class="req">
+  <b>REQUIREMENT FOR LOANS:</b>
+  1. Completed Moroma Finance loan application form &nbsp;·&nbsp;
+  2. Two latest payslips &nbsp;·&nbsp;
+  3. Completed Employee/Pay Variation Advice (PVA) &nbsp;·&nbsp;
+  4. Employment confirmation letter from Snr Payroll Officer or HR Manager from your current employer indicating your salary &amp; repayment capabilities &nbsp;·&nbsp;
+  5. Copy of current work ID card &nbsp;·&nbsp;
+  6. Bank statement up to 2- or 3-months period.
+</div>
+
 </body>
 </html>

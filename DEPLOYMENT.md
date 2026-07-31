@@ -16,25 +16,25 @@ This codebase was whitelabelled from the LoanMasta tenant template. These items
 are **placeholders inherited from the template** and must be replaced with
 Moroma's own data before taking real applications:
 
-- [ ] **Repayment schedule** — `custom/functions.py` `REPAYMENT_TABLE` and
-      `static_files/clientfiles/RepaymentTable.pdf` are the template's figures,
-      **not Moroma's approved rates**. Regenerate the table from Moroma's
-      published schedule and replace the PDF (see the TODO in
-      `custom/functions.py`).
-- [ ] **Bank account details** — intentionally blank in settings. Enter Moroma's
-      real account in the admin **Settings → AdminSettings** screen (used on
-      payment / cash disbursement notices).
-- [ ] **Loan limits** — `LOAN_MIN_AMOUNT`/`LOAN_MAX_AMOUNT` and the
-      `MIN_AMOUNT`/`MAX_AMOUNT`/increment sliders in `moromafinance/settings.py`
-      are template defaults (K100–K5,000). Confirm Moroma's actual range and
-      update the website copy (`home.html`, `rates.html`, FAQ) to match.
+- [x] **Repayment schedule** — DONE: `custom/functions.py` `REPAYMENT_TABLE`
+      regenerated from the client's deduction schedule (`client_documents/`
+      "1 Updated Ded Sch 2026.pdf", effective 1 Dec 2025): K500–K5,000 in K50
+      steps, 7–36 fortnights (min term 14 below K1,000, 9 below K2,000).
+      `static_files/clientfiles/RepaymentTable.pdf` replaced with the client PDF.
+- [ ] **Bank account details** — prefilled from the client's application form
+      (BSP Waterfront Branch, Cheque Account No. 7016639473, Deduction Code
+      `DMAWE`). **Verify with the client at go-live**; the admin
+      **Settings → AdminSettings** screen overrides the settings.py fallback.
+- [x] **Loan limits** — DONE: K500–K5,000, K50 steps, 7–36 fortnights in
+      `moromafinance/settings.py` and across website copy.
 - [ ] **Logo artwork** — `static_files/clientfiles/moroma_logo.svg`,
       `static_files/img/moroma_favicon.svg` and
       `static_files/clientfiles/brandlogo.png` are recreated approximations of
       the client mark (`client_documents/5.Moroma Logo.jpg`). Swap in
       professional artwork when supplied, keeping the same file names/paths.
-- [ ] **ALESCO deduction code** — set `ALESCO_DC` in `.env` once issued by the
-      payroll authority.
+- [x] **ALESCO deduction code** — DONE: `DMAWE` (printed on the client's in-use
+      application form) is the settings.py default; override via `.env` if it
+      changes.
 - [ ] **DCC onboarding** — set `DCC_TENANT_LUID` / `DCC_API_KEY` /
       `DCC_PROFILE_ID` in `.env` once Moroma is registered in the DCC control
       panel. Blank values keep DCC dormant.

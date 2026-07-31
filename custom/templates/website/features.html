@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}Our Loans — Personal Loans &amp; Refinancing | Moroma Finance{% endblock %}
-{% block meta_desc %}Explore Moroma Finance loan services: personal loans from K500 to K3,000, refinancing to consolidate what you owe, and special offers for trusted clients.{% endblock %}
+{% block meta_desc %}Explore Moroma Finance loan services: personal loans from K500 to K5,000, refinancing and top-up loans, and special offers for trusted clients.{% endblock %}
 
 {% block hero %}
 <section class="page-hero">
@@ -18,14 +18,14 @@
 
 <section class="section">
   <div class="container">
-    <div class="grid grid-2">
+    <div class="grid grid-3">
 
       <div class="card reveal">
         <div class="ic"><i class="bi bi-cash-coin"></i></div>
         <h3>Personal Loan</h3>
-        <p>Cash for school fees, medical costs, travel, funerals or any of life's unexpected moments. Apply online, get a decision fast and receive funds straight to your bank account.</p>
+        <p>Finance for approved personal, family, education, medical, emergency and other lawful needs. Apply online, get a decision fast and receive funds straight to your bank account.</p>
         <ul class="checklist">
-          <li><i class="bi bi-check-circle-fill"></i> Borrow from <strong>K500 up to K3,000</strong></li>
+          <li><i class="bi bi-check-circle-fill"></i> Borrow from <strong>K500 up to K5,000</strong></li>
           <li><i class="bi bi-check-circle-fill"></i> Repayment set by our published repayment schedule</li>
           <li><i class="bi bi-check-circle-fill"></i> Fortnightly repayments matched to your pay</li>
           <li><i class="bi bi-check-circle-fill"></i> Same-day approval for eligible clients</li>
@@ -36,14 +36,26 @@
       <div class="card reveal">
         <div class="ic"><i class="bi bi-arrow-repeat"></i></div>
         <h3>Refinancing</h3>
-        <p>Juggling more than one loan? Refinance with Moroma Finance to combine what you owe into a single, manageable fortnightly repayment — and free up your pay.</p>
+        <p>Refinancing for eligible clients — internal refinancing of your existing Moroma Finance loan, or external refinancing of a qualifying loan held with another finance company.</p>
         <ul class="checklist">
           <li><i class="bi bi-check-circle-fill"></i> Consolidate existing loans into one</li>
           <li><i class="bi bi-check-circle-fill"></i> One repayment, one due date, less stress</li>
           <li><i class="bi bi-check-circle-fill"></i> Free up room in your fortnightly budget</li>
-          <li><i class="bi bi-check-circle-fill"></i> Talk to our team about your options</li>
+          <li><i class="bi bi-check-circle-fill"></i> Subject to credit assessment, settlement verification and approval</li>
         </ul>
         <a href="{% url 'contact' %}" class="btn-d btn-green" style="margin-top:1.5rem;">Talk to us about refinancing <i class="bi bi-arrow-right"></i></a>
+      </div>
+
+      <div class="card reveal">
+        <div class="ic"><i class="bi bi-plus-circle-fill"></i></div>
+        <h3>Top-Up Loans</h3>
+        <p>Additional finance for eligible existing clients, subject to your repayment performance and our current credit policy.</p>
+        <ul class="checklist">
+          <li><i class="bi bi-check-circle-fill"></i> For existing clients with a good repayment record</li>
+          <li><i class="bi bi-check-circle-fill"></i> Top up without starting from scratch</li>
+          <li><i class="bi bi-check-circle-fill"></i> Same transparent repayment schedule</li>
+        </ul>
+        <a href="{% url 'contact' %}" class="btn-d btn-green" style="margin-top:1.5rem;">Ask about a top-up <i class="bi bi-arrow-right"></i></a>
       </div>
 
     </div>
@@ -84,11 +96,13 @@
       <h2>What you'll need to apply</h2>
       <p>Have these ready and your application will move quickly.</p>
     </div>
-    <div class="grid grid-4">
-      <div class="card reveal"><div class="ic"><i class="bi bi-person-badge"></i></div><h3>Valid ID</h3><p>A current photo ID confirming who you are.</p></div>
-      <div class="card reveal"><div class="ic"><i class="bi bi-briefcase"></i></div><h3>Employment</h3><p>Proof you are employed with a regular income.</p></div>
-      <div class="card reveal"><div class="ic"><i class="bi bi-receipt"></i></div><h3>Recent payslip</h3><p>So we can confirm your repayment capacity.</p></div>
-      <div class="card reveal"><div class="ic"><i class="bi bi-bank"></i></div><h3>Bank account</h3><p>Where we'll pay your approved funds.</p></div>
+    <div class="grid grid-3">
+      <div class="card reveal"><div class="ic"><i class="bi bi-file-earmark-text"></i></div><h3>Application form</h3><p>A completed and signed Moroma Finance loan application form.</p></div>
+      <div class="card reveal"><div class="ic"><i class="bi bi-person-badge"></i></div><h3>Identification</h3><p>A copy of your current work ID card, plus acceptable ID (NID or driver's licence).</p></div>
+      <div class="card reveal"><div class="ic"><i class="bi bi-receipt"></i></div><h3>Two latest payslips</h3><p>So we can confirm your salary and repayment capacity.</p></div>
+      <div class="card reveal"><div class="ic"><i class="bi bi-file-earmark-check"></i></div><h3>Pay Variation Advice</h3><p>A completed Employee/Pay Variation Advice (PVA) from your payroll.</p></div>
+      <div class="card reveal"><div class="ic"><i class="bi bi-briefcase"></i></div><h3>Employment confirmation</h3><p>A letter from your Senior Payroll Officer or HR Manager confirming your salary and repayment capability.</p></div>
+      <div class="card reveal"><div class="ic"><i class="bi bi-bank"></i></div><h3>Bank statement</h3><p>Your payroll account statement for the last 2–3 months.</p></div>
     </div>
     <div style="text-align:center; margin-top:2.5rem;">
       <a href="{% url 'register' %}" class="btn-d btn-orange btn-lg">Apply Now <i class="bi bi-arrow-right"></i></a>

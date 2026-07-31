@@ -75,12 +75,26 @@ class DownloadApplication(View):
         usr = User.objects.get(pk=user.user_id)
 
         statements = Statement.objects.filter(loanref=loan)
-        
+
         now = datetime.datetime.now()
         today = now.strftime("%d/%m/%Y")
-        
+
         last_name_s = user.last_name[-1]
-        
+
+        # Derived fields for the MOROMA paper-form layout
+        age = ''
+        if user.date_of_birth:
+            age = int((now.date() - user.date_of_birth).days // 365.25)
+        years_service = ''
+        if user.start_date:
+            years_service = round((now.date() - user.start_date).days / 365.25, 1)
+        spouse_name = ''
+        if getattr(user, 'referee_is_spouse', False):
+            spouse_name = ' '.join(p for p in [user.referee_first_name, user.referee_last_name] if p)
+        previous_loans = Loan.objects.filter(owner=user).exclude(pk=loan.pk)
+        existing_client = previous_loans.exists()
+        prev_loan_completed = previous_loans.filter(status='COMPLETED').exists()
+
         data = {'loan':loan,
                 'user':user,
                 'usr': usr,
@@ -88,8 +102,13 @@ class DownloadApplication(View):
                 'domain': settings.DOMAIN,
                 'statements': statements,
                 'today':today,
+                'age': age,
+                'years_service': years_service,
+                'spouse_name': spouse_name,
+                'existing_client': existing_client,
+                'prev_loan_completed': prev_loan_completed,
                 'bank_config': get_bank_config() }
-        
+
         response = PDFTemplateResponse(
             request=request,
             template = self.template,
@@ -97,15 +116,20 @@ class DownloadApplication(View):
             context = data,
             show_content_in_browser=False,
             cmd_options= {
-            
+
                 "zoom":1,
                 "viewport-size": "1366 x 513",
                 'javascript-delay': 1000,
+                'page-size': 'A4',
+                'margin-top': 8,
+                'margin-bottom': 8,
+                'margin-left': 9,
+                'margin-right': 9,
                 'footer-center': '[page]/[topage]',
                 "no-stop-slow-scripts": True,
             },
         )
-        
+
         return response
 
 class DownloadStatement(View):
