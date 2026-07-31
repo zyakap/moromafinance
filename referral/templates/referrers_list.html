@@ -1,0 +1,109 @@
+{% extends "admin_base.html" %}
+{% load static %}
+
+{% block title %}Referrers{% endblock %}
+{% block breadcrumb %}<a href="{% url 'admin_dashboard' %}">Dashboard</a>{% endblock %}
+{% block breadcrumb_active %}Referrers{% endblock %}
+{% block dashboard_title %}Referrer Management{% endblock %}
+
+{% block css %}
+<style>
+  .stats-row { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:1.5rem; }
+  .stat-card {
+    flex:1; min-width:130px; background:#fff; border-radius:10px;
+    box-shadow:0 2px 10px rgba(0,0,0,.07); padding:14px 18px; text-align:center;
+  }
+  .stat-card .n { font-size:1.8rem; font-weight:800; }
+  .stat-card .l { font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#888; }
+  .n-blue { color:#344767; } .n-green { color:#2e7d32; } .n-orange { color:#f57f17; } .n-grey { color:#888; }
+
+  .ref-table { width:100%; border-collapse:collapse; }
+  .ref-table thead tr { background:#344767; }
+  .ref-table th { padding:10px 14px; color:#fff; font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; }
+  .ref-table td { padding:10px 14px; font-size:.85rem; border-bottom:1px solid #f0f2f5; vertical-align:middle; }
+  .ref-table tbody tr:hover { background:#f8f9fa; }
+
+  .status-active { background:#e8f5e9; color:#2e7d32; padding:3px 10px; border-radius:20px; font-size:.7rem; font-weight:700; }
+  .status-inactive { background:#f5f5f5; color:#888; padding:3px 10px; border-radius:20px; font-size:.7rem; font-weight:700; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Sub-nav -->
+<div class="d-flex gap-2 mt-3 mb-4 align-items-center flex-wrap">
+  <a href="{% url 'referrers_list' %}" class="btn btn-sm btn-primary">
+    <i class="material-icons-round align-middle" style="font-size:.9rem;">people</i> Referrers
+  </a>
+  <a href="{% url 'commission_overview' %}" class="btn btn-sm btn-outline-secondary">
+    <i class="material-icons-round align-middle" style="font-size:.9rem;">payments</i> Commission Overview
+  </a>
+  <a href="{% url 'referral_settings' %}" class="btn btn-sm btn-outline-secondary">
+    <i class="material-icons-round align-middle" style="font-size:.9rem;">settings</i> Referral Settings
+  </a>
+  <a href="{% url 'payment_run' %}" class="btn btn-sm btn-warning text-dark ms-auto me-1">
+    <i class="material-icons-round align-middle" style="font-size:.9rem;">payments</i> Payment Run
+  </a>
+  <a href="{% url 'add_referrer' %}" class="btn btn-sm btn-success">
+    <i class="material-icons-round align-middle" style="font-size:.9rem;">add</i> Add Referrer
+  </a>
+</div>
+
+<!-- Stats -->
+<div class="stats-row">
+  <div class="stat-card"><div class="n n-blue">{{ referrers.count }}</div><div class="l">Total Referrers</div></div>
+  <div class="stat-card"><div class="n n-green">{{ active_referrers }}</div><div class="l">Active</div></div>
+  <div class="stat-card"><div class="n n-blue">{{ total_referrals }}</div><div class="l">Total Referrals</div></div>
+  <div class="stat-card"><div class="n n-orange">K {{ total_unpaid|floatformat:2 }}</div><div class="l">Unpaid Commission</div></div>
+  <div class="stat-card"><div class="n n-grey">K {{ total_paid|floatformat:2 }}</div><div class="l">Paid Out</div></div>
+  <div class="stat-card"><div class="n n-green">K {{ commission_rate|floatformat:2 }}</div><div class="l">Rate per Referral</div></div>
+</div>
+
+<!-- Table -->
+<div class="card shadow" style="border-radius:10px;overflow:hidden;">
+  <div class="card-body p-0">
+    {% if referrers %}
+    <table class="ref-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Phone</th>
+          <th>Email</th>
+          <th>Bank</th>
+          <th class="text-center">Referrals</th>
+          <th class="text-right">Unpaid (K)</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in referrers %}
+        <tr>
+          <td><strong>{{ r.name }}</strong></td>
+          <td>{{ r.phone|default:"—" }}</td>
+          <td>{{ r.email|default:"—" }}</td>
+          <td>{{ r.bank|default:"—" }}</td>
+          <td class="text-center"><strong>{{ r.ref_count }}</strong></td>
+          <td class="text-right" style="font-weight:600;color:{% if r.unpaid_total %}#f57f17{% else %}#888{% endif %};">
+            {{ r.unpaid_total|default:0|floatformat:2 }}
+          </td>
+          <td>
+            {% if r.status == 'ACTIVE' %}<span class="status-active">Active</span>
+            {% else %}<span class="status-inactive">Inactive</span>{% endif %}
+          </td>
+          <td>
+            <a href="{% url 'view_referrer' r.id %}" class="btn btn-sm btn-primary px-3 py-1">View</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div style="text-align:center;padding:50px;color:#aaa;">
+      <i class="material-icons-round" style="font-size:2.5rem;display:block;margin-bottom:8px;">people_outline</i>
+      No referrers registered yet. <a href="{% url 'add_referrer' %}">Add the first one.</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

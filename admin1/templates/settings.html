@@ -1,0 +1,88 @@
+{% extends "admin_base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %} Admin Settings {% endblock %}
+
+{% block breadcrumb %} <a href="{% url 'admin_dashboard' %}">Admin</a> {% endblock %}
+{% block breadcrumb_active %} Settings {% endblock %}
+{% block dashboard_title %} Settings {% endblock %}
+
+{% block content %}
+<div class="sx-wrap">
+  {% include "settings_nav.html" %}
+
+  <div class="card sx-card">
+    <div class="card-header sx-head">
+      <div class="sx-ico"><i class="fa fa-sliders"></i></div>
+      <div>
+        <h5>General Settings</h5>
+        <p>System identity, email routing, currency display, and deduction categories.</p>
+      </div>
+    </div>
+    <div class="card-body pt-3 p-3">
+      <form method="post">
+        {% csrf_token %}
+
+        <h6 class="sx-sec">System &amp; Email</h6>
+        <div class="row g-2 mb-3">
+          <div class="col-md-4">{{ form.loanref_prefix|as_crispy_field }}</div>
+          <div class="col-md-4">{{ form.admin_email_addresses|as_crispy_field }}</div>
+          <div class="col-md-4">{{ form.default_from_email|as_crispy_field }}</div>
+          <div class="col-md-4">{{ form.support_email|as_crispy_field }}</div>
+        </div>
+
+        <h6 class="sx-sec">Client Work Email Notifications</h6>
+        <div class="row g-2 mb-3">
+          <div class="col-md-8">
+            {{ form.email_system_to_work_email|as_crispy_field }}
+            <p class="text-muted" style="margin-top:-6px;">
+              <i class="fa fa-circle-info me-1"></i>
+              When <strong>ON</strong>, system emails (loan funding, CDN, amortization, messages) can be sent to clients' work email addresses.
+              Individual clients can still be opted out via their profile in the client view.
+              When <strong>OFF</strong>, no system email goes to any work email globally.
+            </p>
+          </div>
+        </div>
+
+        <h6 class="sx-sec">Currency Display Format</h6>
+        <div class="row g-2 mb-3">
+          <div class="col-md-4">{{ form.display_decimal_places|as_crispy_field }}</div>
+          <div class="col-md-4">
+            {{ form.decimal_rounding|as_crispy_field }}
+            <p class="text-muted" style="margin-top:-6px;">
+              <i class="fa fa-circle-info me-1"></i>
+              Rounding only applies when <strong>0 or 1</strong> decimal place is selected. With 2 decimal places, standard half-up rounding is always used.
+            </p>
+          </div>
+        </div>
+
+        <h6 class="sx-sec">Deduction Categories Allowed</h6>
+        <p class="text-muted" style="margin-top:-4px;">Choose which payroll/deduction categories are offered when registering a client. Reports can then be pulled per category (e.g. only ALESCO or only Private Sector).</p>
+        <div class="row g-2 mb-3">
+          <div class="col-md-3">{{ form.dc_alesco_enabled|as_crispy_field }}</div>
+          <div class="col-md-3">{{ form.dc_private_enabled|as_crispy_field }}</div>
+          <div class="col-md-3">{{ form.dc_standing_order_enabled|as_crispy_field }}</div>
+          <div class="col-md-3">{{ form.dc_voluntary_enabled|as_crispy_field }}</div>
+        </div>
+
+        <h6 class="sx-sec">Company Bank Account <small class="text-muted fw-normal text-none" style="text-transform:none;">(used on IRSDA &amp; CDN documents)</small></h6>
+        <div class="row g-2 mb-3">
+          <div class="col-md-4">{{ form.bank1|as_crispy_field }}</div>
+          <div class="col-md-4">{{ form.bank1_acc_name|as_crispy_field }}</div>
+          <div class="col-md-4">{{ form.bank1_acc_num|as_crispy_field }}</div>
+          <div class="col-md-4">{{ form.bank1_branch|as_crispy_field }}</div>
+          <div class="col-md-4">{{ form.bank1_bsb|as_crispy_field }}</div>
+          <div class="col-md-4">{{ form.swift|as_crispy_field }}</div>
+        </div>
+
+        <h6 class="sx-sec">Public Service Deduction</h6>
+        <div class="row g-2 mb-3">
+          <div class="col-md-4">{{ form.alesco_dc|as_crispy_field }}</div>
+        </div>
+
+        <button type="submit" class="btn btn-primary"><i class="fa fa-save me-1"></i> Save General Settings</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

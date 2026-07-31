@@ -1,0 +1,295 @@
+{% extends "admin_base.html" %}
+{% load static %}
+
+{% block title %}Search Results{% endblock %}
+{% block breadcrumb %}<a href="{% url 'admin_dashboard' %}">Admin Dashboard</a>{% endblock %}
+{% block breadcrumb_active %}Search Results{% endblock %}
+{% block dashboard_title %}Global Search{% endblock %}
+
+{% block css %}
+<style>
+  .search-hero {
+    background: linear-gradient(135deg, #344767 0%, #21315c 100%);
+    border-radius: 12px;
+    padding: 22px 28px;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .search-hero .search-form {
+    flex: 1;
+    display: flex;
+    gap: 10px;
+  }
+  .search-hero input {
+    flex: 1;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 1rem;
+    outline: none;
+  }
+  .search-hero button {
+    border-radius: 8px;
+    padding: 10px 22px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+  .search-hero .search-label {
+    color: rgba(255,255,255,.75);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .results-section { margin-bottom: 2rem; }
+  .results-section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 0.75rem;
+  }
+  .results-section-header h5 {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: #344767;
+  }
+  .results-count {
+    background: #344767;
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 2px 9px;
+    border-radius: 20px;
+  }
+
+  .result-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,.07);
+  }
+  .result-table thead tr { background: #344767; }
+  .result-table th {
+    padding: 10px 14px;
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    white-space: nowrap;
+  }
+  .result-table td {
+    padding: 10px 14px;
+    font-size: 0.84rem;
+    color: #344767;
+    border-bottom: 1px solid #f0f2f5;
+    vertical-align: middle;
+  }
+  .result-table tbody tr:last-child td { border-bottom: none; }
+  .result-table tbody tr:hover { background: #f8f9fa; }
+
+  .status-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+  .status-running    { background: #e8f5e9; color: #2e7d32; }
+  .status-pending,
+  .status-awaiting   { background: #fff8e1; color: #f57f17; }
+  .status-defaulted  { background: #fce4ec; color: #c62828; }
+  .status-completed  { background: #e3f2fd; color: #1565c0; }
+  .status-recovery   { background: #ede7f6; color: #4527a0; }
+  .status-rejected,
+  .status-cancelled  { background: #f5f5f5; color: #616161; }
+  .status-review,
+  .status-hold       { background: #e8eaf6; color: #283593; }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #aaa;
+  }
+  .empty-state i { font-size: 3rem; display: block; margin-bottom: 8px; }
+
+  .no-query {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.07);
+    padding: 50px 30px;
+    text-align: center;
+    color: #6c757d;
+  }
+  .no-query i { font-size: 3.5rem; color: #dee2e6; display: block; margin-bottom: 12px; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Search bar (re-query) -->
+<div class="search-hero mt-3">
+  <span class="material-icons-round text-white" style="font-size:1.6rem;">manage_search</span>
+  <form method="get" action="{% url 'global_search' %}" class="search-form" role="search">
+    <input type="text" name="q" value="{{ query }}" placeholder="Search by name, NID, email, employer, loan ref…" autofocus>
+    <button type="submit" class="btn btn-success">Search</button>
+  </form>
+</div>
+
+{% if not query %}
+
+  <div class="no-query">
+    <i class="material-icons-round">search</i>
+    <h5>Start typing to search</h5>
+    <p style="font-size:.875rem;">Search across all clients and loans by name, NID number, email, employer, mobile number, or loan reference.</p>
+  </div>
+
+{% else %}
+
+  {% if not clients and not loans %}
+    <div class="no-query">
+      <i class="material-icons-round">search_off</i>
+      <h5>No results found for "{{ query }}"</h5>
+      <p style="font-size:.875rem;">Try a different name, NID number, email address, employer, or loan reference.</p>
+    </div>
+
+  {% else %}
+
+    <!-- ── CLIENTS ── -->
+    <div class="results-section">
+      <div class="results-section-header">
+        <span class="material-icons-round text-primary" style="font-size:1.2rem;">people</span>
+        <h5>Clients</h5>
+        <span class="results-count">{{ clients|length }}{% if clients|length == 30 %}+{% endif %}</span>
+      </div>
+
+      {% if clients %}
+        <table class="result-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Full Name</th>
+              <th>Email</th>
+              <th>NID</th>
+              <th>Mobile</th>
+              <th>Employer</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for client in clients %}
+            <tr>
+              <td style="color:#aaa;font-size:.75rem;">{{ forloop.counter }}</td>
+              <td>
+                <strong>{{ client.first_name }} {{ client.last_name }}</strong>
+              </td>
+              <td>{{ client.user.email }}</td>
+              <td>{{ client.nid_number|default:"—" }}</td>
+              <td>{{ client.mobile1|default:"—" }}</td>
+              <td>{{ client.employer|default:"—" }}</td>
+              <td>
+                <a href="{% url 'view_client' client.id %}" class="btn btn-sm btn-primary px-3 py-1">
+                  <i class="material-icons-round" style="font-size:.85rem;vertical-align:middle;">visibility</i>
+                  View
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div class="empty-state">
+          <i class="material-icons-round">person_off</i>
+          No clients matched "{{ query }}"
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- ── LOANS ── -->
+    <div class="results-section">
+      <div class="results-section-header">
+        <span class="material-icons-round text-primary" style="font-size:1.2rem;">account_balance</span>
+        <h5>Loans</h5>
+        <span class="results-count">{{ loans|length }}{% if loans|length == 30 %}+{% endif %}</span>
+      </div>
+
+      {% if loans %}
+        <table class="result-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Loan Ref</th>
+              <th>Client</th>
+              <th>Type</th>
+              <th>Amount (K)</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for loan in loans %}
+            <tr>
+              <td style="color:#aaa;font-size:.75rem;">{{ forloop.counter }}</td>
+              <td><strong>{{ loan.ref }}</strong></td>
+              <td>
+                {% if loan.owner %}
+                  {{ loan.owner.first_name }} {{ loan.owner.last_name }}
+                {% else %}—{% endif %}
+              </td>
+              <td>{{ loan.loan_type|default:"—" }}</td>
+              <td>{{ loan.amount }}</td>
+              <td>
+                {% with s=loan.status|lower %}
+                  {% if "running" in s %}
+                    <span class="status-badge status-running">{{ loan.status }}</span>
+                  {% elif "default" in s %}
+                    <span class="status-badge status-defaulted">{{ loan.status }}</span>
+                  {% elif "complet" in s %}
+                    <span class="status-badge status-completed">{{ loan.status }}</span>
+                  {% elif "recover" in s %}
+                    <span class="status-badge status-recovery">{{ loan.status }}</span>
+                  {% elif "pending" in s or "await" in s %}
+                    <span class="status-badge status-pending">{{ loan.status }}</span>
+                  {% elif "review" in s or "hold" in s %}
+                    <span class="status-badge status-review">{{ loan.status }}</span>
+                  {% elif "reject" in s or "cancel" in s %}
+                    <span class="status-badge status-rejected">{{ loan.status }}</span>
+                  {% else %}
+                    <span class="status-badge status-review">{{ loan.status }}</span>
+                  {% endif %}
+                {% endwith %}
+              </td>
+              <td>
+                <a href="{% url 'view_loan' loan.ref %}" class="btn btn-sm btn-primary px-3 py-1">
+                  <i class="material-icons-round" style="font-size:.85rem;vertical-align:middle;">visibility</i>
+                  View
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div class="empty-state">
+          <i class="material-icons-round">search_off</i>
+          No loans matched "{{ query }}"
+        </div>
+      {% endif %}
+    </div>
+
+  {% endif %}
+{% endif %}
+
+{% endblock %}

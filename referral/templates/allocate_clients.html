@@ -1,0 +1,190 @@
+{% extends "admin_base.html" %}
+{% load static %}
+
+{% block title %}Allocate Clients — {{ referrer.name }}{% endblock %}
+{% block breadcrumb %}<a href="{% url 'admin_dashboard' %}">Dashboard</a> / <a href="{% url 'referrers_list' %}">Referrers</a> / <a href="{% url 'view_referrer' referrer.id %}">{{ referrer.name }}</a>{% endblock %}
+{% block breadcrumb_active %}Allocate Clients{% endblock %}
+{% block dashboard_title %}Allocate Existing Clients to Referrer{% endblock %}
+
+{% block css %}
+<style>
+  .alloc-header {
+    background:linear-gradient(135deg,#344767 0%,#21315c 100%);
+    border-radius:12px; padding:20px 26px; margin-bottom:1.5rem;
+    display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+  }
+  .alloc-header h5 { color:#fff; margin:0; font-size:1rem; font-weight:700; }
+  .alloc-header p  { color:rgba(255,255,255,.7); margin:4px 0 0; font-size:.82rem; }
+
+  .search-bar { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:1.2rem; }
+  .search-bar input { flex:1; border:1px solid #dee2e6; border-radius:8px; padding:8px 14px; font-size:.88rem; }
+  .search-bar input:focus { outline:none; border-color:#344767; }
+
+  .filter-row { display:flex; gap:8px; margin-bottom:1rem; font-size:.82rem; flex-wrap:wrap; }
+  .filter-btn { padding:5px 14px; border-radius:20px; border:1px solid #dee2e6; background:#fff; color:#6c757d; text-decoration:none; cursor:pointer; }
+  .filter-btn:hover, .filter-btn.active { background:#344767; color:#fff; border-color:#344767; }
+
+  .client-grid { display:flex; flex-direction:column; gap:6px; }
+  .client-row {
+    display:flex; align-items:center; gap:12px;
+    background:#fff; border-radius:8px; padding:10px 14px;
+    box-shadow:0 1px 6px rgba(0,0,0,.06); border:1px solid transparent;
+    transition:border-color .12s;
+  }
+  .client-row:hover { border-color:#4CAF50; }
+  .client-row input[type=checkbox] { width:16px; height:16px; flex-shrink:0; cursor:pointer; }
+  .client-name { font-weight:600; font-size:.88rem; color:#344767; flex:1; }
+  .client-meta { font-size:.75rem; color:#aaa; }
+  .client-badge {
+    font-size:.68rem; font-weight:700; padding:2px 8px;
+    border-radius:20px; white-space:nowrap;
+  }
+  .badge-unalloc  { background:#f0f4ff; color:#344767; }
+  .badge-other    { background:#fff8e1; color:#f57f17; }
+
+  .select-all-row { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+  .select-all-row label { font-size:.82rem; color:#6c757d; font-weight:600; cursor:pointer; }
+
+  .sticky-bar {
+    position:sticky; bottom:0; background:#fff;
+    border-top:2px solid #4CAF50; padding:14px 20px;
+    display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+    box-shadow:0 -4px 16px rgba(0,0,0,.08);
+    border-radius:0 0 12px 12px;
+    margin-top:1rem;
+  }
+  .sticky-bar .count-badge {
+    background:#4CAF50; color:#fff; font-size:.78rem; font-weight:700;
+    padding:3px 10px; border-radius:20px;
+  }
+  .warn-note {
+    background:#fff8e1; border:1px solid #ffc107; border-radius:8px;
+    padding:10px 14px; font-size:.82rem; color:#533f03; margin-bottom:1rem;
+    display:flex; align-items:flex-start; gap:8px;
+  }
+  .warn-note i { color:#f57f17; flex-shrink:0; }
+  .empty-state { text-align:center; padding:40px; color:#aaa; }
+  .empty-state i { font-size:2.5rem; display:block; margin-bottom:8px; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<div class="alloc-header mt-3">
+  <div>
+    <h5><i class="material-icons-round align-middle me-1" style="font-size:1.1rem;">person_add</i>Allocate Clients to {{ referrer.name }}</h5>
+    <p>Commission rate: <strong style="color:#fff;">K {{ commission|floatformat:2 }}</strong> per client &nbsp;·&nbsp; Select clients below and click Allocate.</p>
+  </div>
+  <a href="{% url 'view_referrer' referrer.id %}" class="btn btn-sm btn-outline-light ms-auto">← Back to Profile</a>
+</div>
+
+<!-- Warning about already-assigned clients -->
+<div class="warn-note">
+  <i class="material-icons-round">info</i>
+  <div>
+    <strong>Already assigned clients</strong> (with a different referrer) are shown with an orange badge.
+    Ticking them will <strong>remove them from the other referrer</strong> and move them here.
+    Clients with an existing <em>paid</em> record cannot be reassigned.<br>
+    By default only <em>unallocated</em> clients are shown. Use <strong>Show All</strong> to include clients already assigned to other referrers.
+  </div>
+</div>
+
+<!-- Search + filter -->
+<form method="get" class="search-bar" id="searchForm">
+  <input type="text" name="q" value="{{ query }}" placeholder="Search by name, email, or NID…" autocomplete="off">
+  <button type="submit" class="btn btn-primary btn-sm px-3">Search</button>
+  {% if query %}<a href="{% url 'allocate_clients' referrer.id %}" class="btn btn-sm btn-light px-3">Clear</a>{% endif %}
+</form>
+<div class="filter-row">
+  <a href="{% url 'allocate_clients' referrer.id %}{% if query %}?q={{ query }}{% endif %}"
+     class="filter-btn {% if not show_all %}active{% endif %}">Unallocated only</a>
+  <a href="{% url 'allocate_clients' referrer.id %}?all=1{% if query %}&q={{ query }}{% endif %}"
+     class="filter-btn {% if show_all %}active{% endif %}">Show All Clients</a>
+</div>
+
+<!-- Client list -->
+<form method="post">
+  {% csrf_token %}
+
+  {% if clients %}
+  <div class="select-all-row">
+    <input type="checkbox" id="select-all">
+    <label for="select-all">Select / Deselect All ({{ clients|length }} shown)</label>
+    <span id="selected-count" style="margin-left:4px;font-size:.78rem;color:#4CAF50;font-weight:700;"></span>
+  </div>
+
+  <div class="client-grid" id="clientGrid">
+    {% for client in clients %}
+    <label class="client-row" for="c_{{ client.id }}">
+      <input type="checkbox" name="client_ids" value="{{ client.id }}" id="c_{{ client.id }}" class="client-cb" onchange="updateCount()">
+      <div class="client-name">
+        {{ client.first_name }} {{ client.last_name }}
+        {% if client.referred_by and client.referred_by.id != referrer.id %}
+          <span class="client-badge badge-other">Currently: {{ client.referred_by.name }}</span>
+        {% else %}
+          <span class="client-badge badge-unalloc">Unallocated</span>
+        {% endif %}
+      </div>
+      <div class="client-meta">
+        {{ client.user.email }}
+        {% if client.employer %}&nbsp;·&nbsp; {{ client.employer }}{% endif %}
+      </div>
+    </label>
+    {% endfor %}
+  </div>
+
+  <!-- Sticky allocate bar -->
+  <div class="sticky-bar">
+    <span id="selected-badge" class="count-badge">0 selected</span>
+    <button type="submit" class="btn btn-success px-4" id="allocate-btn" disabled>
+      <i class="material-icons-round align-middle me-1" style="font-size:.9rem;">done_all</i>
+      Allocate to {{ referrer.name }}
+    </button>
+    <label style="font-size:.78rem;color:#6c757d;display:flex;align-items:center;gap:6px;cursor:pointer;">
+      <input type="checkbox" name="force_reassign" value="1" style="width:14px;height:14px;">
+      Override existing assignments
+    </label>
+    <span style="font-size:.75rem;color:#aaa;margin-left:auto;">
+      Commission: K {{ commission|floatformat:2 }} × selected = <strong id="total-commission">K 0.00</strong>
+    </span>
+  </div>
+
+  {% else %}
+  <div class="empty-state">
+    <i class="material-icons-round">people_outline</i>
+    {% if query %}
+      No clients found matching "{{ query }}".
+    {% else %}
+      All clients are already allocated. Use <strong>Show All</strong> to see clients assigned to other referrers.
+    {% endif %}
+  </div>
+  {% endif %}
+
+</form>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  var commissionRate = {{ commission|floatformat:2 }};
+
+  function updateCount() {
+    var checked = document.querySelectorAll('.client-cb:checked').length;
+    document.getElementById('selected-badge').textContent = checked + ' selected';
+    document.getElementById('selected-count').textContent = checked > 0 ? '(' + checked + ' ticked)' : '';
+    document.getElementById('allocate-btn').disabled = checked === 0;
+    var total = (checked * commissionRate).toFixed(2);
+    document.getElementById('total-commission').textContent = 'K ' + parseFloat(total).toLocaleString('en-AU', {minimumFractionDigits:2});
+  }
+
+  document.getElementById('select-all').addEventListener('change', function () {
+    document.querySelectorAll('.client-cb').forEach(function (cb) {
+      cb.checked = this.checked;
+    }, this);
+    updateCount();
+  });
+
+  updateCount();
+</script>
+{% endblock %}

@@ -1,0 +1,183 @@
+{% load static %}
+{% load humanize %}
+{% load site_filter %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="apple-touch-icon" sizes="76x76" href="{% static 'clientfiles/brandlogo.png' %}">
+  <link rel="icon" type="image/png" href="{% static 'clientfiles/brandlogo.png' %}">
+  <title>
+    {% block title %} {% endblock%}
+  </title>
+  <link href="{% static 'assets/css/font.css' %}" rel="stylesheet" />
+  <link href="{% static 'assets/css/nucleo-icons.css' %}" rel="stylesheet" />
+  <link href="{% static 'assets/css/nucleo-svg.css' %}" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+  <link href="{% static 'assets/css/material_icons.css' %}" rel="stylesheet" />
+  <link id="pagestyle" href="{% static 'ctmdb/assets/css/theme.css' %}" rel="stylesheet" />
+  <script defer src="{% static 'fontawesomefree/js/all.min.js' %}"></script>
+  {% block css %} {% endblock%}
+  <link href="{% static 'custom/css/style.css' %}" rel="stylesheet">
+  {% include 'appearance_head.html' %}
+</head>
+
+<body class="g-sidenav-show  bg-gray-200">
+  <aside class="sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-3   bg-gradient-dark" id="sidenav-main">
+    <div class="sidenav-header">
+      <a class="navbar-brand m-0" href="{% url 'manager:dashboard' %}">
+        <img src="{% if appearance.brand_logo_url %}{{ appearance.brand_logo_url }}{% else %}{% static 'clientfiles/brandlogo.png' %}{% endif %}" class="navbar-brand-img h-250" alt="logo">
+      </a>
+    </div>
+    <hr class="horizontal light mt-0 mb-2">
+    <div class="collapse navbar-collapse  w-auto " id="sidenav-collapse-main">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link text-white {% if nav == 'manager_dashboard' %}active bg-warning{% endif %}" href="{% url 'manager:dashboard' %}">
+            <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
+              <i class="fa-solid fa-gauge"></i>
+            </div>
+            <span class="nav-link-text ms-1">Dashboard</span>
+          </a>
+        </li>
+
+        <li class="nav-item mt-2">
+          <h6 class="ps-4 ms-2 text-uppercase text-xs text-white font-weight-bolder opacity-8">Approvals</h6>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-white {% if nav == 'pending_loans' %}active bg-warning{% endif %}" href="{% url 'manager:pending_loans' %}">
+            <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
+              <i class="fa-solid fa-file-contract"></i>
+            </div>
+            <span class="nav-link-text ms-1">Pending Loans</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-white {% if nav == 'pending_payments' %}active bg-warning{% endif %}" href="{% url 'manager:pending_payments' %}">
+            <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
+              <i class="fa-solid fa-money-bill-wave"></i>
+            </div>
+            <span class="nav-link-text ms-1">Pending Payments</span>
+          </a>
+        </li>
+
+        <li class="nav-item mt-2">
+          <h6 class="ps-4 ms-2 text-uppercase text-xs text-white font-weight-bolder opacity-8">Reports</h6>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-white {% if nav == 'manager_reports' %}active bg-warning{% endif %}" href="{% url 'manager:reports' %}">
+            <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
+              <i class="fa-solid fa-chart-bar"></i>
+            </div>
+            <span class="nav-link-text ms-1">Manager Reports</span>
+          </a>
+        </li>
+
+        <li class="nav-item mt-2">
+          <h6 class="ps-4 ms-2 text-uppercase text-xs text-white font-weight-bolder opacity-8">Quick Access</h6>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-white" href="{% url 'admin_dashboard' %}">
+            <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
+              <i class="fa-solid fa-gear"></i>
+            </div>
+            <span class="nav-link-text ms-1">Admin Dashboard</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-white" href="{% url 'staff_dashboard' %}">
+            <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
+              <i class="fa-solid fa-users"></i>
+            </div>
+            <span class="nav-link-text ms-1">Staff Dashboard</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </aside>
+
+  <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
+    <!-- Navbar -->
+    <nav class="navbar navbar-main navbar-expand-lg px-0 mx-3 bg-light border-radius-xl mt-3" id="navbarBlur" data-scroll="true">
+      <div class="container-fluid py-1 px-3">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
+            <li class="breadcrumb-item text-sm"><a class="opacity-10 text-dark" href="{% url 'admin_dashboard' %}"><button class="btn btn-primary btn-sm pt-0 pr-1 pb-0 pl-1">Switch to ADMIN</button></a></li>
+            <li class="breadcrumb-item text-sm"><a class="opacity-10 text-dark" href="{% url 'staff_dashboard' %}"><button class="btn btn-info btn-sm pt-0 pr-1 pb-0 pl-1">Switch to STAFF</button></a></li>
+            <li class="breadcrumb-item text-sm"><a class="opacity-10 text-dark" href="{% url 'dashboard' %}"><button class="btn btn-secondary btn-sm pt-0 pr-1 pb-0 pl-1">Switch to USER</button></a></li>
+
+            <li class="breadcrumb-item text-sm"><a class="opacity-5 text-dark" href="javascript:;">{% block breadcrumb %} {% endblock %}</a></li>
+            <li class="breadcrumb-item text-sm text-dark active" aria-current="page">{% block breadcrumb_active %} {% endblock %}</li>
+          </ol>
+          <h6 class="font-weight-bolder mb-0">{% block dashboard_title %} {% endblock %}</h6>
+        </nav>
+        <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
+          <ul class="navbar-nav  justify-content-end">
+            <li class="nav-item d-flex align-items-center">
+              <a href="{% url 'logout_user' %}" class="nav-link text-body font-weight-bold px-0">
+                <i class="fa fa-user me-sm-1"></i>
+                <span class="d-sm-inline d-none">Logout</span>
+              </a>
+            </li>
+            <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
+              <a href="javascript:;" class="nav-link text-body p-0" id="iconNavbarSidenav">
+                <div class="sidenav-toggler-inner">
+                  <i class="sidenav-toggler-line"></i>
+                  <i class="sidenav-toggler-line"></i>
+                  <i class="sidenav-toggler-line"></i>
+                </div>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <!-- End Navbar -->
+    <div class="container-fluid py-1">
+
+      {% if messages %}
+      {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-dismissible text-white mt-3" role="alert">
+              <span class="text-md">{{ message }}</span>
+              <button type="button" class="btn-close text-lg py-3 opacity-10" data-bs-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+        {% endfor %}
+      {% endif %}
+
+    {% block content %} {% endblock %}
+
+        <footer class="footer pt-3 pb-4">
+          <div class="container-fluid">
+              <div class="row align-items-center justify-content-lg-between">
+                  <div class="col-lg-6 mb-lg-0 mb-4">
+                      <div class="copyright text-center text-sm text-muted text-lg-start">
+                          © {% now "Y" %} {{ sn|sitename }}. A masterpiece by <a href="https://www.webmasta.com.pg" class="font-weight-bold text-capitalize" target="_blank">WEBMASTA</a>
+                          for better business.
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </footer>
+    </div>
+
+  </main>
+
+  <!--   Core JS Files   -->
+  <script src="https://cdn.jsdelivr.net/gh/creativetimofficial/public-assets@master/material-dashboard-2-builder/v3.0.4/assets/js/core/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/creativetimofficial/public-assets@master/material-dashboard-2-builder/v3.0.4/assets/js/core/bootstrap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/creativetimofficial/public-assets@master/material-dashboard-2-builder/v3.0.4/assets/js/plugins/chartjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/creativetimofficial/public-assets@master/material-dashboard-2-builder/v3.0.4/assets/js/material-dashboard.min.js"></script>
+
+  <script src="{% static 'thirdparty/js/jquery.min.js' %}"></script>
+  <script src="{% static 'ctmdb/assets/js/loopple/loopple.js' %}"></script>
+
+  {% block scripts %}
+  {% endblock %}
+</body>
+
+</html>

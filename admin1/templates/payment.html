@@ -1,0 +1,38 @@
+{% extends "admin_base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %} Payment of {{ loan_ref }} {% endblock %}
+
+{% block breadcrumb %} <a href="{% url 'dashboard' %}">Dashboard</a>  /  <a href="{% url 'loans' %}">Loans</a> {% endblock %}
+{% block breadcrumb_active %} Payment Form {% endblock %}
+{% block dashboard_title %} {{ loan_ref }} {% endblock %}
+
+
+
+{% block content %}
+
+
+<!-- Content Goes Here -->
+<div class="row">
+    <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12 col-xs-12">
+      <div class="card mt-2 p-1">
+        <div class="card-header bg-secondary m-0 pt-2 pr-1 pb-0 pl-2">
+            <h4 class="text-light">Register Payment</h4>
+        </div>
+        <div class="card-body">
+            <form method="POST" enctype="multipart/form-data">
+              {% csrf_token %}
+              {{ form|crispy }}
+              <br>
+              <button type="submit" class="btn btn-primary">PAY</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+
+<!-- Content Ends Here -->
+
+ 
+{% endblock %}

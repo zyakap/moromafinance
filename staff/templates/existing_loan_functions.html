@@ -1,0 +1,82 @@
+{% extends "staff_base.html" %}
+
+{% block title %} Existing Loan Functions {% endblock %}
+
+{% block breadcrumb %} <a href="{% url 'staff_dashboard' %}">Dashboard</a> {% endblock %}
+{% block breadcrumb_active %} Existing Loan Functions {% endblock %}
+{% block dashboard_title %} Existing Loan Functions {% endblock %}
+
+{% block css %}
+<style>
+  .elf-card { background:#fff; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,.06); padding:18px 20px; height:100%; }
+  .elf-card h6 { font-size:.95rem; font-weight:800; color:#344767; margin-bottom:6px; }
+  .elf-card p { font-size:.8rem; color:#67748e; margin-bottom:14px; min-height:56px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mt-3">
+  <div class="col-12">
+    <p class="text-sm text-secondary mb-4">
+      Everything for entering a client's existing/historical loan data, or adding a loan for a client the normal
+      way, all in one place.
+    </p>
+  </div>
+
+  <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12 mb-4">
+    <div class="elf-card">
+      <h6><i class="fa-solid fa-file-circle-plus me-1 text-primary"></i> Add Existing Loan with Details</h6>
+      <p>Create a single new loan for a client with the full amount, term, and dates entered by hand — the normal
+        loan-creation form, for one client at a time.</p>
+      <a href="{% url 'add_new_loan' %}" class="btn btn-primary btn-block w-100">Add Existing Loan with Details</a>
+    </div>
+  </div>
+
+  <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12 mb-4">
+    <div class="elf-card">
+      <h6><i class="fa-solid fa-layer-group me-1 text-success"></i> Add Additional Loan</h6>
+      <p>Give a client with a running loan an additional/refinanced loan — structured according to the
+        Refinance Type set in Loan Settings (Offset, Add On, Concurrent, etc). Disabled entirely when Refinance
+        Type is set to Refinance Not Allowed.</p>
+      <a href="{% url 'add_additional_loan' %}" class="btn btn-success btn-block w-100">Add Additional Loan</a>
+    </div>
+  </div>
+
+  <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12 mb-4">
+    <div class="elf-card">
+      <h6><i class="fa-solid fa-file-arrow-up me-1 text-info"></i> Upload Files for Existing Loan</h6>
+      <p>Pick any loan from a list and add or replace its documents — application form, T&amp;Cs, payslips,
+        bank/super statements, funding receipt.</p>
+      <a href="{% url 'loan_files' %}" class="btn btn-info btn-block w-100 text-white">Upload Files for Existing Loan</a>
+    </div>
+  </div>
+
+  <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12 mb-4">
+    <div class="elf-card">
+      <h6><i class="fa-solid fa-file-excel me-1 text-warning"></i> Add Existing Loans in Bulk</h6>
+      <p>Upload a spreadsheet of many existing/historical loans at once — creates a loan record for each row
+        instead of entering them one by one.</p>
+      <a href="{% url 'add_existing_loan' %}" class="btn btn-warning btn-block w-100">Add Existing Loans in Bulk</a>
+    </div>
+  </div>
+
+  <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12 mb-4">
+    <div class="elf-card">
+      <h6><i class="fa-solid fa-file-invoice me-1 text-warning"></i> Add Existing Statements in Bulk</h6>
+      <p>Upload a spreadsheet of statement/payment history covering many loans at once, matched by loan
+        reference in the file.</p>
+      <a href="{% url 'add_existing_statements' %}" class="btn btn-warning btn-block w-100">Add Existing Statements in Bulk</a>
+    </div>
+  </div>
+
+  <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12 mb-4">
+    <div class="elf-card">
+      <h6><i class="fa-solid fa-file-lines me-1 text-secondary"></i> Add a Loan Statement</h6>
+      <p>Select one existing loan from a list, then upload its statement history — for entering one loan's
+        history at a time rather than a whole spreadsheet of many loans.</p>
+      <a href="{% url 'add_existing_loan_statement' %}" class="btn btn-secondary btn-block w-100">Add a Loan Statement</a>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

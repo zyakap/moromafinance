@@ -1,0 +1,23 @@
+{% extends 'custom/email_template_toadmin.html' %}
+{% load static }
+
+{% block title %}{{ subject }}{% endblock %}
+<!-- if header_cta == 'yes' -->
+{% block cta_link %}{{ cta_link }}{% endblock %}
+{% block cta_label %}{{cta_label}}{% endblock %}
+<!-- endif header_cta-->
+{% block subject %}{{ subject }}{% endblock %}
+
+{% block message %}{{ message|safe }}{% endblock %}
+{% block message_details %}{{ message_details|safe }}{% endblock %}
+<!-- if cta == 'yes' == -->
+{% block cta_btn1_link %}{{ cta_btn1_link }}{% endblock %}
+{% block cta_btn1_label %}{{ cta_btn1_label }}{% endblock %}
+{% block cta_btn2_link %}{{ cta_btn2_link }}{% endblock %}
+{% block cta_btn2_label %}{{ cta_btn2_label }}{% endblock %}
+<!-- endif cta == -->
+
+
+
+
+

@@ -1,0 +1,178 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+@page {
+  size: A4 portrait;
+  margin: 12mm 15mm;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', Arial, sans-serif;
+  font-size: 9pt;
+  color: #1a1a1a;
+  background: #e8e8e8;
+}
+
+.doc-page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 10mm 14mm;
+  background: #ffffff;
+  margin: 0 auto;
+}
+
+/* ── Header ── */
+.doc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 3mm;
+}
+.doc-logo { height: 38px; }
+.doc-title {
+  font-size: 13pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: right;
+  max-width: 120mm;
+}
+.doc-divider {
+  border: none;
+  border-top: 2px solid #1a1a1a;
+  margin-bottom: 3mm;
+}
+
+/* ── To/From banner ── */
+.to-from {
+  display: flex;
+  justify-content: space-between;
+  background: #f5f5f5;
+  border: 0.5px solid #ccc;
+  padding: 2mm 3mm;
+  margin-bottom: 3mm;
+  font-size: 8.5pt;
+}
+.to-from strong { font-weight: 700; }
+
+/* ── Auth text blocks ── */
+.auth-block {
+  border: 0.5px solid #ccc;
+  padding: 2.5mm 3mm;
+  margin-bottom: 3mm;
+  font-size: 8.5pt;
+  line-height: 1.55;
+  text-align: justify;
+}
+.auth-block.highlight {
+  background: #fafafa;
+}
+
+/* ── Field rows ── */
+.section-title {
+  font-size: 7.5pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #fff;
+  background: #2c2c2c;
+  padding: 2px 5px;
+  margin-bottom: 1.5mm;
+}
+.field-row {
+  display: flex;
+  gap: 3mm;
+  margin-bottom: 2mm;
+}
+.field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.field.w2 { flex: 2; }
+.field.w3 { flex: 3; }
+.field-label {
+  font-size: 6.5pt;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 1px;
+}
+.field-value {
+  border-bottom: 0.75px solid #555;
+  min-height: 15px;
+  font-size: 9pt;
+  color: #0033cc;
+  padding: 1px 2px 0;
+}
+.field-blank {
+  border-bottom: 0.75px solid #555;
+  min-height: 15px;
+  padding: 1px 2px 0;
+}
+
+/* ── Bank remit box ── */
+.bank-box {
+  border: 1px solid #999;
+  padding: 2mm 3mm;
+  margin-bottom: 3mm;
+}
+.bank-box .section-title { margin-top: 0; }
+
+/* ── Warning note ── */
+.warning-note {
+  font-size: 7.5pt;
+  font-style: italic;
+  color: #555;
+  border-left: 3px solid #cc0000;
+  padding-left: 2mm;
+  margin-bottom: 3mm;
+  line-height: 1.4;
+}
+
+/* ── Signature areas ── */
+.sig-section { margin-bottom: 3mm; }
+.sig-section-title {
+  font-size: 7.5pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #2c2c2c;
+  margin-bottom: 1.5mm;
+  border-bottom: 0.5px solid #ccc;
+  padding-bottom: 0.5mm;
+}
+.sig-row {
+  display: flex;
+  gap: 5mm;
+}
+.sig-block { flex: 1; }
+.sig-line {
+  border-top: 1px solid #000;
+  margin-bottom: 1mm;
+  margin-top: 8mm;
+}
+.sig-label {
+  font-size: 7pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #444;
+}
+
+/* ── Govt code box ── */
+.govt-box {
+  border: 0.5px solid #ccc;
+  padding: 2mm 3mm;
+  margin-top: 3mm;
+  font-size: 8.5pt;
+}
+.govt-box .label {
+  font-weight: 700;
+  font-size: 7.5pt;
+  text-transform: uppercase;
+  color: #444;
+  margin-bottom: 1mm;
+}

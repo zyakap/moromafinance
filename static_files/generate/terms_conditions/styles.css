@@ -1,0 +1,114 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+@page {
+  size: A4 portrait;
+  margin: 12mm 15mm;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', Arial, sans-serif;
+  font-size: 8.5pt;
+  color: #1a1a1a;
+  background: #e8e8e8;
+}
+
+.doc-page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 10mm 14mm;
+  background: #ffffff;
+  margin: 0 auto;
+}
+
+/* ── Header ── */
+.doc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 3mm;
+}
+.doc-logo { height: 38px; }
+.doc-title {
+  font-size: 14pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: right;
+}
+.doc-divider {
+  border: none;
+  border-top: 2px solid #1a1a1a;
+  margin-bottom: 3mm;
+}
+
+/* ── Loan summary box ── */
+.loan-summary {
+  display: flex;
+  gap: 3mm;
+  background: #f5f5f5;
+  border: 0.5px solid #ccc;
+  padding: 2mm 3mm;
+  margin-bottom: 3mm;
+}
+.ls-item { flex: 1; }
+.ls-label {
+  font-size: 6.5pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #666;
+  letter-spacing: 0.4px;
+}
+.ls-value {
+  font-size: 9pt;
+  font-weight: 600;
+  color: #0033cc;
+}
+
+/* ── Content parts ── */
+.part { margin-bottom: 2.5mm; }
+.part-title {
+  font-size: 8pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: #2c2c2c;
+  color: #fff;
+  padding: 2px 5px;
+  margin-bottom: 1.5mm;
+}
+.part-body {
+  font-size: 8pt;
+  line-height: 1.5;
+  text-align: justify;
+}
+
+/* ── Fill-in spans ── */
+.fill-in {
+  display: inline-block;
+  min-width: 30mm;
+  border-bottom: 0.75px solid #000;
+  color: #0033cc;
+  font-weight: 600;
+}
+
+/* ── Signature ── */
+.sig-row {
+  display: flex;
+  gap: 5mm;
+  margin-top: 4mm;
+}
+.sig-block { flex: 1; }
+.sig-line {
+  border-top: 1px solid #000;
+  margin-bottom: 1mm;
+  margin-top: 8mm;
+}
+.sig-label {
+  font-size: 7pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #444;
+}

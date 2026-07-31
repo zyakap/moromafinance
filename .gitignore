@@ -1,0 +1,16 @@
+venv/
+.venv/
+pipenv/
+*.pyc
+__pycache__/
+db.sqlite3
+.env
+logs/
+.DS_Store
+*.save
+*.save.*
+cache/
+backups/
+static/
+uploads/
+celerybeat-schedule

@@ -1,0 +1,414 @@
+{% extends "loan_base.html" %}
+{% load static %}
+{% load finance_formats %}
+{% block title %} Requirements {% endblock %}
+
+{% block breadcrumb %} Dashboard {% endblock %}
+{% block breadcrumb_active %} Loans {% endblock %}
+{% block dashboard_title %} Requirements {% endblock %}
+
+
+
+{% block content %}
+
+  <!-- Content Goes Here -->
+
+  <div class="row mt-3 p-0">
+    
+    <div class="col-xl-5 col-lg-5 col-md-5 col-sm-12 col-xs-12 mb-3">
+      <div class="card p-0 m-0">
+        <div class="card-header bg-secondary pt-3 pr-2 pb-2 pl-2">
+          <h5 class="text-light p-0 m-0">Requirements for Loan <b>Account Activation</b></h5>
+          <p class="text-light p-0 m-0 text-sm">Must be completed for your account to be activated to apply.</p>
+        </div>
+        <div class="card-body m-0 p-3">
+          <div class="table-responsive">
+            <p id="width_notice2" style="display: none; color: blue;">You can scroll or swipe table below --></p>
+            <table class="table table-dark table-striped table-center text-xs">
+              <thead>
+                  <tr>
+                    <th scope="col">STATUS</th>
+                    <th scope="col">REQUIREMENT</th>
+                    <th scope="col">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  
+                  <tr>
+                    {% if yef > 0.9 %}
+                    <td><span class="text-md text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;YES</td>
+                    {% else %}
+                    <td><span class="text-md text-danger"><b><i class="fa-solid fa-cancel"></i></b></span> &nbsp;NO</td>
+                    {% endif %}
+
+                    <td>&nbsp;Employed for over 1 Year</td>
+
+                    {% if yef > 0.9 %}
+                    <td><span class="text-md text-success"><b><i class="fa-solid fa-check"></i></b></span>{{yef}} years</td>
+                    {% else %}
+                    <td><a href="{% url 'edit_jobinfo' %}" target="_blank"><button class="btn btn-sm btn-info pr-1 pl-1 pt-1 pb-0 m-0 text-xs"><i class="fa-solid fa-edit"></i>&nbsp; Edit</button></a></td>
+                    {% endif %}
+
+                  </tr>
+                  <tr>
+                    {% if user.terms_consent == 'YES' %}
+                    <td><span class="text-md text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;YES</td>
+                    {% else %}
+                    <td><span class="text-md text-danger"><b><i class="fa-solid fa-cancel"></i></b></span> &nbsp;NO</td>
+                    {% endif %}
+                    <td>&nbsp;Consented to Terms & Conditions</td>
+
+                    {% if user.terms_consent == 'YES' %}
+                    <td><span class="text-md text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;Consented</td>
+                    {% else %}
+                    <td><a href="{% url 'terms_credit_consent' %}" target="_blank"><button class="btn btn-sm btn-info pr-1 pl-1 pt-1 pb-0 m-0 text-xs"><i class="fa-solid fa-edit"></i>&nbsp; Edit</button></a></td>
+                    {% endif %}
+                  </tr>
+                  <tr>
+                    {% if user.credit_consent == 'YES' %}
+                    <td><span class="text-md text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;YES</td>
+                    {% else %}
+                    <td><span class="text-md text-danger"><b><i class="fa-solid fa-cancel"></i></b></span> &nbsp;NO</td>
+                    {% endif %}
+                    <td>&nbsp;Consented to Credit Data Policy</td>
+                    {% if user.credit_consent == 'YES' %}
+                    <td><span class="text-md text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;Consented</td>
+                    {% else %}
+                    <td><a href="{% url 'terms_credit_consent' %}" target="_blank"><button class="btn btn-sm btn-info pr-1 pl-1 pt-1 pb-0 m-0 text-xs"><i class="fa-solid fa-edit"></i>&nbsp; Edit</button></a></td>
+                    {% endif %}
+                  </tr>
+                  <tr>
+                    {% if user.passport_url or user.nid_url %}
+                    <td><span class="text-md text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;YES</td>
+                    {% else %}
+                    <td><span class="text-md text-danger"><b><i class="fa-solid fa-cancel"></i></b></span> &nbsp;NO</td>
+                    {% endif %}
+                    <td>&nbsp;NID or Passport uploaded</td>
+                    {% if user.passport_url or user.nid_url %}
+                    <td><span class="text-md text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;Uploaded</td>
+                    {% else %}
+                    <td><a href="{% url 'edit_useruploads' %}" target="_blank"><button class="btn btn-sm btn-info pr-1 pl-1 pt-1 pb-0 m-0 text-xs"><i class="fa-solid fa-upload"></i>&nbsp; Upload</button></a></td>
+                    {% endif %}
+                  </tr>
+                  
+                  <tr>
+                    {% if user.job_title %}
+                    <td><span class="text-md text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;YES</td>
+                    {% else %}
+                    <td><span class="text-md text-danger"><b><i class="fa-solid fa-cancel"></i></b></span> &nbsp;NO</td>
+                    {% endif %}
+                    <td>&nbsp;Employed (Working)</td>
+
+                    {% if user.job_title %}
+                    <td><span class="text-md text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;Employed</td>
+                    {% else %}
+                    <td><a href="{% url 'edit_jobinfo' %}" target="_blank"><button class="btn btn-sm btn-info pr-1 pl-1 pt-1 pb-0 m-0 text-xs"><i class="fa-solid fa-upload"></i>&nbsp; Edit</button></a></td>
+                    {% endif %}
+
+                  </tr>
+                  <tr>
+                    {% if user.gross_pay > 0 %}
+                    <td><span class="text-md text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;YES</td>
+                    {% else %}
+                    <td><span class="text-md text-danger"><b><i class="fa-solid fa-cancel"></i></b></span> &nbsp;NO</td>
+                    {% endif %}
+                    <td>&nbsp;Gross Pay is specified</td>
+                    {% if user.gross_pay > 0 %}
+                    <td><span class="text-md text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;K {{ user.gross_pay|default_if_none:"0"|currency }}</td>
+                    {% else %}
+                    <td><a href="{% url 'edit_jobinfo' %}" target="_blank"><button class="btn btn-sm btn-info pr-1 pl-1 pt-1 pb-0 m-0 text-xs"><i class="fa-solid fa-upload"></i>&nbsp; Edit</button></a></td>
+                    {% endif %}
+                  </tr>
+                  <tr>
+                    {% if age < 60 %}
+                    <td><span class="text-md text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;YES</td>
+                    {% else %}
+                    <td><span class="text-md text-danger"><b><i class="fa-solid fa-cancel"></i></b></span> &nbsp;NO</td>
+                    {% endif %}
+                    <td>&nbsp;Less than 60 years Old</td>
+                    {% if age < 60 %}
+                    <td><span class="text-md text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;{{ age }} years</td>
+                    {% else %}
+                    <td><a href="{% url 'edit_personalinfo' %}" target="_blank"><button class="btn btn-sm btn-info pr-1 pl-1 pt-1 pb-0 m-0 text-xs"><i class="fa-solid fa-upload"></i>&nbsp; Edit</button></a></td>
+                    {% endif %}
+
+                  </tr>
+
+                    
+                </tbody>
+              </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-7 col-lg-7 col-md-7 col-sm-12 col-xs-12">
+      <div class="card p-0 m-0">
+        <div class="card-header bg-secondary pt-3 pr-2 pb-2 pl-2">
+          <h5 class="text-light p-0 m-0">Requirements for <b>Loan Approval</b></h5>
+          <p class="text-light p-0 m-0 text-sm">These documents must be uploaded in your profile after you apply for a Loan.</p>
+        </div>
+        <div class="card-body m-0 p-3">
+          <div class="table-responsive">
+            
+            <table class="table table-dark table-striped table-center text-xs">
+              <p id="width_notice" style="display: none; color: blue;">You can scroll or swipe table below --></p>
+              <thead>
+                  <tr>
+                    <th scope="col">STATUS</th>
+                    <th scope="col">REQUIREMENT</th>
+                    <th scope="col">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      {% if loanfile.application_form_url %}
+                      <span class="text-md text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;YES
+                      {% else %}
+                      <span class="text-md text-danger"><b><i class="fa-solid fa-cancel"></i></b></span> &nbsp;NO
+                      {% endif %}
+                    </td>
+                    <td>Signed Application Form Uploaded</td>
+                    <td>
+                      {% if loanfile.application_form_url %}
+                      <a href="{{ loanfile.application_form_url }}">
+                        <button type="button" class="btn btn-sm btn-primary pr-1 pl-1 pt-1 pb-0 m-0 text-xs">
+                          <i class="fa-solid fa-eye"></i>
+                          View App. Form
+                        </button>
+                      </a>
+                      {% else %}
+                      <a href="{% url 'edit_required_uploads' %}" target="_blank">
+                        <button type="button" class="btn btn-sm btn-info pr-1 pl-1 pt-1 pb-0 m-0 text-xs">
+                          <i class="fa-solid fa-upload"></i>
+                          Upload
+                        </button>
+                      </a>
+                      {% endif %}  
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      {% if loanfile.terms_conditions_url %}
+                      <span class="text-md text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;YES
+                      {% else %}
+                      <span class="text-md text-danger"><b><i class="fa-solid fa-cancel"></i></b></span> &nbsp;NO
+                      {% endif %}
+                    </td>
+                    <td>Signed Terms & Conditions Uploaded</td>
+                    <td>
+                      {% if loanfile.terms_conditions_url %}
+                      <a href="{{ loanfile.terms_conditions_url }}">
+                        <button type="button" class="btn btn-sm btn-primary pr-1 pl-1 pt-1 pb-0 m-0 text-xs">
+                          <i class="fa-solid fa-eye"></i>
+                          View T&C
+                        </button>
+                      </a>
+                      {% else %}
+                      <a href="{% url 'edit_required_uploads' %}" target="_blank">
+                        <button type="button" class="btn btn-sm btn-info pr-1 pl-1 pt-1 pb-0 m-0 text-xs">
+                          <i class="fa-solid fa-upload"></i>
+                          Upload
+                        </button>
+                      </a>
+                      {% endif %}  
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      {% if loanfile.stat_dec_url %}
+                      <span class="text-md text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;YES
+                      {% else %}
+                      <span class="text-md text-danger"><b><i class="fa-solid fa-cancel"></i></b></span> &nbsp;NO
+                      {% endif %}
+                    </td>
+                    <td>Statutory Declaration Uploaded</td>
+                    <td>
+                      {% if loanfile.stat_dec_url %}
+                      <a href="{{ loanfile.stat_dec_url }}">
+                        <button type="button" class="btn btn-sm btn-primary pr-1 pl-1 pt-1 pb-0 m-0 text-xs">
+                          <i class="fa-solid fa-eye"></i>
+                          View Stat. Dec.
+                        </button>
+                      </a>
+                      {% else %}
+                      <a href="{% url 'edit_required_uploads' %}" target="_blank">
+                        <button type="button" class="btn btn-sm btn-info pr-1 pl-1 pt-1 pb-0 m-0 text-xs">
+                          <i class="fa-solid fa-upload"></i>
+                          Upload
+                        </button>
+                      </a>
+                      {% endif %}  
+                    </td>
+                  </tr>
+                  <tr>
+                   <td>
+                      {% if loanfile.irr_sd_form_url %}
+                      <span class="text-md text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;YES
+                      {% else %}
+                      <span class="text-md text-danger"><b><i class="fa-solid fa-cancel"></i></b></span> &nbsp;NO
+                      {% endif %}
+                    </td>
+                    <td>Irrevocable Salary Deduction Authority uploaded</td>
+                    <td>
+                      {% if loanfile.irr_sd_form_url %}
+                      <a href="{{ loanfile.irr_sd_form_url }}">
+                        <button type="button" class="btn btn-sm btn-primary pr-1 pl-1 pt-1 pb-0 m-0 text-xs">
+                          <i class="fa-solid fa-eye"></i>
+                          View IRSDA
+                        </button>
+                      </a>
+                      {% else %}
+                      <a href="{% url 'edit_required_uploads' %}" target="_blank">
+                        <button type="button" class="btn btn-sm btn-info pr-1 pl-1 pt-1 pb-0 m-0 text-xs">
+                          <i class="fa-solid fa-upload"></i>
+                          Upload
+                        </button>
+                      </a>
+                      {% endif %}                        
+                    </td>
+                  </tr>
+                  <tr>
+                   <td>
+                      {% if loanfile.bank_statement_url %}
+                      <span class="text-md text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;YES
+                      {% else %}
+                      <span class="text-md text-danger"><b><i class="fa-solid fa-cancel"></i></b></span> &nbsp;NO
+                      {% endif %}
+                    </td>
+                    <td>Bank Statement showing 2x pay uploaded</td>
+                    <td>
+                      {% if loanfile.bank_statement_url %}
+                      <a href="{{ loanfile.bank_statement_url }}">
+                        <button type="button" class="btn btn-sm btn-primary pr-1 pl-1 pt-1 pb-0 m-0 text-xs">
+                          <i class="fa-solid fa-eye"></i>
+                          View Statement
+                        </button>
+                      </a>
+                      {% else %}
+                      <a href="{% url 'edit_loan_statement_uploads' %}" target="_blank">
+                        <button type="button" class="btn btn-sm btn-info pr-1 pl-1 pt-1 pb-0 m-0 text-xs">
+                          <i class="fa-solid fa-upload"></i>
+                          Upload
+                        </button>
+                      </a>
+                      {% endif %}  
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      {% if loanfile.payslip1_url %}
+                      <span class="text-md text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;YES
+                      {% else %}
+                      <span class="text-md text-danger"><b><i class="fa-solid fa-cancel"></i></b></span> &nbsp;NO
+                      {% endif %}
+                    </td>
+                    <td>Payslip 1 Uploaded</td>
+                    <td>
+                      {% if loanfile.payslip1_url %}
+                      <a href="{{ loanfile.payslip1_url }}">
+                        <button type="button" class="btn btn-sm btn-primary pr-1 pl-1 pt-1 pb-0 m-0 text-xs">
+                          <i class="fa-solid fa-eye"></i>
+                          View Payslip 1
+                        </button>
+                      </a>
+                      {% else %}
+                      <a href="{% url 'edit_work_uploads' %}" target="_blank">
+                        <button type="button" class="btn btn-sm btn-info pr-1 pl-1 pt-1 pb-0 m-0 text-xs">
+                          <i class="fa-solid fa-upload"></i>
+                          Upload
+                        </button>
+                      </a>
+                      {% endif %}  
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      {% if loanfile.payslip2_url %}
+                      <span class="text-md text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;YES
+                      {% else %}
+                      <span class="text-md text-danger"><b><i class="fa-solid fa-cancel"></i></b></span> &nbsp;NO
+                      {% endif %}
+                    </td>
+                    <td>Payslip 2 Uploaded</td>
+                    <td>
+                      {% if loanfile.payslip2_url %}
+                      <a href="{{ loanfile.payslip2_url }}">
+                        <button type="button" class="btn btn-sm btn-primary pr-1 pl-1 pt-1 pb-0 m-0 text-xs">
+                          <i class="fa-solid fa-eye"></i>
+                          View Payslip 2
+                        </button>
+                      </a>
+                      {% else %}
+                      <a href="{% url 'edit_work_uploads' %}" target="_blank">
+                        <button type="button" class="btn btn-sm btn-info pr-1 pl-1 pt-1 pb-0 m-0 text-xs">
+                          <i class="fa-solid fa-upload"></i>
+                          Upload
+                        </button>
+                      </a>
+                      {% endif %}  
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      {% if loanfile.work_confirmation_letter_url %}
+                      <span class="text-md text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;YES
+                      {% else %}
+                      <span class="text-md text-danger"><b><i class="fa-solid fa-cancel"></i></b></span> &nbsp;NO
+                      {% endif %}
+                    </td>
+                    <td>Employer Confirmation Letter uploaded</td>
+                    <td>
+                      {% if loanfile.work_confirmation_letter_url %}
+                      <a href="{{ loanfile.work_confirmation_letter_url }}">
+                        <button type="button" class="btn btn-sm btn-primary pr-1 pl-1 pt-1 pb-0 m-0 text-xs">
+                          <i class="fa-solid fa-eye"></i>
+                          View Letter
+                        </button>
+                      </a>
+                      {% else %}
+                      <a href="{% url 'edit_work_uploads' %}" target="_blank">
+                        <button type="button" class="btn btn-sm btn-info pr-1 pl-1 pt-1 pb-0 m-0 text-xs">
+                          <i class="fa-solid fa-upload"></i>
+                          Upload
+                        </button>
+                      </a>
+                      {% endif %}  
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+          </div>
+        </div>
+      </div>
+      <div class="p-3">
+      <p class="text-primary">If you have any issues with the requirements, please <a href="{% url 'create_ticket' %}"><u>create a support ticket</u></a> to discuss with us.</p>
+      </div>
+    </div>
+    
+  </div>
+
+
+  <!-- Content Ends Here -->
+
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+  // Get the width of the window
+  var width = window.innerWidth;
+
+  // Check if the width is 400px
+  if (width < 550) {
+    // Display the message by setting inline style
+    var widthNotice = document.getElementById('width_notice');
+    widthNotice.style.display = 'block';
+
+    var widthNotice2 = document.getElementById('width_notice2');
+    widthNotice2.style.display = 'block';
+  }
+</script>
+
+{% endblock %}

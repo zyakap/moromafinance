@@ -1,0 +1,374 @@
+{% extends "staff_base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Edit Profile – {{ user.first_name }} {{ user.last_name }}{% endblock %}
+{% block breadcrumb %}<a href="{% url 'staff_dashboard' %}">Dashboard</a> / <a href="{% url 'view_member' user.id %}">{{ user.first_name }} {{ user.last_name }}</a>{% endblock %}
+{% block breadcrumb_active %}Edit Profile{% endblock %}
+{% block dashboard_title %}Edit Profile – {{ user.first_name }} {% if user.middle_name %}{{ user.middle_name }} {% endif %}{{ user.last_name }}{% endblock %}
+
+{% block css %}
+<style>
+  .loan-status-banner {
+    background: linear-gradient(135deg, #e65100 0%, #ef6c00 100%);
+    color: #fff;
+    border-radius: 10px;
+    padding: 12px 18px;
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: .88rem;
+  }
+  .loan-status-banner i { font-size: 1.3rem; }
+  .loan-status-banner strong { font-size: .95rem; display: block; margin-bottom: 2px; }
+
+  .profile-tabs { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 1.2rem; }
+  .profile-tab-btn {
+    background: #f4f6f9;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: .82rem;
+    font-weight: 700;
+    color: #555;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all .15s;
+    text-decoration: none;
+  }
+  .profile-tab-btn:hover { background: #e9ecf0; color: #344767; }
+  .profile-tab-btn.active { background: #344767; color: #fff; border-color: #344767; }
+  .profile-tab-btn .tab-icon { font-size: .95rem; }
+
+  .section-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.07);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+  }
+  .section-card-header {
+    background: linear-gradient(135deg, #344767 0%, #21315c 100%);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-card-header h5 { color: #fff; margin: 0; font-size: .95rem; font-weight: 700; }
+  .section-card-header .header-icon { color: rgba(255,255,255,.7); font-size: 1.1rem; }
+  .section-card-body { padding: 22px 24px; }
+
+  .btn-save-section {
+    background: #344767;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 22px;
+    font-size: .87rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background .15s;
+  }
+  .btn-save-section:hover { background: #21315c; color: #fff; }
+
+  .btn-back-profile {
+    background: #f4f6f9;
+    color: #555;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 18px;
+    font-size: .87rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-right: 8px;
+    transition: background .15s;
+  }
+  .btn-back-profile:hover { background: #e9ecf0; color: #344767; }
+
+  .active-loan-note {
+    background: #fff3e0;
+    border-left: 4px solid #ef6c00;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: .82rem;
+    color: #bf360c;
+    margin-bottom: 14px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mt-2">
+  <div class="col-12">
+
+    <!-- Active loan note for staff awareness -->
+    {% if profile_locked %}
+    <div class="loan-status-banner">
+      <i class="material-icons-round">info</i>
+      <div>
+        <strong>Client Has Active Loan</strong>
+        This client currently has an active loan. You are editing their profile as staff — changes will be saved immediately.
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Tab navigation -->
+    <div class="profile-tabs">
+      <a href="?tab=personal"  class="profile-tab-btn {% if active_tab == 'personal' %}active{% endif %}">
+        <i class="material-icons-round tab-icon">person</i> Personal Info
+      </a>
+      <a href="?tab=contact"   class="profile-tab-btn {% if active_tab == 'contact' %}active{% endif %}">
+        <i class="material-icons-round tab-icon">home</i> Contact &amp; Address
+      </a>
+      <a href="?tab=employer"  class="profile-tab-btn {% if active_tab == 'employer' %}active{% endif %}">
+        <i class="material-icons-round tab-icon">business</i> Employer
+      </a>
+      <a href="?tab=job"       class="profile-tab-btn {% if active_tab == 'job' %}active{% endif %}">
+        <i class="material-icons-round tab-icon">work</i> Job Details
+      </a>
+      <a href="?tab=bank"      class="profile-tab-btn {% if active_tab == 'bank' %}active{% endif %}">
+        <i class="material-icons-round tab-icon">account_balance</i> Bank Account
+      </a>
+      <a href="?tab=uploads"   class="profile-tab-btn {% if active_tab == 'uploads' %}active{% endif %}">
+        <i class="material-icons-round tab-icon">upload_file</i> ID Documents
+      </a>
+    </div>
+
+    <!-- ── Personal Info ── -->
+    {% if active_tab == 'personal' %}
+    <div class="section-card">
+      <div class="section-card-header">
+        <i class="material-icons-round header-icon">person</i>
+        <h5>Personal Information</h5>
+      </div>
+      <div class="section-card-body">
+        {% if profile_locked %}<div class="active-loan-note"><i class="material-icons-round align-middle" style="font-size:.9rem;">warning</i> Client has an active loan — editing is allowed for staff.</div>{% endif %}
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          <input type="hidden" name="section" value="personal">
+          {{ personal_form|crispy }}
+          <div class="mt-3">
+            <a href="{% url 'view_member' user.id %}" class="btn-back-profile">
+              <i class="material-icons-round" style="font-size:.9rem;">arrow_back</i> Back to Profile
+            </a>
+            <button type="submit" class="btn-save-section">
+              <i class="material-icons-round" style="font-size:.9rem;">save</i> Save Personal Info
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- ── Contact & Address ── -->
+    {% if active_tab == 'contact' %}
+    <div class="section-card">
+      <div class="section-card-header">
+        <i class="material-icons-round header-icon">home</i>
+        <h5>Contact &amp; Address</h5>
+      </div>
+      <div class="section-card-body">
+        <form method="POST">
+          {% csrf_token %}
+          <input type="hidden" name="section" value="contact">
+          {{ contact_form|crispy }}
+          <div class="mt-3">
+            <a href="{% url 'view_member' user.id %}" class="btn-back-profile">
+              <i class="material-icons-round" style="font-size:.9rem;">arrow_back</i> Back to Profile
+            </a>
+            <button type="submit" class="btn-save-section">
+              <i class="material-icons-round" style="font-size:.9rem;">save</i> Save Contact Info
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- ── Employer ── -->
+    {% if active_tab == 'employer' %}
+    <div class="section-card">
+      <div class="section-card-header">
+        <i class="material-icons-round header-icon">business</i>
+        <h5>Employer Details</h5>
+      </div>
+      <div class="section-card-body">
+        <form method="POST">
+          {% csrf_token %}
+          <input type="hidden" name="section" value="employer">
+          {{ employer_form|crispy }}
+          <div class="mt-3">
+            <a href="{% url 'view_member' user.id %}" class="btn-back-profile">
+              <i class="material-icons-round" style="font-size:.9rem;">arrow_back</i> Back to Profile
+            </a>
+            <button type="submit" class="btn-save-section">
+              <i class="material-icons-round" style="font-size:.9rem;">save</i> Save Employer Info
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- ── Job Details ── -->
+    {% if active_tab == 'job' %}
+    <div class="section-card">
+      <div class="section-card-header">
+        <i class="material-icons-round header-icon">work</i>
+        <h5>Job Details</h5>
+      </div>
+      <div class="section-card-body">
+        <form method="POST">
+          {% csrf_token %}
+          <input type="hidden" name="section" value="job">
+          {{ job_form|crispy }}
+          <div class="mt-3">
+            <a href="{% url 'view_member' user.id %}" class="btn-back-profile">
+              <i class="material-icons-round" style="font-size:.9rem;">arrow_back</i> Back to Profile
+            </a>
+            <button type="submit" class="btn-save-section">
+              <i class="material-icons-round" style="font-size:.9rem;">save</i> Save Job Details
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- ── Bank Account ── -->
+    {% if active_tab == 'bank' %}
+    <div class="section-card">
+      <div class="section-card-header">
+        <i class="material-icons-round header-icon">account_balance</i>
+        <h5>Primary Bank Account</h5>
+      </div>
+      <div class="section-card-body">
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          <input type="hidden" name="section" value="bank">
+          {{ bank_form|crispy }}
+          <div class="mt-3">
+            <a href="{% url 'view_member' user.id %}" class="btn-back-profile">
+              <i class="material-icons-round" style="font-size:.9rem;">arrow_back</i> Back to Profile
+            </a>
+            <button type="submit" class="btn-save-section">
+              <i class="material-icons-round" style="font-size:.9rem;">save</i> Save Bank Details
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- ── ID Documents ── -->
+    {% if active_tab == 'uploads' %}
+    <div class="section-card">
+      <div class="section-card-header">
+        <i class="material-icons-round header-icon">upload_file</i>
+        <h5>Personal ID Documents</h5>
+      </div>
+      <div class="section-card-body">
+        {% if user.nid or user.passport or user.drivers_license or user.superid or user.work_id %}
+        <div class="mb-3 p-3" style="background:#f8f9fa;border-radius:8px;">
+          <p class="text-xs text-uppercase text-secondary fw-bold mb-2">Currently Uploaded</p>
+          <div class="d-flex flex-wrap gap-2">
+            {% if user.nid %}<span class="badge bg-success">NID ✓</span>{% endif %}
+            {% if user.passport %}<span class="badge bg-success">Passport ✓</span>{% endif %}
+            {% if user.drivers_license %}<span class="badge bg-success">Driver's License ✓</span>{% endif %}
+            {% if user.superid %}<span class="badge bg-success">Super ID ✓</span>{% endif %}
+            {% if user.work_id %}<span class="badge bg-success">Work ID ✓</span>{% endif %}
+          </div>
+        </div>
+        {% endif %}
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          <input type="hidden" name="section" value="uploads">
+          {{ uploads_form|crispy }}
+          <div class="mt-3">
+            <a href="{% url 'view_member' user.id %}" class="btn-back-profile">
+              <i class="material-icons-round" style="font-size:.9rem;">arrow_back</i> Back to Profile
+            </a>
+            <button type="submit" class="btn-save-section">
+              <i class="material-icons-round" style="font-size:.9rem;">save</i> Save Documents
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  /* Sector → Organisation Type filter (preregistration OFF only — fields not present otherwise) */
+  var sectorSelect = document.getElementById('id_sector');
+  var orgSelect = document.getElementById('id_organisation_type');
+  if (sectorSelect && orgSelect) {
+    var orgWrapper = orgSelect.closest('.mb-3') || orgSelect.closest('.form-group') || orgSelect.parentElement;
+    var allOptions = Array.from(orgSelect.querySelectorAll('option'));
+
+    function filterOrgOptions() {
+      var sector = sectorSelect.value;
+      var allowed = sector === 'PUBLIC' ? ['', 'DEPARTMENT', 'SOE'] : sector === 'PRIVATE' ? ['', 'COMPANY', 'MSME'] : [''];
+      orgSelect.innerHTML = '';
+      allOptions.forEach(function (opt) {
+        if (allowed.includes(opt.value)) orgSelect.appendChild(opt.cloneNode(true));
+      });
+      if (orgWrapper) orgWrapper.style.display = (sector === 'PUBLIC' || sector === 'PRIVATE') ? '' : 'none';
+      if (sector === 'PUBLIC' && !['DEPARTMENT', 'SOE'].includes(orgSelect.value)) orgSelect.value = '';
+      else if (sector === 'PRIVATE' && !['COMPANY', 'MSME'].includes(orgSelect.value)) orgSelect.value = '';
+    }
+
+    sectorSelect.addEventListener('change', filterOrgOptions);
+    filterOrgOptions();
+  }
+
+  /* Bank → Branch filter: show only branches belonging to the selected bank */
+  document.querySelectorAll('.bank-select').forEach(function (bankSelect) {
+    var form = bankSelect.closest('form');
+    if (!form) return;
+    var branchSelect = form.querySelector('.bank-branch-select');
+    if (!branchSelect) return;
+
+    var allBranchOptions = Array.from(branchSelect.querySelectorAll('option')).map(function (opt) {
+      return { value: opt.value, text: opt.text, bank: opt.getAttribute('data-bank') || '' };
+    });
+
+    function filterBranches() {
+      var selectedBank = bankSelect.value;
+      var currentBranch = branchSelect.value;
+      branchSelect.innerHTML = '';
+      allBranchOptions.forEach(function (o) {
+        if (!o.value || !selectedBank || o.bank === selectedBank) {
+          var opt = document.createElement('option');
+          opt.value = o.value;
+          opt.text = o.text;
+          if (o.bank) opt.setAttribute('data-bank', o.bank);
+          if (o.value === currentBranch) opt.selected = true;
+          branchSelect.appendChild(opt);
+        }
+      });
+      /* If the previously selected branch is no longer in the list, clear it */
+      if (selectedBank && branchSelect.value && branchSelect.querySelector('option[value="' + branchSelect.value + '"]') === null) {
+        branchSelect.value = '';
+      }
+    }
+
+    bankSelect.addEventListener('change', filterBranches);
+    filterBranches();
+  });
+});
+</script>
+{% endblock %}

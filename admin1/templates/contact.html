@@ -1,0 +1,39 @@
+{% extends "website/website_base.html" %}
+{% load static %}
+
+{% block title %} Contact iBX {% endblock %}
+
+{% block content %} 
+<div class="row">
+    <div class="col-lg-9 col-md-8 col-sm-12">
+        <h1 class="p-5">Contact Us</h1>
+    </div>
+    <div class="col-lg-3 col-md-4 col-sm-12">
+        <div class="container text-right p-5">
+            <p><a href="{% url 'home' %}">Home</a> / <span> Contact</span></p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="container bg-dark p-2">
+        <div class="row bg-light">
+            <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="card">
+                    <img src="{% static 'img/loan-management.png' %}">
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-12">
+                
+                <div class="container">
+                    <p class="display-1 pt-5 pb-1 pr-5 pl-5">Go <span class="text-primary">Paper</span>Less</p> 
+                    <p class="display-1 pt-0 pb-1 pr-5 pl-5">Go <span class="text-success">Excel</span>Less</p>
+                    <p class="display-1 pt-0 pb-1 pr-5 pl-5">Go <span class="text-primary">Effort</span>Less</p>  
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,163 @@
+/* ============================================================
+   Moroma Finance Flipbook — magazine-style page flip viewer
+   Pure CSS 3D transforms + vanilla JS (see flipbook.js). No
+   external library dependency.
+   ============================================================ */
+
+.pdf-preview-card {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .5rem;
+  padding: 2.5rem 2rem;
+  background: var(--lm-white, #fff);
+  border: 1px solid var(--lm-border, #e2e8f0);
+  border-radius: var(--lm-radius, 12px);
+  box-shadow: var(--lm-shadow-lg, 0 10px 15px -3px rgba(0,0,0,.08));
+  max-width: 320px;
+}
+.pdf-preview-card .pdf-icon {
+  font-size: 3.5rem;
+  color: #dc3545;
+  line-height: 1;
+  margin-bottom: .5rem;
+}
+.pdf-preview-card h4 {
+  font-size: .95rem;
+  font-weight: 700;
+  color: var(--lm-dark, #0f172a);
+  word-break: break-word;
+  margin: 0;
+}
+
+.fb-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.fb-stage {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  perspective: 2800px;
+}
+
+/* book base / spine shadow so the pages read as a physical object */
+.fb-base {
+  position: absolute;
+  left: 6px;
+  right: -6px;
+  top: 10px;
+  bottom: -10px;
+  background: var(--lm-dark, #0f172a);
+  border-radius: 4px 10px 10px 4px;
+  box-shadow: var(--lm-shadow-lg, 0 10px 15px -3px rgba(0,0,0,.08));
+  z-index: 0;
+}
+
+.flipbook {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1055 / 1491;
+  z-index: 1;
+}
+
+.fb-page {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform-origin: left center;
+  transition: transform .85s cubic-bezier(.45, .05, .35, 1);
+  border-radius: 2px 8px 8px 2px;
+  overflow: hidden;
+  box-shadow: 3px 0 16px rgba(0,0,0,.2);
+  background: #fff;
+  cursor: pointer;
+}
+
+.fb-page img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* subtle curl/shade on the right edge of the top page, for depth */
+.fb-page::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, transparent 92%, rgba(0,0,0,.12) 100%);
+  pointer-events: none;
+}
+
+.fb-page.flipped {
+  transform: rotateY(-180deg);
+}
+
+.fb-page-num {
+  position: absolute;
+  bottom: 10px;
+  right: 14px;
+  font-size: .7rem;
+  font-weight: 600;
+  color: rgba(255,255,255,.75);
+  background: rgba(15,23,42,.55);
+  padding: .15rem .55rem;
+  border-radius: 20px;
+  pointer-events: none;
+}
+
+/* controls */
+.fb-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.fb-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: var(--lm-white, #fff);
+  color: var(--lm-dark, #0f172a);
+  box-shadow: var(--lm-shadow, 0 4px 6px -1px rgba(0,0,0,.07));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  cursor: pointer;
+  transition: background .2s, color .2s, transform .15s;
+}
+.fb-btn:hover:not(:disabled) {
+  background: var(--lm-green, #22c55e);
+  color: #fff;
+  transform: translateY(-2px);
+}
+.fb-btn:disabled {
+  opacity: .35;
+  cursor: not-allowed;
+}
+
+.fb-counter {
+  font-size: .9rem;
+  font-weight: 600;
+  color: var(--lm-gray, #64748b);
+  min-width: 64px;
+  text-align: center;
+}
+
+.fb-hint {
+  font-size: .78rem;
+  color: var(--lm-gray, #64748b);
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .fb-stage { max-width: 320px; }
+}

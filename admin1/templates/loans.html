@@ -1,0 +1,507 @@
+
+{% extends "admin_base.html" %}
+{% load static %}
+{% load humanize %}
+{% load finance_formats %}
+
+{% block title %} Loans {% endblock %}
+
+{% block breadcrumb %} <a href="{% url 'admin_dashboard' %}">Admin Dashboard</a>  /  <a href="{% url 'loans' %}">Loans</a> {% endblock %}
+{% block breadcrumb_active %} Loans {% endblock %}
+{% block dashboard_title %} All Loans {% endblock %}
+
+{% block css %}
+
+<!-- DataTables LOCAL CSS -->
+<link rel="stylesheet" type="text/css" href="{% static 'DataTables/datatables.min.css' %}"/>   
+
+<style>
+  .flex-container {
+    display: flex;
+  }
+  
+  .flex-child {
+    flex: 1;
+  }  
+  
+  .flex-child:first-child {
+    margin-right: 5px;
+  } 
+  .flex-child:last-child {
+    margin-left: 5px;
+  } 
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+
+ 
+
+  <!-- Content Goes Here -->
+  <div class="row mt-2">
+    <div class="col-xl-2 col-lg-2 col-md-4 col-sm-6 col-xs-6 mb-1">
+      <div>
+        <div class="card p-0 m-0 text-center button button2 btn-sm">
+          <a href="{% url 'all_loans' %}">
+            <h6 class="p-0 m-0 text-light text-xs">All Loans &nbsp;<span style="font-size: 14px; margin-top: 2px; margin-bottom: 2px; padding-top: 2px; padding-bottom: 2px;" class="badge bg-dark ">{% if  all_loans.count %}{{ all_loans.count }}{% else %}0{% endif %}</span></h6>
+          </a> 
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-2 col-lg-2 col-md-4 col-sm-6 col-xs-6 mb-1">
+      <div>
+        <div class="card p-0 m-0 text-center button button2 btn-sm">
+          <a href="{% url 'pending_loans' %}">
+            <h6 class="p-0 m-0 text-light text-xs">Pending Loans &nbsp;<span style="font-size: 14px; margin-top: 2px; margin-bottom: 2px; padding-top: 2px; padding-bottom: 2px;" class="badge bg-info ">{% if  pending_loans.count %}{{ pending_loans.count }}{% else %}0{% endif %}</span></h6>
+          </a> 
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-2 col-lg-2 col-md-4 col-sm-6 col-xs-6 mb-1">
+      <div>
+        <div class="card p-0 m-0 text-center button button2 btn-sm">
+          <a href="{% url 'running_loans' %}">
+            <h6 class="p-0 m-0 text-light text-xs">Running Loans &nbsp;<span style="font-size: 14px; margin-top: 2px; margin-bottom: 2px; padding-top: 2px; padding-bottom: 2px;" class="badge bg-success ">{% if  running_loans.count %}{{ running_loans.count }}{% else %}0{% endif %}</span></h6>
+          </a> 
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-xl-2 col-lg-2 col-md-4 col-sm-6 col-xs-6 mb-1">
+      <div>
+        <div class="card p-0 m-0 text-center button button2 btn-sm">
+          <a href="{% url 'defaulted_loans' %}">
+            <h6 class="p-0 m-0 text-light text-xs">Default Loans &nbsp;<span style="font-size: 14px; margin-top: 2px; margin-bottom: 2px; padding-top: 2px; padding-bottom: 2px;" class="badge bg-warning ">{% if  defaulted_loans.count %}{{ defaulted_loans.count }}{% else %}0{% endif %}</span></h6>
+          </a> 
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-2 col-lg-2 col-md-4 col-sm-6 col-xs-6 mb-1">
+      <div>
+        <div class="card p-0 m-0 text-center button button2 btn-sm">
+          <a href="{% url 'recovery_loans' %}">
+            <h6 class="p-0 m-0 text-light text-xs">In Recovery &nbsp;<span style="font-size: 14px; margin-top: 2px; margin-bottom: 2px; padding-top: 2px; padding-bottom: 2px;" class="badge bg-danger ">{% if recovery_loans.count %}{{ recovery_loans.count }}{% else %}0{% endif %}</span></h6>
+          </a> 
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-2 col-lg-2 col-md-4 col-sm-6 col-xs-6 mb-1">
+      <div>
+        <div class="card p-0 m-0 text-center button button2 btn-sm">
+          <a href="{% url 'completed_loans' %}">  
+            <h6 class="p-0 m-0 text-light text-xs">Completed Loans &nbsp;<span style="font-size: 14px; margin-top: 2px; margin-bottom: 2px; padding-top: 2px; padding-bottom: 2px;" class="badge bg-dark ">{% if  completed_loans.count %}{{ completed_loans.count }}{% else %}0{% endif %}</span></h6>
+          </a> 
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+
+  <div class="row mt-2">
+    <div class="container p-2 mb-3 text-center bg-secondary text-light opacity-7" style="border-radius: 10px;">
+        <h4 class="p-0 m-0 text-center bg-secondary text-light" style="border-radius: 10px;">Loans Overview</h4>
+    </div>
+  </div>
+
+  <div class="row mt-2">
+    <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-xs-12 mb-1">
+        <div class="card p-1 m-0">
+          <div class="card-header bg-dark pt-2 pr-1 pl-1 pb-0 mb-0 mt-0 mr-0 ml-0">
+            <h6 class="p-0 text-light" style="font-weight: 700;">Loan Overview</h6>
+          </div>
+          <div class="card-body p-2">
+            <p class="p-0 m-0 text-sm">Funded Loans: <span class="text-primary text-sm"><b>{{ funded_loans.count }}</b></span></p>
+            <p class="p-0 m-0 text-sm">Total Funded: <span class="text-primary text-sm"><b>K{{ total_funded|default_if_none:"0"|currency }}</b></span></p>
+            <p class="p-0 m-0 text-sm">Expected Interest: <span class="text-primary text-sm"><b>K{{ expected_interest|default_if_none:"0"|currency }}</b></span></p>
+            <p class="p-0 m-0 text-sm">System Balance: <span class="text-primary text-sm"><b>K{{ system_balance|default_if_none:"0"|currency }}</b></span></p>
+          </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-xs-12 mb-1">
+      <div class="card p-1 m-0">
+        <div class="card-header bg-dark pt-2 pr-1 pl-1 pb-0 mb-0 mt-0 mr-0 ml-0">
+          <h6 class="p-0 text-light" style="font-weight: 700;"><span class="text-info">Personal</span> Loans Overview</h6>
+        </div>
+        <div class="card-body p-2">
+          <p class="p-0 m-0 text-sm">Funded Loans: <span class="text-primary text-sm"><b>{{ personal_loans.count }}</b></span></p>
+          <p class="p-0 m-0 text-sm">Total Funded: <span class="text-primary text-sm"><b>K{{ p_total_funded|default_if_none:"0"|currency }}</b></span></p>
+          <p class="p-0 m-0 text-sm">Expected Interest: <span class="text-primary text-sm"><b>K{{ p_expected_interest|default_if_none:"0"|currency }}</b></span></p>
+          <p class="p-0 m-0 text-sm">System Balance: <span class="text-primary text-sm"><b>K{{ p_system_balance|default_if_none:"0"|currency }}</b></span></p>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-xs-12 mb-1">
+      <div class="card p-1 m-0">
+        <div class="card-header bg-dark pt-2 pr-1 pl-1 pb-0 mb-0 mt-0 mr-0 ml-0">
+          <h6 class="p-0 text-light" style="font-weight: 700;"><span class="text-info">SME</span> Loans Overview</h6>
+        </div>
+        <div class="card-body p-2">
+          <p class="p-0 m-0 text-sm">Funded Loans: <span class="text-primary text-sm"><b>{{ sme_loans.count }}</b></span></p>
+          <p class="p-0 m-0 text-sm">Total Funded: <span class="text-primary text-sm"><b>K{{ sme_total_funded|default_if_none:"0"|currency }}</b></span></p>
+          <p class="p-0 m-0 text-sm">Expected Interest: <span class="text-primary text-sm"><b>K{{ sme_expected_interest|default_if_none:"0"|currency }}</b></span></p>
+          <p class="p-0 m-0 text-sm">System Balance: <span class="text-primary text-sm"><b>K{{ sme_system_balance|default_if_none:"0"|currency }}</b></span></p>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-xs-12 mb-1">
+      <div class="card p-1 m-0">
+        <div class="card-header bg-dark pt-2 pr-1 pl-1 pb-0 mb-0 mt-0 mr-0 ml-0">
+          <h6 class="p-0 text-light" style="font-weight: 700;">Performance Overview</h6>
+        </div>
+        <div class="card-body p-2">
+          <p class="p-0 m-0 text-sm">FN Repayment Total: <span class="text-primary text-sm"><b>K{{ repayments_total|default_if_none:"0"|currency }}</b></span></p>
+          <p class="p-0 m-0 text-sm">Total Arrears: <span class="text-primary text-sm"><b>K{{ total_arrears|default_if_none:"0"|currency }}</b></span></p>
+          <p class="p-0 m-0 text-sm">Total Default Interest: <span class="text-primary text-sm"><b>K{{ default_interest_receivable|default_if_none:"0"|currency }}</b></span></p>
+          <p class="p-0 m-0 text-sm">Total Outstanding: <span class="text-primary text-sm"><b>K{{ total_outstanding|default_if_none:"0"|currency }}</b></span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-xs-12 mt-5">
+      <div class="card pb-2 z-index-2 text-center">
+        <div class="card-header p-1 position-relative mt-n4 mx-3 z-index-2 bg-secondary">
+          <h5 class="pb-0 text-light">Loan Classfication Overview</h5>
+        </div>
+        <div class="card-body p-2 m-0">
+          <div class="row">
+            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 mt-2">
+              <div class="bg-gradient-light shadow-light border-radius-lg py-3 pe-1">
+                <div class="chart">
+                  <h6 class="text-primary text-sm">Loans by Status</h5>
+                    <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+                  <canvas id="loansbarchart" width="400" height="400"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 mt-2">
+              <div class="bg-gradient-light shadow-light border-radius-lg py-3 pe-1">
+                <div class="chart">
+                  <h6 class="text-primary text-sm">Loans by Branch</h5>
+                    <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+                  <canvas id="dummydnut" class="chart-canvas" height="100"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 mt-2">
+              <div class="bg-gradient-light shadow-light border-radius-lg py-3 pe-1">
+                <div class="chart">
+                  <h6 class="text-primary text-sm">Loan Amount Breakup</h5>
+                    <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+                  <canvas id="loanbreakupdj" class="chart-canvas" height="100"></canvas>
+                </div>
+              </div>         
+            </div>
+          </div>
+        </div> 
+      </div>
+    </div>
+    
+    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 mt-5 mb-3">
+      <!-- ALL LOANS -->
+      <div class="card pb-1 m-0 z-index-2">
+        <div class="card-header p-1 position-relative mt-n4 mx-3 z-index-2 bg-secondary text-center">
+          <h5 class="pb-0 text-light">Loan Amount Breakup</h5>
+          
+          
+        </div>
+        <div class="card-body p-1">
+          <table class="table table-dark table-striped table-sm p-0 m-0" style="border-radius: 10px;">
+            <thead>
+              <tr>
+                <th>Range(K)</th>
+                <th>Loans</th>
+                <th>Total(K)</th>
+                </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="text-center">100 - 1,000</td>
+                <td class="text-center">{{ onekcount }}</td>
+                <td class="text-center">{{ onektotalamount|default_if_none:"0"|currency }}</td>
+              </tr>
+              <tr>
+                <td class="text-center">1001 - 5,000</td>
+                <td class="text-center">{{ fivekcount }}</td>
+                <td class="text-center">{{ fivektotalamount|default_if_none:"0"|currency }}</td>
+              </tr>
+              <tr>
+                <td class="text-center">5001 - 10,000</td>
+                <td class="text-center">{{ tenkcount }}</td>
+                <td class="text-center">{{ tenktotalamount|default_if_none:"0"|currency }}</td>
+              </tr>
+              <tr>
+                <td class="text-center">10,000+</td>
+                <td class="text-center">{{ fteenkcount }}</td>
+                <td class="text-center">{{ fteenktotalamount|default_if_none:"0"|currency }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div> 
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Ends Here -->
+ 
+ 
+
+{% endblock %}
+
+
+{% block scripts %}
+
+
+<!-- DATATables LOCAL JS -->
+<script defer type="text/javascript" src="{% static 'DataTables/datatables.min.js' %}"></script>   
+<!--
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/v/bs5/jq-3.6.0/jszip-2.5.0/dt-1.12.1/b-2.2.3/b-colvis-2.2.3/b-html5-2.2.3/b-print-2.2.3/cr-1.5.6/kt-2.7.0/sp-2.0.2/datatables.min.js"></script>
+-->
+<script>
+    $("#allLoansTable").DataTable({
+        // DataTable configurations
+        paging: true,
+        pageLength: 10,
+        lengthChange: true,
+        autoWidth: true,
+        searching: true,
+        bInfo: true,
+        bSort: true,
+
+        dom: 'lBfrtip',
+        buttons: [
+            {
+                extend: 'copy',
+                text: '<i class="fa fa-solid fa-copy"></i>',
+                className: 'btn btn-secondary',
+                titleAttr: 'Copy Data',
+                // Choose Columns
+                exportOptions: {
+                  columns: [0,1,2,3,4,5,6,7,8]
+                }
+            },
+            {
+              extend: 'excel',
+              text: '<i class="fa fa-solid fa-file-excel"></i>',
+              className: 'btn btn-secondary',
+              titleAttr: 'Export to Excel',
+              // Choose Columns
+              exportOptions: {
+                columns: [0,1,2,3,4,5,6,7,8]
+              }
+            },
+            {
+              extend: 'print',
+              text: '<i class="fa fa-solid fa-print"></i>',
+              className: 'btn btn-secondary',
+              titleAttr: 'Print Table',
+              // Choose Columns
+              exportOptions: {
+                columns: [0,1,2,3,4,5,6,7,8]
+              },
+              // Font size when printing
+              customize: function ( win ) {
+                $(win.document.body).css('font-size', '10pt')
+                $(win.document.body).find('table')
+                  .addClass('compact')
+                  .css('font-size', 'inherit');
+              }
+            },
+            {
+              extend: 'pdf',
+              text: '<i class="fa fa-solid fa-file-pdf"></i>',
+              className: 'btn btn-secondary',
+              titleAttr: 'Export to PDF',
+              orientation: 'landscape',
+              pageSize: 'A4',
+              
+              // Choose Columns
+              exportOptions: {
+                columns: [0,1,2,3,4,5,6,7,8]
+              },
+              
+              // center the table
+              tableHeader: {
+                alignment: 'left'
+              },
+              // Font size & Customization
+              customize: function (doc) {
+              //      doc.style.tableHeader.alignment = 'center'; // Header position 
+                   // doc.style.tableBodyOdd.alignment = 'center';
+                  // doc.style.tableBodyEven.alignment = 'center';
+              //      doc.style.tableHeader.fontSize = 7;
+               //     doc.defaultStyle.fontSize = 6;
+              //      // TO GET 100% width on table
+                   doc.content[1].table.widths = Array(doc.content[1].table.body[1].length + 1).join('*').split('');
+              },
+              
+            },
+            {
+              extend: 'collection',
+              className: 'custom-html-collection',
+              buttons: [
+                  '<h6>Export</h6>',
+                  'csv',
+                  '<h6 class="not-top-heading">Hide/Show Columns</h6>',
+                  'colvis',
+              ]
+          }
+
+        ]
+    });
+</script>
+
+
+
+<!-- CHART JS -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+
+<script>
+  const lb_data = {
+    labels: {{ loanlabels|safe }},
+    datasets: [{
+      label: 'Loan Breakup',
+      data: [{{ onektotalamount }},{{ fivektotalamount }} ,{{ tenktotalamount }},{{ fteenktotalamount }}],
+      backgroundColor: [
+        'rgb(25, 123, 252)',
+        'rgb(252, 40, 252)',
+        'rgb(255, 192, 35)',
+        'rgb(8, 214, 8)',
+
+      ],
+      hoverOffset: 4
+    }]
+  };
+
+  const options15 = {
+    plugins: {
+      legend: {
+        labels:{
+              boxWidth: 10,
+        }
+      }
+    }
+  }
+
+  const lb_config = {
+    type: 'doughnut',
+    data: lb_data,
+    options: options15,
+  };
+
+  const loanbreakupdj = new Chart(
+    document.getElementById('loanbreakupdj'),
+    lb_config
+  );
+
+</script>
+
+
+
+<script>
+  const datax = {
+    labels: {{ loclabel|safe }},
+    datasets: [{
+      label: 'Loans by Location',
+      data: {{ locloan|safe }},
+      backgroundColor: [
+        'rgb(255, 99, 132)',
+        'rgb(54, 162, 235)',
+        'rgb(255, 205, 86)',
+        'rgb(25, 99, 132)',
+        'rgb(54, 162, 235)',
+        'rgb(255, 5, 26)',
+        'rgb(5, 190, 132)',
+        'rgb(59, 12, 235)',
+        'rgb(155, 205, 186)',
+        'rgb(25, 99, 32)',
+        'rgb(54, 12, 35)',
+        'rgb(255, 25, 6)',
+        'rgb(215, 129, 132)',
+        'rgb(154, 62, 235)',
+        'rgb(25, 5, 6)',
+        'rgb(5, 10, 132)',
+        'rgb(59, 12, 25)',
+        'rgb(155, 25, 186)'
+      ],
+      hoverOffset: 4
+    }]
+  };
+
+  const options14 = {
+    plugins: {
+      legend: {
+        labels:{
+              boxWidth: 10,
+        }
+      }
+    }
+  }
+
+  const configx = {
+    type: 'pie',
+    data: datax,
+    options: options14,
+  };
+
+  const dummydnut = new Chart(
+    document.getElementById('dummydnut'),
+    configx
+  );
+</script>
+
+
+<!-- CHART JS DUMMY -->
+<script>
+const ctx = document.getElementById('loansbarchart').getContext('2d');
+const loansbarchart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: ['PENDING', 'RUNNING', 'DEFAULTED', 'IN RECOVERY', 'BAD'],
+        datasets: [{
+            label: '# of Loans',
+            data: {{ loansbystatus|safe }},
+            backgroundColor: [
+              'rgba(54, 162, 235, 0.2)',
+              'rgba(75, 192, 192, 0.2)',   
+              'rgba(255, 206, 86, 0.2)',
+              'rgba(255, 159, 64, 0.2)',
+              'rgba(255, 99, 132, 0.2)',
+            ],
+            borderColor: [
+                'rgba(54, 162, 235, 1)',
+                'rgba(75, 192, 192, 1)',   
+                'rgba(255, 206, 86, 1)',
+                'rgba(255, 159, 64, 1)',
+                'rgba(255, 99, 132, 1)',
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        },
+        plugins: {
+          legend: {
+            labels:{
+                  boxWidth: 10,
+            }
+          }
+        }
+        
+    }
+});
+</script>
+
+
+{% endblock %}

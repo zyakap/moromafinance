@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 152" role="img" aria-label="Moroma Finance — Your Local Finance Partner">
+  <!-- Brand mark: green swirl crescent cradling a gold circle with a person,
+       approximating the client logo (client_documents/5.Moroma Logo.jpg) -->
+  <!-- green crescent sweep -->
+  <path d="M 96 18
+           A 62 62 0 1 0 118 108
+           A 74 74 0 0 1 96 18 Z" fill="#0f6e3a"/>
+  <!-- hand-like lower sweep -->
+  <path d="M 30 100
+           C 45 128, 90 138, 122 112
+           C 100 124, 60 120, 44 98
+           C 38 92, 32 94, 30 100 Z" fill="#0f6e3a"/>
+  <!-- gold circle -->
+  <circle cx="82" cy="62" r="40" fill="#e0a323"/>
+  <!-- person cut-out: head + shoulders in white -->
+  <circle cx="82" cy="48" r="11" fill="#ffffff"/>
+  <path d="M 58 88 C 62 66, 102 66, 106 88 C 96 78, 68 78, 58 88 Z" fill="#ffffff"/>
+  <!-- Wordmark -->
+  <text x="146" y="80" font-family="Poppins, Montserrat, Arial, sans-serif" font-size="52" font-weight="800" letter-spacing="1" fill="#0f6e3a">MOROMA</text>
+  <text x="149" y="116" font-family="Poppins, Montserrat, Arial, sans-serif" font-size="26" font-weight="700" letter-spacing="7" fill="#e0a323">FINANCE</text>
+</svg>

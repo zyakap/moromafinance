@@ -1,0 +1,124 @@
+{% extends "dashboard_base.html" %}
+{% load static %}
+
+{% block title %}Support Center{% endblock %}
+{% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a>{% endblock %}
+{% block breadcrumb_active %}Support{% endblock %}
+{% block dashboard_title %}Support Center{% endblock %}
+
+{% block css %}
+<style>
+  .support-hero {
+    background:linear-gradient(135deg,#344767 0%,#21315c 100%);
+    border-radius:12px; padding:24px 28px; margin-bottom:1.5rem;
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    flex-wrap:wrap;
+  }
+  .support-hero h5 { color:#fff; margin:0; font-size:1.05rem; }
+  .support-hero p  { color:rgba(255,255,255,.7); margin:4px 0 0; font-size:.85rem; }
+
+  .stats-mini { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:1.2rem; }
+  .stat-mini-card {
+    flex:1; min-width:100px; background:#fff; border-radius:10px;
+    box-shadow:0 2px 8px rgba(0,0,0,.07); padding:12px 16px; text-align:center;
+  }
+  .stat-mini-card .n { font-size:1.5rem; font-weight:800; }
+  .stat-mini-card .l { font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#888; }
+  .n-total  { color:#344767; }
+  .n-wait   { color:#f57f17; }
+  .n-reply  { color:#2e7d32; }
+  .n-closed { color:#888; }
+
+  .ticket-card {
+    background:#fff; border-radius:10px;
+    box-shadow:0 1px 8px rgba(0,0,0,.07);
+    padding:14px 18px; margin-bottom:10px;
+    display:flex; align-items:center; gap:14px;
+    text-decoration:none; color:inherit; transition:box-shadow .15s;
+    border-left:4px solid transparent;
+  }
+  .ticket-card:hover { box-shadow:0 4px 16px rgba(0,0,0,.12); color:inherit; }
+  .ticket-card.s-waiting { border-left-color:#f57f17; }
+  .ticket-card.s-replied { border-left-color:#4CAF50; }
+  .ticket-card.s-closed  { border-left-color:#ccc; }
+
+  .tc-icon { font-size:1.6rem; flex-shrink:0; }
+  .tc-icon.s-waiting { color:#f57f17; }
+  .tc-icon.s-replied { color:#4CAF50; }
+  .tc-icon.s-closed  { color:#ccc; }
+
+  .tc-body { flex:1; min-width:0; }
+  .tc-subject { font-weight:700; font-size:.9rem; color:#344767; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .tc-preview { font-size:.78rem; color:#888; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px; }
+
+  .tc-meta { text-align:right; flex-shrink:0; }
+  .tc-ref   { font-size:.7rem; color:#aaa; }
+  .tc-date  { font-size:.72rem; color:#aaa; margin-top:2px; }
+  .status-badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:.68rem; font-weight:700; text-transform:uppercase; }
+  .sb-wait  { background:#fff8e1; color:#f57f17; }
+  .sb-reply { background:#e8f5e9; color:#2e7d32; }
+  .sb-closed{ background:#f5f5f5; color:#888; }
+
+  .empty-state { text-align:center; padding:50px 20px; color:#aaa; }
+  .empty-state i { font-size:3rem; display:block; margin-bottom:8px; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero -->
+<div class="support-hero">
+  <div>
+    <h5><i class="material-icons-round align-middle me-1" style="font-size:1.1rem;">support_agent</i>Support Center</h5>
+    <p>Submit a ticket and our team will get back to you shortly.</p>
+  </div>
+  <a href="{% url 'create_ticket' %}" class="btn btn-success btn-sm px-4" style="white-space:nowrap;">
+    <i class="material-icons-round align-middle me-1" style="font-size:.9rem;">add</i>
+    New Ticket
+  </a>
+</div>
+
+<!-- Stats -->
+<div class="stats-mini">
+  <div class="stat-mini-card"><div class="n n-total">{{ stats.total }}</div><div class="l">Total</div></div>
+  <div class="stat-mini-card"><div class="n n-wait">{{ stats.waiting }}</div><div class="l">Awaiting Reply</div></div>
+  <div class="stat-mini-card"><div class="n n-reply">{{ stats.replied }}</div><div class="l">Replied</div></div>
+  <div class="stat-mini-card"><div class="n n-closed">{{ stats.closed }}</div><div class="l">Closed</div></div>
+</div>
+
+<!-- Ticket list -->
+{% if supporttickets %}
+  {% for ticket in supporttickets %}
+  <a href="{% url 'view_ticket' ticket.ref %}"
+     class="ticket-card {% if ticket.status == 'user_replied' %}s-waiting{% elif ticket.status == 'staff_replied' %}s-replied{% else %}s-closed{% endif %}">
+    <i class="material-icons-round tc-icon {% if ticket.status == 'user_replied' %}s-waiting{% elif ticket.status == 'staff_replied' %}s-replied{% else %}s-closed{% endif %}">
+      {% if ticket.status == 'user_replied' %}pending{% elif ticket.status == 'staff_replied' %}mark_chat_read{% else %}check_circle{% endif %}
+    </i>
+    <div class="tc-body">
+      <div class="tc-subject">{{ ticket.subject }}</div>
+      <div class="tc-preview">{{ ticket.content|striptags|truncatechars:90 }}</div>
+    </div>
+    <div class="tc-meta">
+      <div>
+        {% if ticket.status == 'user_replied' %}
+          <span class="status-badge sb-wait">Awaiting Reply</span>
+        {% elif ticket.status == 'staff_replied' %}
+          <span class="status-badge sb-reply">Replied</span>
+        {% else %}
+          <span class="status-badge sb-closed">Closed</span>
+        {% endif %}
+      </div>
+      <div class="tc-ref">{{ ticket.ref }}</div>
+      <div class="tc-date">{{ ticket.updated_at|date:"d M Y" }}</div>
+    </div>
+  </a>
+  {% endfor %}
+{% else %}
+  <div class="empty-state">
+    <i class="material-icons-round">inbox</i>
+    <p>You have no support tickets yet.</p>
+    <a href="{% url 'create_ticket' %}" class="btn btn-primary btn-sm mt-2">Create your first ticket</a>
+  </div>
+{% endif %}
+
+{% endblock %}

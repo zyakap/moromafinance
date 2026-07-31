@@ -1,0 +1,59 @@
+{% comment %}
+Shared shell for all /admin/settings/ pages: scrollable icon pill-nav + common
+styling. Include at the top of the content block; the active pill is driven by
+the `nav` context var each settings view already passes.
+{% endcomment %}
+<style>
+  /* ── Settings shell (shared across all settings pages) ── */
+  .sx-wrap { margin-top:.4rem; }
+  .sx-title { font-size:1.05rem; font-weight:800; color:#28324a; margin:0 0 .15rem; }
+  .sx-subtitle { font-size:.8rem; color:#8a94a6; margin:0 0 .9rem; }
+  .sx-nav { display:flex; gap:6px; flex-wrap:nowrap; overflow-x:auto; padding:6px; background:#fff;
+            border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,.06); margin-bottom:1.1rem;
+            scrollbar-width:thin; }
+  .sx-nav a { display:inline-flex; align-items:center; gap:7px; white-space:nowrap; padding:8px 14px;
+              border-radius:9px; font-size:.8rem; font-weight:600; color:#48526a; text-decoration:none;
+              transition:background .12s; }
+  .sx-nav a i { font-size:.85rem; opacity:.7; }
+  .sx-nav a:hover { background:#eef1f7; color:#28324a; }
+  .sx-nav a.active { background:var(--wc-primary,#6bb10d); color:#fff; }
+  .sx-nav a.active i { opacity:1; }
+
+  /* Card polish */
+  .sx-card { border:none; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,.06); }
+  .sx-head { display:flex; align-items:center; gap:12px; background:#fff !important; border-bottom:1px solid #eef1f7;
+             border-radius:12px 12px 0 0 !important; padding:14px 18px !important; }
+  .sx-head .sx-ico { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center;
+                     background:color-mix(in srgb, var(--wc-primary,#6bb10d) 12%, #fff); color:var(--wc-primary,#6bb10d);
+                     font-size:1rem; flex:0 0 auto; }
+  .sx-head h5 { margin:0; font-size:.95rem; font-weight:800; color:#28324a; }
+  .sx-head p { margin:0; font-size:.75rem; color:#8a94a6; }
+
+  /* Section headings inside forms */
+  .sx-sec { font-size:.72rem; font-weight:800; text-transform:uppercase; letter-spacing:.6px; color:#8a94a6;
+            border-top:1px solid #eef1f7; padding-top:1rem; margin:1.1rem 0 .6rem; }
+  .sx-sec:first-of-type { border-top:none; padding-top:0; margin-top:.2rem; }
+
+  /* Neutralise the old blue full-width labels; keep crispy labels tidy */
+  .sx-wrap label { color:#48526a; font-weight:600; font-size:.8rem; margin-top:0; }
+  .sx-wrap .form-text, .sx-wrap .text-muted { font-size:.76rem; }
+  .sx-wrap .btn-primary { background:var(--wc-primary,#6bb10d); border-color:var(--wc-primary,#6bb10d); }
+  .sx-wrap .btn { margin-top:6px; }
+  @media (max-width:768px){ .sx-nav { border-radius:10px; } }
+</style>
+
+<div class="sx-nav">
+  <a class="{% if nav == 'admin_settings_general' %}active{% endif %}" href="{% url 'admin_settings_general' %}"><i class="fa fa-sliders"></i> General</a>
+  <a class="{% if nav == 'admin_settings_appearance' %}active{% endif %}" href="{% url 'admin_settings_appearance' %}"><i class="fa fa-palette"></i> Appearance</a>
+  <a class="{% if nav == 'admin_settings_form' %}active{% endif %}" href="{% url 'admin_settings_form' %}"><i class="fa fa-list-check"></i> Forms</a>
+  <a class="{% if nav == 'admin_settings_date' %}active{% endif %}" href="{% url 'admin_settings_date' %}"><i class="fa fa-calendar-days"></i> Dates</a>
+  <a class="{% if nav == 'admin_settings_loans' %}active{% endif %}" href="{% url 'admin_settings_loans' %}"><i class="fa fa-file-invoice-dollar"></i> Loans</a>
+  <a class="{% if nav == 'admin_settings_banks' %}active{% endif %}" href="{% url 'admin_settings_banks' %}"><i class="fa fa-building-columns"></i> Banks</a>
+  <a class="{% if nav == 'admin_settings_employers' %}active{% endif %}" href="{% url 'admin_settings_employers' %}"><i class="fa fa-building"></i> Employers</a>
+  <a class="{% if nav == 'admin_settings_credit' %}active{% endif %}" href="{% url 'admin_settings_credit' %}"><i class="fa fa-shield-halved"></i> Credit Check</a>
+  <a class="{% if nav == 'admin_settings_dcc' %}active{% endif %}" href="{% url 'admin_settings_dcc' %}"><i class="fa fa-building-columns"></i> DCC</a>
+  <a class="{% if nav == 'referral_settings' %}active{% endif %}" href="{% url 'referral_settings' %}"><i class="fa fa-user-group"></i> Referrals</a>
+  <a class="{% if nav == 'admin_settings_roles' %}active{% endif %}" href="{% url 'admin_settings_roles' %}"><i class="fa fa-user-shield"></i> Roles &amp; Access</a>
+  <a class="{% if nav == 'admin_settings_tc_contracts' %}active{% endif %}" href="{% url 'admin_settings_tc_contracts' %}"><i class="fa fa-file-signature"></i> T&amp;C and Contracts</a>
+  <a class="{% if nav == 'admin_settings_credit_assessment' %}active{% endif %}" href="{% url 'admin_settings_credit_assessment' %}"><i class="fa fa-file-invoice"></i> Credit Assessment</a>
+</div>

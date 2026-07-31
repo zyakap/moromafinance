@@ -1,0 +1,70 @@
+{% extends 'website/website_base.html' %}
+{% load static %}
+
+{% block title %}Responsible Lending &amp; Privacy | Moroma Finance{% endblock %}
+{% block meta_desc %}How Moroma Finance lends responsibly — assessing repayment capacity, protecting your privacy, and supporting clients who fall behind.{% endblock %}
+
+{% block hero %}
+<section class="page-hero">
+  <div class="container">
+    <span class="eyebrow"><i class="bi bi-shield-check"></i> Responsible Lending</span>
+    <h1>Lending that looks after you</h1>
+    <p>A loan should help you, not trap you. Here's how we assess, protect and support every Moroma Finance client.</p>
+  </div>
+</section>
+{% endblock %}
+
+{% block content %}
+
+<section class="section">
+  <div class="container">
+    <div class="grid grid-3">
+      <div class="card reveal">
+        <div class="ic"><i class="bi bi-clipboard-data"></i></div>
+        <h3>We assess capacity</h3>
+        <p>Before approving any loan, we check that your fortnightly repayment genuinely fits your income. If it doesn't, we'll say so.</p>
+      </div>
+      <div class="card reveal">
+        <div class="ic"><i class="bi bi-lock-fill"></i></div>
+        <h3>We protect your privacy</h3>
+        <p>Your personal details, payslips and documents are stored securely and used only to assess and manage your loan.</p>
+      </div>
+      <div class="card accent reveal">
+        <div class="ic"><i class="bi bi-life-preserver"></i></div>
+        <h3>We help if you struggle</h3>
+        <p>If your circumstances change, talk to us early. We would far rather work out an arrangement than see you default.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section bg-soft">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow"><i class="bi bi-info-circle-fill"></i> Good to know</span>
+      <h2>Borrowing with your eyes open</h2>
+    </div>
+    <div class="faq">
+      <details class="qa reveal"><summary>How do you decide how much I can borrow?</summary><p>We look at your income, your existing commitments and your repayment capacity. Your approved amount is the figure we're confident you can comfortably repay — which may be less than you requested.</p></details>
+      <details class="qa reveal"><summary>What information do you collect?</summary><p>Only what we need to assess and manage your loan: your identity, employment and income details, bank account and supporting documents such as a payslip and ID.</p></details>
+      <details class="qa reveal"><summary>Who can see my information?</summary><p>Your information is confidential. It is accessed only by authorised Moroma Finance staff for the purpose of assessing and administering your loan, and is never sold.</p></details>
+      <details class="qa reveal"><summary>What if I can't make a repayment?</summary><p>Contact us as soon as you know. Reach us on 7010 7473 or 8302 9377, or email sales@moromafinance.com.pg. Early contact gives us the most options to help.</p></details>
+      <details class="qa reveal"><summary>What happens if I default?</summary><p>Missed repayments may lead to your loan being classified in default, which can affect your standing with us and your ability to borrow in future. We will always try to reach an arrangement with you first.</p></details>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="rateband reveal" style="text-align:center;">
+      <h2 style="color:#fff; margin:0 auto .8rem; max-width:26ch; font-size:clamp(1.5rem,3.2vw,2.1rem); position:relative;">Struggling with a repayment? Talk to us early.</h2>
+      <p style="opacity:.92; max-width:48ch; margin:0 auto 1.6rem; position:relative;">We're on your side. A quick call can open up options that disappear once a loan falls behind.</p>
+      <div class="hero-actions" style="justify-content:center; position:relative;">
+        <a href="tel:+67570107473" class="btn-d btn-white"><i class="bi bi-telephone-fill"></i> 7010 7473</a>
+        <a href="{% url 'contact' %}" class="btn-d" style="background:rgba(255,255,255,.15); color:#fff; border-color:rgba(255,255,255,.45);">Contact us</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

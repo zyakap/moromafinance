@@ -1,0 +1,598 @@
+{% extends "staff_base.html" %}
+{% load static %}
+{% load humanize %}
+{% load finance_formats %}
+
+{% block title %} {{ loan.ref }} - Loan Details{% endblock %}
+
+{% block breadcrumb %} <a href="{% url 'staff_dashboard' %}">Dashboard</a>  /  <a href="{% url 'loans' %}">Loans</a> {% endblock %}
+{% block breadcrumb_active %} {{ loan.ref }} {% endblock %}
+{% block dashboard_title %} {{ loan.ref }} Details {% endblock %}
+
+
+
+{% block content %}
+
+
+
+ 
+  <!-- Content Goes Here -->
+
+  
+ 
+  <div class="row p-1" style="background-color: #F8F8F8; border-radius: 10px;">
+    <h5 class="p-3 mb-3 text-center text-light" style="border-radius: 10px; background-color: #0000ff; opacity: 0.6">{{ user.first_name.upper }} {% if user.middle_name.upper %}{{ user.middle_name.upper }}{% endif %} {{ user.last_name }}{% if last_name_s.upper == 'S' %}'{% else %}'s{% endif %} - LOAN INFORMATION</h4>
+    <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-xs-12 mb-2">
+        <div class="card p-3">
+            <p class="p-0 m-0 text-sm">Name: <span class="text-primary"><b>{{ user.first_name }} {% if user.middle_name %}{{ user.middle_name }}{% endif %} {{ user.last_name }}</span></b></p>
+            <p class="p-0 m-0 text-sm">Employer: <span class="text-primary"><b>{{ user.employer }}</span></b></p>
+            <p class="p-0 m-0 text-sm">Contact #: <span class="text-primary"><b>{{ user.mobile1 }}{% if user.mobile2 %} / {{ user.mobile2 }}{% endif %}</span></b></p>
+            <p class="p-0 m-0 text-sm">Email: <span class="text-primary"><b>{{ usr.email }}</span></b></p>
+            <p class="p-0 m-0 text-sm">Repayment Start: <span class="text-primary"><b>{{ loan.repayment_start_date }}</span></b></p>
+            <p class="p-0 m-0 text-sm">Expected End: <span class="text-primary"><b>{{ loan.expected_end_date }}</span></b></p>
+            
+        </div>
+    </div>
+    <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-xs-12 mb-2">
+        <div class="card p-3">
+            <p class="p-0 m-0 text-sm">Loan Amount: <span class="text-primary"><b>K {{ loan.amount|default_if_none:"0"|currency }}</span></b></p>
+            <p class="p-0 m-0 text-sm">Total Interest: <span class="text-primary"><b>K {{ loan.interest|default_if_none:"0"|currency }}</span></b></p>
+            <p class="p-0 m-0 text-sm">Application Fee: <span class="text-primary"><b>K {{ loan.application_fee|default_if_none:"0"|currency }}</span></b></p>
+            <p class="p-0 m-0 text-sm">Total Loan Amount: <span class="text-primary"><b>K {{ loan.total_loan_amount|default_if_none:"0"|currency }}</span></b></p>
+            <p class="p-0 m-0 text-sm">Repayment Amount: <span class="text-primary"><b>K {{ loan.repayment_amount|default_if_none:"0"|currency }}</span></b></p>
+            <p class="p-0 m-0 text-sm">Fortnights: <span class="text-primary"><b>{{ loan.number_of_fortnights }} fns</span></b></p>
+            {% if show_referrer %}<p class="p-0 m-0 text-sm">Referrer: <span class="text-primary"><b>{% if referrer %}{{ referrer.name }}{% else %}—{% endif %}</span></b></p>{% endif %}
+        </div>
+    </div>
+    <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-xs-12 mb-2">
+      <div class="card p-3">
+          <p class="p-0 m-0 text-sm">Yet to be Paid: <span class="text-primary"><b>K {{ loan.total_outstanding|default_if_none:"0"|currency }}</span></b></p>
+          <p class="p-0 m-0 text-sm">Total Paid to Date: <span class="text-primary"><b>K {{ loan.total_paid|default_if_none:"0"|currency }}</b></span> <span class="badge bg-success" title="Percentage of the total loan repayable paid so far">{{ loan.total_paid|percent_of:loan.total_loan_amount }}%</span></p>
+          <p class="p-0 m-0 text-sm">Repayments to Date: <span class="text-primary"><b>{{ loan.number_of_repayments }}</span></b></p>
+          <p class="p-0 m-0 text-sm">Last Payment Date: <span class="text-primary"><b>{{ loan.last_repayment_date }}</span></b></p>
+          <p class="p-0 m-0 text-sm">Advance Payment Total: <span class="text-primary"><b>K {{ loan.total_advance_payment|default_if_none:"0"|currency }}</span></b></p>
+          <p class="p-0 m-0 text-sm">Total Outstanding: <span class="text-primary"><b>K {{ loan.total_outstanding|default_if_none:"0"|currency }}</span></b></p>
+          
+      </div>
+    </div>
+    <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-xs-12">
+        <div class="card p-3">
+            <p class="p-0 m-0 text-sm">Default Status: {% if loan.total_arrears != 0.00 %}<span class="badge bg-danger"><b>DEFAULTED</span></b>{% else %}<span class="badge bg-success"><b>Good Loan</span></b>{% endif %}</p>
+            <p class="p-0 m-0 text-sm">Number of Defaults: <span class="text-primary"><b>{{ loan.number_of_defaults }}</span></b></p>
+            <p class="p-0 m-0 text-sm">Last Default Date: <span class="text-primary"><b>{{ loan.last_default_date }}</span></b></p>
+            <p class="p-0 m-0 text-sm">Total Arrears: <span class="text-primary text-danger"><b>K {{ loan.total_arrears|default_if_none:"0"|currency }}</span></b></p>
+            <p class="p-0 m-0 text-sm">Total Default Interest: <span class="text-primary"><b>K {{ loan.default_interest_receivable|default_if_none:"0"|currency }}</span></b></p>
+            <p class="p-0 m-0 text-sm">Total Default Interest Paid: <span class="text-primary"><b>K {{ loan.default_interest_paid|default_if_none:"0"|currency }}</span></b></p>
+        </div>
+    </div>
+    
+  </div><!-- END ROW-->
+
+  {% if loan.funded_category == 'AWAITING_REFUND' %}
+  <div class="alert alert-warning mt-3" style="font-size:.9rem;">
+    <i class="fa fa-triangle-exclamation me-1"></i>
+    <strong>Awaiting Refund</strong> — this loan is settled in full, but the client overpaid it (e.g. a refinance
+    payoff exceeding the outstanding balance) and is owed a refund. The excess is recorded under
+    <a href="{% url 'staff_client_credits' %}">Client Credits</a>. The loan stays open until it is either marked
+    refunded there, or attributed below.
+    <form method="post" action="{% url 'staff_attribute_credit_and_close' loan.ref %}" class="d-inline"
+          onsubmit="return confirm('Close this loan now and leave the excess recorded as a client credit to be refunded later?');">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-sm btn-outline-dark ms-2 py-0 px-2">Attribute to Client Credit &amp; Close Now</button>
+    </form>
+  </div>
+  {% endif %}
+
+  <div class="row mt-3">
+
+    {% if loan.category == 'PENDING' %}
+
+    <div class="col-12">
+      <div class="card my-3">
+        <div class="card-header bg-secondary p-0 position-relative mt-n2 mx-3 z-index-2">
+          <h6 class="text-white text-center pt-2 pb-1">
+            <h6 class="text-white text-center ps-3"> {{ loan.ref }} - LOAN DETAILS</h6>
+          
+        </div>
+        <div class="card-body px-0 pb-2">
+          <div class="table-responsive p-0">
+            <table class="table table-striped table-hover align-items-center justify-content-center mb-0">
+              <thead>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Date</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Amount</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Interest</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Repayment</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">FNs</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Approve</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Decline</th>
+                  
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Download</th>
+                </tr>
+              </thead>
+              <tbody>
+                
+                <tr>
+                  <td>
+                    <div class="d-flex px-2">
+                        
+                        <div class="my-auto">
+                        <h6 class="mb-0 text-sm">{{ loan.application_date|sdate }}</h6>
+                        </div>
+                    </div>
+                  </td>
+                  <td>
+                    <h6 class="text-sm">{{ loan.amount|default_if_none:"0"|currency }}</h6>
+                  </td>
+                  <td>
+                    <h6 class="text-sm">{{ loan.interest|default_if_none:"0"|currency }}</h6>
+                  </td>
+                  <td>
+                    <h6 class="text-sm">{{ loan.repayment_amount|default_if_none:"0"|currency }}</h6>
+                  </td>
+                  <td>
+                    <h6 class="text-sm">{{ loan.number_of_fortnights }}</h6>
+                  </td>
+                  <td>
+                    <a href="{{domain}}/admin/approve/{{ loan.ref }}/">
+                      <button type="button" class="btn btn-lg btn-success">
+                        <i class="fa-solid fa-check"></i>
+                        
+                      </button>
+                    </a>
+                  </td>
+                  <td>
+                    <a href="{{domain}}/admin/decline/{{ loan.ref }}/">
+                      <button type="button" class="btn btn-lg btn-danger">
+                        <i class="fa-solid fa-cancel"></i>
+                        
+                      </button>
+                    </a>
+                  </td>
+                  <td>
+                    {% if loan.category == 'PENDING' %}
+                   
+                      {% if loan.files.application_form_url %}
+                      <a href="{{domain}}{{loan.files.application_form_url}}">
+                        
+                      {% else %}
+                      <a href="{{domain}}/loan/dla/{{ loan.ref }}/">
+                        
+                      {% endif %}
+                    {% else %}
+                      <a href="{{domain}}/loan/dls/{{ loan.ref }}/">
+                    {% endif %}
+                      <button type="button" class="btn btn-lg btn-primary">
+                        <i class="fa-solid fa-download"></i>
+                        
+                      </button>
+                    </a>
+                  </td>
+                    
+                </tr>
+                
+                
+              </tbody>
+            </table>
+          </div>
+          
+        </div>
+        
+      </div>
+      
+    </div>
+
+    <div class="row">
+      
+      <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-xs-12">
+        <div class="card p-0 m-0">
+          <div class="card-header bg-secondary pt-3 pr-2 pb-2 pl-2">
+            <h4 class="text-light p-0 m-0">Requirements for <b>Loan Approval</b></h4>
+            <p class="text-light p-0 m-0 text-sm">These documents must be uploaded for approval.</p>
+          </div>
+          <div class="card-body m-0 p-3">
+            <div class="table-responsive">
+              <table class="table table-dark table-striped table-center text-xs">
+                <thead>
+                  <tr>
+                    <th scope="col">STATUS</th>
+                    <th scope="col">REQUIREMENT</th>
+                    <th scopr="col">Action</th>
+                  </tr>
+                </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        {% if loanfile.application_form_url %}
+                        <span class="text-sm text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;YES
+                        {% else %}
+                        <span class="text-sm text-danger"><b><i class="fa-solid fa-cancel"></i></b></span> &nbsp;NO
+                        {% endif %}
+                      </td>
+                      <td>Signed Application Form Uploaded</td>
+                      <td>
+                        {% if loanfile.application_form_url %}
+                        <a href="{{ loanfile.application_form_url }}" target="_blank">
+                          <button type="button" class="btn btn-lg btn-primary pr-1 pl-1 pt-1 pb-0 m-0 text-xs">
+                            <i class="fa-solid fa-eye"></i>
+                            View App. Form
+                          </button>
+                        </a>
+                        {% else %}
+                        <a href="{% url 'tc_upload' loan.ref %}" target="_blank">
+                          <button type="button" class="btn btn-lg btn-info pr-1 pl-1 pt-1 pb-0 m-0 text-xs">
+                            <i class="fa-solid fa-upload"></i>
+                            Upload
+                          </button>
+                        </a>
+                        {% endif %}  
+                      </td>
+                    </tr>
+                    
+                    <tr>
+                      <td>
+                        {% if loanfile.terms_conditions_url %}
+                        <span class="text-sm text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;YES
+                        {% else %}
+                        <span class="text-sm text-danger"><b><i class="fa-solid fa-cancel"></i></b></span> &nbsp;NO
+                        {% endif %}
+                      </td>
+                      <td>Signed Terms & Conditions Uploaded</td>
+                      <td>
+                        {% if loanfile.terms_conditions_url %}
+                        <a href="{{ loanfile.terms_conditions_url }}" target="_blank">
+                          <button type="button" class="btn btn-lg btn-primary pr-1 pl-1 pt-1 pb-0 m-0 text-xs">
+                            <i class="fa-solid fa-eye"></i>
+                            View T&C
+                          </button>
+                        </a>
+                        {% else %}
+                        <a href="{% url 'tc_upload' loan.ref %}" target="_blank">
+                          <button type="button" class="btn btn-lg btn-info pr-1 pl-1 pt-1 pb-0 m-0 text-xs">
+                            <i class="fa-solid fa-upload"></i>
+                            Upload
+                          </button>
+                        </a>
+                        {% endif %}  
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        {% if loanfile.stat_dec_url %}
+                        <span class="text-sm text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;YES
+                        {% else %}
+                        <span class="text-sm text-danger"><b><i class="fa-solid fa-cancel"></i></b></span> &nbsp;NO
+                        {% endif %}
+                      </td>
+                      <td>Statement of Declaration Uploaded</td>
+                      <td>
+                        {% if loanfile.stat_dec_url %}
+                        <a href="{{ loanfile.stat_dec_url }}" target="_blank">
+                          <button type="button" class="btn btn-lg btn-primary pr-1 pl-1 pt-1 pb-0 m-0 text-xs">
+                            <i class="fa-solid fa-eye"></i>
+                            View Stat. Dec.
+                          </button>
+                        </a>
+                        {% else %}
+                        <a href="{% url 'tc_upload' loan.ref %}" target="_blank">
+                          <button type="button" class="btn btn-lg btn-info pr-1 pl-1 pt-1 pb-0 m-0 text-xs">
+                            <i class="fa-solid fa-upload"></i>
+                            Upload
+                          </button>
+                        </a>
+                        {% endif %}  
+                      </td>
+                    </tr>
+                    <tr>
+                     <td>
+                        {% if loanfile.irr_sd_form_url %}
+                        <span class="text-sm text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;YES
+                        {% else %}
+                        <span class="text-sm text-danger"><b><i class="fa-solid fa-cancel"></i></b></span> &nbsp;NO
+                        {% endif %}
+                      </td>
+                      <td>Irrevocable Salary Deduction Authority uploaded</td>
+                      <td>
+                        {% if loanfile.irr_sd_form_url %}
+                        <a href="{{ loanfile.irr_sd_form_url }}" target="_blank">
+                          <button type="button" class="btn btn-lg btn-primary pr-1 pl-1 pt-1 pb-0 m-0 text-xs">
+                            <i class="fa-solid fa-eye"></i>
+                            View IRSDA
+                          </button>
+                        </a>
+                        {% else %}
+                        <a href="{% url 'tc_upload' loan.ref %}" target="_blank">
+                          <button type="button" class="btn btn-lg btn-info pr-1 pl-1 pt-1 pb-0 m-0 text-xs">
+                            <i class="fa-solid fa-upload"></i>
+                            Upload
+                          </button>
+                        </a>
+                        {% endif %}                        
+                      </td>
+                    </tr>
+                    <tr>
+                     <td>
+                        {% if loanfile.bank_statement_url %}
+                        <span class="text-sm text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;YES
+                        {% else %}
+                        <span class="text-sm text-danger"><b><i class="fa-solid fa-cancel"></i></b></span> &nbsp;NO
+                        {% endif %}
+                      </td>
+                      <td>Bank Statement showing 2x pay uploaded</td>
+                      <td>
+                        {% if loanfile.bank_statement_url %}
+                        <a href="{{ loanfile.bank_statement_url }}" target="_blank">
+                          <button type="button" class="btn btn-lg btn-primary pr-1 pl-1 pt-1 pb-0 m-0 text-xs">
+                            <i class="fa-solid fa-eye"></i>
+                            View B.Statment
+                          </button>
+                        </a>
+                        {% else %}
+                        <a href="{% url 'tc_upload' loan.ref %}" target="_blank">
+                          <button type="button" class="btn btn-lg btn-info pr-1 pl-1 pt-1 pb-0 m-0 text-xs">
+                            <i class="fa-solid fa-upload"></i>
+                            Upload
+                          </button>
+                        </a>
+                        {% endif %}  
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        {% if loanfile.payslip1_url %}
+                        <span class="text-sm text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;YES
+                        {% else %}
+                        <span class="text-sm text-danger"><b><i class="fa-solid fa-cancel"></i></b></span> &nbsp;NO
+                        {% endif %}
+                      </td>
+                      <td>Payslip 1 Uploaded</td>
+                      <td>
+                        {% if loanfile.payslip1_url %}
+                        <a href="{{ loanfile.payslip1_url }}" target="_blank">
+                          <button type="button" class="btn btn-lg btn-primary pr-1 pl-1 pt-1 pb-0 m-0 text-xs">
+                            <i class="fa-solid fa-eye"></i>
+                            View Payslip 1
+                          </button>
+                        </a>
+                        {% else %}
+                        <a href="{% url 'tc_upload' loan.ref %}" target="_blank">
+                          <button type="button" class="btn btn-lg btn-info pr-1 pl-1 pt-1 pb-0 m-0 text-xs">
+                            <i class="fa-solid fa-upload"></i>
+                            Upload
+                          </button>
+                        </a>
+                        {% endif %}  
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        
+                        {% if loanfile.payslip2_url %}
+                        <span class="text-sm text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;YES
+                        {% else %}
+                        <span class="text-sm text-danger"><b><i class="fa-solid fa-cancel"></i></b></span> &nbsp;NO
+                        {% endif %}
+                      </td>
+                      <td>Payslip 2 Uploaded</td>
+                      <td>
+                        {% if loanfile.payslip2_url %}
+                        <a href="{{ loanfile.payslip2_url }}" target="_blank">
+                          <button type="button" class="btn btn-lg btn-primary pr-1 pl-1 pt-1 pb-0 m-0 text-xs">
+                            <i class="fa-solid fa-eye"></i>
+                            View Payslip 2
+                          </button>
+                        </a>
+                        {% else %}
+                        <a href="{% url 'tc_upload' loan.ref %}" target="_blank">
+                          <button type="button" class="btn btn-lg btn-info pr-1 pl-1 pt-1 pb-0 m-0 text-xs">
+                            <i class="fa-solid fa-upload"></i>
+                            Upload
+                          </button>
+                        </a>
+                        {% endif %}  
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        {% if loanfile.work_confirmation_letter_url %}
+                        <span class="text-sm text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;YES
+                        {% else %}
+                        <span class="text-sm text-danger"><b><i class="fa-solid fa-cancel"></i></b></span> &nbsp;NO
+                        {% endif %}
+                      </td>
+                      <td>Employer Confirmation Letter uploaded</td>
+                      <td>
+                        {% if loanfile.work_confirmation_letter_url %}
+                        <a href="{{ loanfile.work_confirmation_letter_url }}" target="_blank">
+                          <button type="button" class="btn btn-lg btn-primary pr-1 pl-1 pt-1 pb-0 m-0 text-xs">
+                            <i class="fa-solid fa-eye"></i>
+                            View Confirmation
+                          </button>
+                        </a>
+                        {% else %}
+                        <a href="{% url 'tc_upload' loan.ref %}" target="_blank">
+                          <button type="button" class="btn btn-lg btn-info pr-1 pl-1 pt-1 pb-0 m-0 text-xs">
+                            <i class="fa-solid fa-upload"></i>
+                            Upload
+                          </button>
+                        </a>
+                        {% endif %}  
+                      </td>
+                    </tr>
+                    
+                  </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+      <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12">
+        <div class="card p-3">
+          <div class="card-header bg-secondary p-0 m-0">
+              <h6 class="text-white text-center pt-2 pb-1">Message Applicant</h6>
+          </div>
+          <div class="card-body px-0 p-3 text-center">
+            <form method='POST'>
+              {% csrf_token %}
+                <label for="subject">Subject:</label>
+                <input id="subject" type="text" name="subject" class="form-control" placeholder="Subject">
+                <label>Message:</label>
+                <textarea id="messageapplicant" name="messageapplicant" class="form-control" rows="4" cols="50" placeholder="Type message here..."></textarea>
+              
+              <br>
+              <button type="submit" class="btn btn-sm btn-primary">Send Message</button> 
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    {% else %}
+
+    <!-- Action Buttons -->
+    <div class="col-12 mb-2">
+      <div class="d-flex flex-wrap gap-2">
+        <a href="{% url 'payment' loan.ref %}" target="_blank">
+          <button type="button" class="btn btn-success btn-sm">Add Payment</button>
+        </a>
+        {% if loan.advance_balance and loan.advance_balance > 0 and loan.total_arrears and loan.total_arrears > 0 %}
+        <a href="{% url 'allocate_advance_to_arrears' loan.ref %}"
+           onclick="return confirm('Allocate the advance balance (K{{ loan.advance_balance|floatformat:2 }}) to clear arrears (K{{ loan.total_arrears|floatformat:2 }})?');">
+          <button type="button" class="btn btn-primary btn-sm" title="Apply the prepaid advance balance to outstanding arrears">Allocate Advance to Arrears</button>
+        </a>
+        {% endif %}
+        <a href="{% url 'create_default' loan.ref %}"
+           onclick="return confirm('⚠ CONFIRM — Create a DEFAULT on {{ loan.ref }}?\n\nThis will:\n • Charge default interest on the overdue repayment\n • Add the shortfall to ARREARS\n • Increase the TOTAL OUTSTANDING balance\n • Mark the loan DEFAULTED and advance the schedule one fortnight\n\nOnly proceed if a repayment was genuinely missed — this affects the client balance and credit record.\n\nOK = create default, Cancel = stop.');">
+          <button type="button" class="btn btn-warning btn-sm">Create Default</button>
+        </a>
+        {% if loan.advance_balance and loan.advance_balance > 0 %}
+        <a href="{% url 'apply_advance_to_missed_payment' loan.ref %}"
+           onclick="return confirm('Apply the advance balance (K{{ loan.advance_balance|floatformat:2 }}) to the missed repayment?');">
+          <button type="button" class="btn btn-primary btn-sm">Apply Advance to Missed Payments</button>
+        </a>
+        {% endif %}
+        <a href="{% url 'staff_regenerate_schedule' loan.ref %}">
+          <button type="button" class="btn btn-info btn-sm" title="Rebuild the remaining repayment dates (next date, remaining terms, frequency)">Regenerate Dates</button>
+        </a>
+        <a href="{% url 'download_loan_statement_admin' loanref=loan.ref %}">
+          <button type="button" class="btn btn-primary btn-sm" title="On-screen preview, then download or send to client">View / Download Statement</button>
+        </a>
+        <a href="{% url 'download_las' loan.ref %}">
+          <button type="button" class="btn btn-info btn-sm" title="On-screen preview, then download or send to client">Download LAS</button>
+        </a>
+        <a href="{% url 'fix_loan_defaults' loan.ref %}">
+          <button type="button" class="btn btn-outline-danger btn-sm" title="Reverse wrongly-created future-dated defaults">Fix Defaults</button>
+        </a>
+        {% if reversal_info %}
+        <form method="post" action="{% url 'reverse_last_statement' loan.ref %}" class="d-inline"
+              onsubmit="return confirm('⚠ REVERSE the last statement on {{ loan.ref|escapejs }}?\n\nLast line: {{ reversal_info.type|escapejs }} — {{ reversal_info.statement|escapejs }} (dated {{ reversal_info.date|escapejs }}).\n\nThis UNDOES the entire transaction that created it — the payment and all its statement lines — and restores the balances, arrears and schedule to before it.\n\nFunding and interest lines can NEVER be reversed. Re-enter the transaction if this was a mistake.\n\nOK = reverse, Cancel = stop.');">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-outline-danger btn-sm" title="Undo the most recent statement line and everything it changed">
+            <i class="fa fa-rotate-left"></i> Reverse Last Statement
+          </button>
+        </form>
+        {% else %}
+        <button type="button" class="btn btn-outline-secondary btn-sm" disabled title="Only the funding and interest lines remain — nothing to reverse">
+          <i class="fa fa-rotate-left"></i> Reverse Last Statement
+        </button>
+        {% endif %}
+        <a href="{% url 'client_files' loan.owner.id %}">
+          <button type="button" class="btn btn-info btn-sm" title="View / add / replace all documents for this client">Client Files</button>
+        </a>
+        <a href="{% url 'download_cdn' loan.ref %}">
+          <button type="button" class="btn btn-secondary btn-sm" title="On-screen preview, then download or send to client">Download CDN</button>
+        </a>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="card my-3">
+        <div class="card-header bg-secondary p-0 position-relative mt-n2 mx-3 z-index-2">
+          <h6 class="text-white text-center pt-3 pb-1">
+            <h6 class="text-white text-center ps-3"> {{ loan.ref }} - LOAN STATEMENT</h6>
+          
+        </div>
+        <div class="card-body px-0 pb-2">
+          <div class="table-responsive p-0">
+            <table class="table table-striped table-hover align-items-center justify-content-center mb-0">
+              <thead>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Date</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Description</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Debit</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Credit</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Default</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">D.Interest</th>
+                  
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Arrears</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Balance</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for statement in stat %}
+                <tr>
+                  <td>
+                    <div class="d-flex px-2">
+                        
+                        <div class="my-auto">
+                        <h6 class="mb-0 text-sm">{{ statement.date|sdate }}</h6>
+                        </div>
+                    </div>
+                  </td>
+                  <td>
+                    <h6 class="text-sm">{{ statement.statement }}</h6>
+                  </td>
+                  <td>
+                    <h6 class="text-sm">{{ statement.debit|default_if_none:"0"|currency }}</h6>
+                  </td>
+                  <td>
+                    <h6 class="text-sm">{{ statement.credit|default_if_none:"0"|currency }}</h6>
+                  </td>
+                  <td>
+                    <h6 class="text-sm">{{ statement.default_amount|default_if_none:"0"|currency }}</h6>
+                  </td>
+                  <td>
+                    <h6 class="text-sm">{{ statement.interest_on_default|default_if_none:"0"|currency }}</h6>
+                  </td>
+                  
+                  <td>
+                    <h6 class="text-sm">{{ statement.arrears }}</h6>
+                  </td>
+                  <td>
+                    <h6 class="text-sm">{{ statement.balance }}</h6>
+                  </td>
+                </tr>
+                {% endfor %}
+                
+              </tbody>
+            </table>
+          </div>
+          
+        </div>
+        
+      </div>
+      
+    </div>
+
+
+   
+
+
+    {% endif %}
+
+  
+  
+
+  </div>
+  
+  
+
+
+
+
+  <!-- Content Ends Here -->
+
+ 
+{% endblock %}

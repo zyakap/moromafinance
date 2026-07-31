@@ -1,0 +1,61 @@
+{% extends "admin_base.html" %}
+{% load finance_formats %}
+
+{% block title %}Fix Loan Defaults{% endblock %}
+{% block breadcrumb %}<a href="{% url 'view_loan' loan.ref %}">{{ loan.ref }}</a>{% endblock %}
+{% block breadcrumb_active %}Fix Defaults{% endblock %}
+{% block dashboard_title %}Correct Future-Dated Defaults — {{ loan.ref }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-3">
+  <div class="col-lg-9">
+    <div class="card">
+      <div class="card-header pb-0">
+        <h6 class="mb-1"><i class="fa-solid fa-wrench me-1"></i> Default Correction Tool</h6>
+        <p class="text-sm text-secondary mb-0">
+          This reverses any default lines created for a repayment date that is <strong>not yet due</strong>
+          (dated after today, {{ today|sdate }}). It rolls back their default interest and arrears, and puts
+          those dates back into the repayment schedule so they only default once genuinely overdue.
+        </p>
+      </div>
+      <div class="card-body">
+        {% if future_defaults %}
+          <h6 class="text-uppercase text-xs text-secondary font-weight-bolder">Future-dated defaults to reverse</h6>
+          <div class="table-responsive">
+            <table class="table align-items-center mb-3">
+              <thead>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder">Ref</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder">Date</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder">Default Amount</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder">Default Interest</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for s in future_defaults %}
+                <tr>
+                  <td class="text-sm">{{ s.ref|default:"—" }}</td>
+                  <td class="text-sm text-danger">{{ s.date|sdate }}</td>
+                  <td class="text-sm">K {{ s.default_amount|default_if_none:"0"|currency }}</td>
+                  <td class="text-sm">K {{ s.default_interest|default_if_none:"0"|currency }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <form method="POST" action="{% url 'fix_loan_defaults' loan.ref %}" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger mb-0"><i class="fa-solid fa-rotate-left me-1"></i> Reverse these defaults &amp; restore schedule</button>
+          </form>
+          <a href="{% url 'view_loan' loan.ref %}" class="btn btn-outline-secondary mb-0 ms-2">Cancel</a>
+        {% else %}
+          <div class="alert alert-success text-white text-sm mb-0">
+            No future-dated defaults found on this loan. Nothing to correct.
+          </div>
+          <a href="{% url 'view_loan' loan.ref %}" class="btn btn-outline-secondary mt-3 mb-0">Back to loan</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

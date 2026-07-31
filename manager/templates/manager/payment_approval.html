@@ -1,0 +1,110 @@
+{% extends 'manager_base.html' %}
+{% load humanize %}
+
+{% block title %}Payment Review{% endblock %}
+{% block breadcrumb %}<a href="{% url 'manager:dashboard' %}">Manager</a> / <a href="{% url 'manager:pending_payments' %}">Pending Payments</a>{% endblock %}
+{% block breadcrumb_active %}Review{% endblock %}
+{% block dashboard_title %}Payment Upload Review{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col-xl-8">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h4 class="mb-3">Upload Details</h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr><td><strong>Reference:</strong></td><td>{{ payment_upload.ref|default:"-" }}</td></tr>
+                                <tr><td><strong>Uploaded:</strong></td><td>{{ payment_upload.created_at|date:"M d, Y H:i" }}</td></tr>
+                                <tr><td><strong>Type:</strong></td><td><span class="badge bg-info">{{ payment_upload.type|default:"-" }}</span></td></tr>
+                                <tr><td><strong>Status:</strong></td><td><span class="badge bg-warning">{{ payment_upload.status }}</span></td></tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr><td><strong>Loan Reference:</strong></td><td><strong>{{ payment_upload.loan.ref }}</strong></td></tr>
+                                <tr><td><strong>Customer:</strong></td><td>{{ payment_upload.owner.first_name }} {{ payment_upload.owner.last_name }}</td></tr>
+                                <tr><td><strong>Customer Email:</strong></td><td>{{ payment_upload.owner.email }}</td></tr>
+                                <tr><td><strong>Customer Mobile:</strong></td><td>{{ payment_upload.owner.mobile1|default:"Not provided" }}</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h4 class="mb-3">Related Loan</h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr><td><strong>Loan Amount:</strong></td><td>K{{ payment_upload.loan.amount|floatformat:0|intcomma }}</td></tr>
+                                <tr><td><strong>Repayment Amount:</strong></td><td>K{{ payment_upload.loan.repayment_amount|floatformat:0|intcomma }}</td></tr>
+                                <tr><td><strong>Total Outstanding:</strong></td><td><strong class="text-danger">K{{ payment_upload.loan.total_outstanding|floatformat:0|intcomma }}</strong></td></tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr><td><strong>Loan Status:</strong></td><td><span class="badge bg-primary">{{ payment_upload.loan.status }}</span></td></tr>
+                                <tr><td><strong>Next Payment Date:</strong></td><td>{{ payment_upload.loan.next_payment_date|date:"M d, Y" }}</td></tr>
+                                <tr>
+                                    <td><strong>Days in Default:</strong></td>
+                                    <td>{% if payment_upload.loan.days_in_default > 0 %}<span class="badge bg-danger">{{ payment_upload.loan.days_in_default }} days</span>{% else %}<span class="badge bg-success">Current</span>{% endif %}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if payment_upload.payment_proof %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h4 class="mb-3">Payment Evidence</h4>
+                    <div class="text-center">
+                        <a href="{{ payment_upload.payment_proof.url }}" target="_blank" class="btn btn-outline-primary">
+                            <i class="fa-solid fa-file-lines"></i> View Uploaded Proof{% if payment_upload.file_name %} ({{ payment_upload.file_name }}){% endif %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="alert alert-secondary" style="font-size:.85rem;">
+                Approving here marks the upload <strong>Processed</strong> — it does not itself post a repayment.
+                Record the actual payment (amount, date, mode) via the normal Enter Payment flow once you've
+                verified the evidence above.
+            </div>
+        </div>
+
+        <div class="col-xl-4">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="mb-3">Review Decision</h4>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2">
+                            <button type="submit" name="action" value="approve" class="btn btn-success btn-lg"
+                                    onclick="return confirm('Mark this payment upload as processed?')">
+                                <i class="fa-solid fa-circle-check"></i> Mark Processed
+                            </button>
+                            <button type="submit" name="action" value="reject" class="btn btn-danger btn-lg"
+                                    onclick="return confirm('Reject this payment upload?')">
+                                <i class="fa-solid fa-circle-xmark"></i> Reject Upload
+                            </button>
+                        </div>
+                    </form>
+                    <hr>
+                    <div class="d-grid">
+                        <a href="{% url 'manager:pending_payments' %}" class="btn btn-secondary">
+                            <i class="fa-solid fa-arrow-left"></i> Back to Pending Payments
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,201 @@
+{% extends base_template %}
+{% load finance_formats %}
+
+{% block title %} Unmatched Payment Listing {% endblock %}
+{% block breadcrumb %} <a href="{% url urls.url_upload %}">Alesco Update</a> {% endblock %}
+{% block breadcrumb_active %} Unmatched Payments {% endblock %}
+{% block dashboard_title %} Unmatched Payment Listing {% endblock %}
+
+{% block css %}
+  {{ block.super }}
+  <style>
+    .ump-cards { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:1rem; }
+    @media (max-width:900px){ .ump-cards{ grid-template-columns:1fr; } }
+    .ump-card { background:#fff; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,.06); padding:14px 16px; }
+    .ump-card .l { font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#8a94a6; }
+    .ump-card .v { font-size:1.3rem; font-weight:800; color:#28324a; }
+    .ump-tbl td, .ump-tbl th { vertical-align:middle; font-size:.85rem; }
+  </style>
+{% endblock %}
+
+{% block content %}
+<div class="row mt-3">
+  <div class="col-12">
+
+    {% if duplicate_runs %}
+    <div class="alert alert-warning" style="font-size:.85rem;">
+      <i class="fa fa-triangle-exclamation me-1"></i>
+      <strong>Possible duplicate upload{{ duplicate_runs|length|pluralize }}:</strong>
+      {% for d in duplicate_runs %}
+        Pay {{ d.pay_period }}/{{ d.pay_year }} was uploaded {{ d.runs|length }} times
+        ({% for r in d.runs %}{{ r.ref }}{% if not forloop.last %}, {% endif %}{% endfor %}).
+      {% endfor %}
+      Check the Alesco Update page and cancel whichever upload is the repeat before confirming further lines —
+      confirming both would double-post the same deductions.
+    </div>
+    {% endif %}
+
+    <div class="ump-cards">
+      <div class="ump-card" style="border-left:4px solid #e2536a;">
+        <div class="l">To Refund</div>
+        <div class="v">K {{ total_out|currency }}</div>
+        <div class="text-secondary" style="font-size:.75rem;">{{ to_refund|length }} payment(s) received from non-clients</div>
+      </div>
+      <div class="ump-card" style="border-left:4px solid #6bb10d;">
+        <div class="l">Refunded</div>
+        <div class="v">K {{ total_ref|currency }}</div>
+        <div class="text-secondary" style="font-size:.75rem;">{{ refunded|length }} payment(s) already returned</div>
+      </div>
+      <div class="ump-card d-flex align-items-center justify-content-between">
+        <div>
+          <div class="l">Export</div>
+          <div class="text-secondary" style="font-size:.75rem;">Full listing incl. refunded</div>
+        </div>
+        <a href="?download=csv" class="btn btn-sm btn-success mb-0"><i class="fa fa-file-csv"></i> CSV</a>
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header bg-secondary pt-2 pb-0 pl-2 d-flex justify-content-between align-items-center">
+        <h5 class="text-light mb-0 pt-1 pb-1">To Refund</h5>
+        <span class="badge bg-light text-dark">{{ to_refund|length }}</span>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-sm table-hover ump-tbl mb-0">
+            <thead class="table-light">
+              <tr>
+                <th class="ps-3">Employee File #</th><th>Name</th><th class="text-end">Amount</th>
+                <th>Alesco Ref</th><th>Pay Period</th><th>Period End</th><th>Employer / Paycode</th>
+                <th style="min-width:170px;">Reason</th>
+                <th class="text-center" style="min-width:220px;">Fix</th>
+                <th class="text-center" style="min-width:220px;">Mark Refunded</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for c in to_refund %}
+              {% with l=c.line %}
+              <tr>
+                <td class="ps-3 fw-bold">{{ l.employee_file_number }}</td>
+                <td>{{ l.report_name }}</td>
+                <td class="text-end fw-bold text-danger">K {{ l.this_period|currency }}</td>
+                <td>{{ l.run.ref }}</td>
+                <td>{{ l.run.pay_period }}/{{ l.run.pay_year }}</td>
+                <td>{{ l.run.period_end|sdate }}</td>
+                <td>{{ l.run.employer_name|default:l.run.paycode|default:"—" }}</td>
+                <td>
+                  {% if c.category == 'NO_CLIENT_RECORD' %}
+                    <span class="badge bg-secondary">No client record</span>
+                  {% elif c.category == 'POSSIBLE_TYPO' %}
+                    <span class="badge bg-warning text-dark">Possible typo</span>
+                  {% elif c.category == 'AMBIGUOUS_MATCH' %}
+                    <span class="badge bg-info text-dark">Ambiguous match</span>
+                  {% elif c.category == 'NO_ACTIVE_LOAN' %}
+                    <span class="badge bg-dark">Client has no loan</span>
+                  {% endif %}
+                </td>
+                <td class="text-center">
+                  {% if c.category == 'NO_ACTIVE_LOAN' %}
+                    {% if portal == 'admin' %}
+                      <a href="{% url 'view_client' l.owner_id %}" class="btn btn-sm btn-outline-secondary py-0 px-2 mb-0" target="_blank">View Client</a>
+                    {% else %}
+                      <span class="text-muted">{{ l.owner }}</span>
+                    {% endif %}
+                  {% elif c.category == 'AMBIGUOUS_MATCH' %}
+                    {% for cand in c.candidates %}
+                    <form method="post" class="d-inline" onsubmit="return confirm('Link to {{ cand }} ({{ cand.employee_file_number }})?');">
+                      {% csrf_token %}
+                      <input type="hidden" name="action" value="relink">
+                      <input type="hidden" name="line_id" value="{{ l.pk }}">
+                      <input type="hidden" name="file_number" value="{{ cand.employee_file_number }}">
+                      <button type="submit" class="btn btn-sm btn-outline-primary py-0 px-1 mb-1">{{ cand }} ({{ cand.employee_file_number }})</button>
+                    </form><br>
+                    {% endfor %}
+                  {% else %}
+                    <form method="post" class="d-flex gap-1 justify-content-center align-items-center"
+                          onsubmit="return confirm('Link file number {{ l.employee_file_number }} to the entered client file number?');">
+                      {% csrf_token %}
+                      <input type="hidden" name="action" value="relink">
+                      <input type="hidden" name="line_id" value="{{ l.pk }}">
+                      <input type="text" name="file_number" class="form-control form-control-sm" style="max-width:110px;"
+                             placeholder="Correct file #"
+                             {% if c.category == 'POSSIBLE_TYPO' %}value="{{ c.candidates.0.employee_file_number }}"{% endif %}>
+                      <button type="submit" class="btn btn-sm btn-outline-primary py-0 px-2 mb-0">Link</button>
+                    </form>
+                    {% if c.category == 'POSSIBLE_TYPO' %}
+                    <div class="text-muted" style="font-size:.7rem;">did you mean {{ c.candidates.0 }}?</div>
+                    {% endif %}
+                  {% endif %}
+                </td>
+                <td class="text-center">
+                  <form method="post" class="d-flex gap-1 justify-content-center align-items-center"
+                        onsubmit="return confirm('Mark K{{ l.this_period }} for {{ l.report_name }} as refunded?');">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="mark_refunded">
+                    <input type="hidden" name="line_id" value="{{ l.pk }}">
+                    <input type="date" name="refunded_at" class="form-control form-control-sm" style="max-width:140px;">
+                    <input type="text" name="refund_note" class="form-control form-control-sm" placeholder="ref / note" style="max-width:130px;">
+                    <button type="submit" class="btn btn-sm btn-outline-success py-0 px-2 mb-0">Refunded</button>
+                  </form>
+                </td>
+              </tr>
+              {% endwith %}
+              {% empty %}
+              <tr><td colspan="10" class="text-center text-muted p-3">Nothing awaiting refund — all clear.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header bg-secondary pt-2 pb-0 pl-2 d-flex justify-content-between align-items-center">
+        <h5 class="text-light mb-0 pt-1 pb-1">Refunded</h5>
+        <span class="badge bg-light text-dark">{{ refunded|length }}</span>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-sm table-hover ump-tbl mb-0">
+            <thead class="table-light">
+              <tr>
+                <th class="ps-3">Employee File #</th><th>Name</th><th class="text-end">Amount</th>
+                <th>Pay Period</th><th>Refunded On</th><th>Note</th><th class="text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for l in refunded %}
+              <tr class="table-success">
+                <td class="ps-3">{{ l.employee_file_number }}</td>
+                <td>{{ l.report_name }}</td>
+                <td class="text-end">K {{ l.this_period|currency }}</td>
+                <td>{{ l.run.pay_period }}/{{ l.run.pay_year }}</td>
+                <td>{{ l.refunded_at|sdate }}</td>
+                <td>{{ l.refund_note|default:"—" }}</td>
+                <td class="text-center">
+                  <form method="post" class="d-inline" onsubmit="return confirm('Move this back to the to-refund list?');">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="unmark_refunded">
+                    <input type="hidden" name="line_id" value="{{ l.pk }}">
+                    <button type="submit" class="btn btn-sm btn-outline-secondary py-0 px-2 mb-0">Undo</button>
+                  </form>
+                </td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="7" class="text-center text-muted p-3">No refunds recorded yet.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <p class="text-muted mt-2" style="font-size:.8rem;">
+      <i class="fa fa-circle-info me-1"></i>
+      Entries appear here automatically whenever an Alesco upload contains a deduction for a person who is
+      not a client (unmatched employee file number with money received). Note: cancelling an upload removes
+      its lines — keep uploads with unmatched money until the refunds are recorded.
+    </p>
+  </div>
+</div>
+{% endblock %}

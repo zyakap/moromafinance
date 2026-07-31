@@ -1,0 +1,179 @@
+{% extends "admin_base.html" %}
+{% load static %}
+
+{% block title %}Support Tickets{% endblock %}
+{% block breadcrumb %}<a href="{% url 'admin_dashboard' %}">Dashboard</a>{% endblock %}
+{% block breadcrumb_active %}Support Tickets{% endblock %}
+{% block dashboard_title %}Support Tickets{% endblock %}
+
+{% block css %}
+<style>
+  .stats-row { display:flex; gap:12px; margin-bottom:1.5rem; flex-wrap:wrap; }
+  .stat-card {
+    flex:1; min-width:120px;
+    background:#fff; border-radius:10px;
+    box-shadow:0 2px 10px rgba(0,0,0,.07);
+    padding:14px 18px; text-align:center;
+    text-decoration:none; display:block;
+    transition:box-shadow .15s;
+  }
+  .stat-card:hover { box-shadow:0 4px 18px rgba(0,0,0,.13); }
+  .stat-card .stat-num { font-size:1.8rem; font-weight:800; line-height:1; margin-bottom:4px; }
+  .stat-card .stat-label { font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:#6c757d; }
+  .stat-card.active-card { border-bottom:3px solid #344767; }
+  .stat-card.c-all    .stat-num { color:#344767; }
+  .stat-card.c-wait   .stat-num { color:#f57f17; }
+  .stat-card.c-reply  .stat-num { color:#2e7d32; }
+  .stat-card.c-closed .stat-num { color:#616161; }
+  .stat-card.c-open   .stat-num { color:#1565c0; }
+
+  .filter-tabs { display:flex; gap:4px; margin-bottom:1rem; border-bottom:2px solid #dee2e6; }
+  .filter-tab {
+    padding:8px 18px; font-size:.8rem; font-weight:700; text-transform:uppercase;
+    letter-spacing:.4px; color:#6c757d; border-radius:6px 6px 0 0;
+    text-decoration:none; background:#f8f9fa; border:2px solid transparent;
+    border-bottom:none; transition:all .15s;
+  }
+  .filter-tab:hover { background:#e9ecef; color:#344767; }
+  .filter-tab.active { background:#fff; color:#344767; border-color:#dee2e6; margin-bottom:-2px; }
+
+  .ticket-table { width:100%; border-collapse:collapse; }
+  .ticket-table thead tr { background:#344767; }
+  .ticket-table th { padding:10px 14px; color:#fff; font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.6px; white-space:nowrap; }
+  .ticket-table td { padding:10px 14px; font-size:.84rem; color:#344767; border-bottom:1px solid #f0f2f5; vertical-align:middle; }
+  .ticket-table tbody tr:hover { background:#f8f9fa; }
+  .ticket-table tbody tr:last-child td { border-bottom:none; }
+
+  .status-badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.4px; white-space:nowrap; }
+  .s-waiting { background:#fff8e1; color:#f57f17; }
+  .s-replied { background:#e8f5e9; color:#2e7d32; }
+  .s-closed  { background:#f5f5f5; color:#616161; }
+
+  .subject-cell { max-width:260px; }
+  .subject-cell a { color:#344767; font-weight:600; text-decoration:none; }
+  .subject-cell a:hover { color:#4CAF50; }
+  .preview-text { font-size:.78rem; color:#888; margin-top:2px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; max-width:260px; }
+  .client-name { font-weight:600; }
+  .client-date { font-size:.75rem; color:#aaa; margin-top:2px; }
+
+  .empty-state { text-align:center; padding:50px 20px; color:#aaa; }
+  .empty-state i { font-size:3rem; display:block; margin-bottom:8px; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Stats row -->
+<div class="stats-row mt-3">
+  <a href="?status=all" class="stat-card c-all {% if status_filter == 'all' %}active-card{% endif %}">
+    <div class="stat-num">{{ stats.total }}</div>
+    <div class="stat-label">All Tickets</div>
+  </a>
+  <a href="?status=waiting" class="stat-card c-wait {% if status_filter == 'waiting' %}active-card{% endif %}">
+    <div class="stat-num">{{ stats.waiting }}</div>
+    <div class="stat-label">Awaiting Reply</div>
+  </a>
+  <a href="?status=replied" class="stat-card c-reply {% if status_filter == 'replied' %}active-card{% endif %}">
+    <div class="stat-num">{{ stats.replied }}</div>
+    <div class="stat-label">Replied</div>
+  </a>
+  <a href="?status=open" class="stat-card c-open {% if status_filter == 'open' %}active-card{% endif %}">
+    <div class="stat-num">{{ stats.open }}</div>
+    <div class="stat-label">Open</div>
+  </a>
+  <a href="?status=closed" class="stat-card c-closed {% if status_filter == 'closed' %}active-card{% endif %}">
+    <div class="stat-num">{{ stats.closed }}</div>
+    <div class="stat-label">Closed</div>
+  </a>
+</div>
+
+<!-- Filter tabs -->
+<div class="filter-tabs">
+  <a href="?status=all"     class="filter-tab {% if status_filter == 'all' %}active{% endif %}">All</a>
+  <a href="?status=waiting" class="filter-tab {% if status_filter == 'waiting' %}active{% endif %}">
+    Awaiting Reply
+    {% if stats.waiting %}<span style="background:#f57f17;color:#fff;border-radius:20px;padding:1px 7px;font-size:.68rem;margin-left:4px;">{{ stats.waiting }}</span>{% endif %}
+  </a>
+  <a href="?status=replied" class="filter-tab {% if status_filter == 'replied' %}active{% endif %}">Replied</a>
+  <a href="?status=open"    class="filter-tab {% if status_filter == 'open' %}active{% endif %}">Open</a>
+  <a href="?status=closed"  class="filter-tab {% if status_filter == 'closed' %}active{% endif %}">Closed</a>
+</div>
+
+<!-- Tickets table -->
+<div class="card shadow" style="border-radius:10px;overflow:hidden;">
+  <div class="card-body p-0">
+    {% if supporttickets %}
+    <div class="table-responsive">
+      <table class="ticket-table" id="ticketsTable">
+        <thead>
+          <tr>
+            <th>Ref</th>
+            <th>Client</th>
+            <th>Category</th>
+            <th>Subject / Preview</th>
+            <th>Status</th>
+            <th>Last Updated</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ticket in supporttickets %}
+          <tr>
+            <td><strong style="font-size:.8rem;color:#888;">{{ ticket.ref }}</strong></td>
+            <td>
+              <div class="client-name">{{ ticket.user.first_name }} {{ ticket.user.last_name }}</div>
+              <div class="client-date">{{ ticket.date|date:"d/m/Y" }}</div>
+            </td>
+            <td><span class="badge bg-primary" style="font-size:.7rem;">{{ ticket.category }}</span></td>
+            <td class="subject-cell">
+              <a href="{% url 'admin_view_ticket' ticket.ref %}">{{ ticket.subject }}</a>
+              <div class="preview-text">{{ ticket.content|striptags|truncatechars:80 }}</div>
+            </td>
+            <td>
+              {% if ticket.status == 'user_replied' %}
+                <span class="status-badge s-waiting">Awaiting Reply</span>
+              {% elif ticket.status == 'staff_replied' %}
+                <span class="status-badge s-replied">Replied</span>
+              {% elif ticket.status == 'closed' %}
+                <span class="status-badge s-closed">Closed</span>
+              {% else %}
+                <span class="status-badge s-waiting">{{ ticket.status }}</span>
+              {% endif %}
+            </td>
+            <td style="white-space:nowrap;font-size:.78rem;color:#888;">{{ ticket.updated_at|date:"d/m/Y H:i" }}</td>
+            <td>
+              <a href="{% url 'admin_view_ticket' ticket.ref %}" class="btn btn-sm btn-primary px-3">
+                <i class="material-icons-round" style="font-size:.85rem;vertical-align:middle;">forum</i>
+                View
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <i class="material-icons-round">mark_chat_read</i>
+      No tickets in this category.
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<link rel="stylesheet" type="text/css" href="{% static 'DataTables/datatables.min.css' %}"/>
+<script type="text/javascript" src="{% static 'DataTables/datatables.min.js' %}"></script>
+<script>
+  {% if supporttickets %}
+  $('#ticketsTable').DataTable({
+    order: [[5, 'desc']],
+    pageLength: 25,
+    dom: 'frtip',
+    language: { search: 'Search tickets:' }
+  });
+  {% endif %}
+</script>
+{% endblock %}

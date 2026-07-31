@@ -1,0 +1,145 @@
+{% load static %}
+{% load humanize %}
+{% load site_filter %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}  {% endblock %}</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+
+    <!-- Favicon -->
+    <link href="{% static 'sitebase/img/favicon.ico' %}" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet"> 
+
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Bootstrap 5 -->
+    <!--link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous"-->
+
+    {% block css %}
+    {% endblock css %}
+
+    <!-- Material CSS -->
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+
+    <!-- CSS Files -->
+    <!-- bootstrap 5.2 -->
+    <link id="pagestyle" href="{% static 'website/page/css/bootstrap52.min.css' %}" rel="stylesheet" />
+    <!-- mateiral dashboard -->
+    <link id="pagestyle" href="{% static 'ctmdb/assets/css/theme.css' %}" rel="stylesheet" />
+
+
+    <!-- Custom Styles -->
+    <link href="{% static 'custom/css/style.css' %}" rel="stylesheet">
+    
+
+    
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+</head>
+
+<body>
+    
+<div class="container">
+    
+   <!-- Navbar Start -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <img src="{% static 'clientfiles/brandlogo.png' %}" alt="" width="120" height="24" class="d-inline-block align-text-top">
+                <!-- word logo -->
+            </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'home' %}">HOME</a>
+                </li>
+            <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="{% url 'about' %}">ABOUT</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'contact' %}">CONTACT</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'dcc' %}">DCC Policy</a>
+            </li>
+            </ul>
+            <ul class="navbar-nav text-right">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'register' %}"><button id="registerbtn" class="btn btn-sm btn-success p-1 m-0">Register</button></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'login_user' %}">Login</a>
+                </li>
+            </ul>
+        </div>
+        </div>
+    </nav>     
+    <!-- Navbar End --> 
+
+    
+        
+    {% block content %}
+
+    <!-- Content Goes Here-->
+
+    {% endblock %}
+
+    <!-- FOOTER -->
+    <div class="container">
+        <nav class="navbar fixed-bottom navbar-light bg-light">
+            <div class="container">
+            <a class="navbar-brand" href="#">{{ sn|sitename }}</a>
+            <a class="navbar-brand" href="#">A WEBMASTA Masterpiece</a>
+            </div>
+        </nav>
+    </div>
+    
+      <!-- end FOOTER -->
+
+</div>
+
+
+<!-- SCRIPTS START HERE -->   
+{% block javascript %}
+{% endblock javascript %}
+
+<!-- Bootstrap JavaScript Libraries -->
+<script src="{% static 'scripts/js/bootstrap.bundle.min.js' %}"></script>
+
+<!-- jQuery -->
+<script src="{% static 'scripts/jquery/jquery.min.js' %}"></script>
+
+<!-- Material JS -->
+<script src="{% static 'scripts/js/materialdashboard.min.js' %}"></script>
+
+
+
+
+
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      flatpickr('.flatpickr-date', { dateFormat: '{{ appearance.date_format_js|default:"Y-m-d" }}', allowInput: true });
+      flatpickr('.flatpickr-time', { enableTime: true, noCalendar: true, dateFormat: 'H:i', time_24hr: true, allowInput: true });
+      flatpickr('.flatpickr-datetime', { enableTime: true, dateFormat: 'Y-m-d H:i', time_24hr: true, allowInput: true });
+    });
+  </script>
+</body>
+
+</html>

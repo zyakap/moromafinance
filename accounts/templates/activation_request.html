@@ -1,0 +1,19 @@
+{% extends 'e_email_template.html' %}
+{% load static }
+
+{% block title %} Activate Account {% endblock %}
+{% block subject %} Activate Account {% endblock %}
+
+{% block greeting %}
+Hi {{ user.username }}
+{% endblock %}
+{% block message %} 
+Please click the following link to confirm your registration:
+{% endblock %}
+{% block message_details %} 
+<a href="{{ domain }}{% url 'activate' uidb64=uid token=token %}">{{ domain }}{% url 'activate' uidb64=uid token=token %}</a>
+{% endblock %}
+{% block cta_btn1_label %} Activate {% endblock %}
+{% block cta_btn1_link %} {{ domain }}{% url 'activate' uidb64=uid token=token %} {% endblock %}
+
+

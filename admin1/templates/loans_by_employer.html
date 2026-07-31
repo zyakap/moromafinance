@@ -1,0 +1,247 @@
+{% extends "admin_base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %} Loans by Employer {% endblock %}
+
+{% block breadcrumb %} <a href="{% url 'admin_dashboard' %}">Admin Dashboard</a>  /  <a href="{% url 'loans' %}">Loans</a> {% endblock %}
+{% block breadcrumb_active %} Employer {% endblock %}
+{% block dashboard_title %} Loans by Employer {% endblock %}
+
+{% block css %}
+
+<!-- DataTables LOCAL CSS -->
+<link rel="stylesheet" type="text/css" href="{% static 'DataTables/datatables.min.css' %}"/>   
+
+<style>
+  .flex-container {
+    display: flex;
+  }
+  
+  .flex-child {
+    flex: 1;
+  }  
+  
+  .flex-child:first-child {
+    margin-right: 5px;
+  } 
+  .flex-child:last-child {
+    margin-left: 5px;
+  } 
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+
+  <!-- Content Goes Here -->
+ <div class="d-flex justify-content-between align-items-center mt-2 py-2 flex-wrap">
+   <h3 class="mb-0">Loans per Employer</h3>
+   <div class="btn-group" role="group">
+     <a href="{% url 'loans_by_employer_excel' %}" class="btn btn-sm btn-outline-success mb-0"><i class="fa fa-file-excel"></i> Excel</a>
+     <a href="{% url 'loans_by_employer_pdf' %}" class="btn btn-sm btn-outline-danger mb-0"><i class="fa fa-file-pdf"></i> PDF</a>
+     <a href="{% url 'loans_by_employer_txt' %}" class="btn btn-sm btn-outline-secondary mb-0"><i class="fa fa-file-lines"></i> TXT</a>
+   </div>
+ </div>
+
+  <div class="row">
+    <div class="col-12">
+      {% for employer, data in employers.items %}
+        {% if data.loans %}
+          <div class="card mb-2 p-1">
+            <div class="card-header m-0 p-1">
+              <h4 class="mt-1 mb-0 py-0 px-3">{{ employer }}</h4>
+            </div>
+            <div class="card-body m-0 p-0">
+              <div class="table-responsive p-1">
+                <table class="table table-striped table-sm p-0 m-0" style="border-radius: 10px;">
+                  <thead>
+                    <tr>
+                      <th class="text-center">Loan Ref</th>
+                      <th class="text-center">Full Name</th>
+                      <th class="text-center">Status</th>
+                      <th class="text-center">Amount</th>
+                      <th class="text-center">No.of FNs</th>
+                      <th class="text-center">Repayment</th>
+                      <th class="text-center">Total Paid</th>
+                      <th class="text-center">Outstanding</th>
+                      <th class="text-center">Defaults</th>
+                      <th class="text-center">Arrears</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for loan in data.loans %}
+                      <tr>
+                        <td class="text-center"><a href="{{domain}}/admin/loans/{{ loan.loan_ref }}/" target="_blank"><span class="text-primary">{{ loan.loan_ref }}</span></a></td>
+                        <td class="text-center"><a href="{% url 'view_client' loan.user_id %}" target="_blank"><span class="text-primary">{{ loan.first_name }} {{ loan.last_name }}</span></a></td>
+                        <td class="text-center">{{ loan.status }}</td>
+                        <td class="text-center">{{ loan.loan_amount }}</td>
+                        <td class="text-center">{{ loan.number_of_fortnights }}</td>
+                        <td class="text-center">{{ loan.repayment_amount }}</td>
+                        <td class="text-center">{{ loan.total_paid }}</td>
+                        <td class="text-center">{{ loan.total_outstanding }}</td>
+                        <td class="text-center">{{ loan.number_of_defaults }}</td>
+                        <td class="text-center">{{ loan.total_arrears }}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                  <tfoot>
+                    <tr class="fw-bold" style="background:#eef1f6;border-top:2px solid #d7dce5;">
+                      <td class="text-center" colspan="3">TOTAL</td>
+                      <td class="text-center">{{ data.totals.loan_amount|floatformat:2 }}</td>
+                      <td class="text-center">—</td>
+                      <td class="text-center">{{ data.totals.repayment_amount|floatformat:2 }}</td>
+                      <td class="text-center">{{ data.totals.total_paid|floatformat:2 }}</td>
+                      <td class="text-center">{{ data.totals.total_outstanding|floatformat:2 }}</td>
+                      <td class="text-center">{{ data.totals.number_of_defaults }}</td>
+                      <td class="text-center">{{ data.totals.total_arrears|floatformat:2 }}</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+
+      {% if grand_total %}
+      <div class="card mb-3" style="border:2px solid #344767;">
+        <div class="card-body py-3">
+          <h5 class="mb-3" style="color:#344767;"><i class="fa fa-calculator me-2"></i>GRAND TOTAL — all employers
+            <span class="text-sm text-secondary">({{ grand_total.loan_count }} loans across {{ employer_count }} employers)</span>
+          </h5>
+          <div class="row text-center">
+            <div class="col"><div class="text-xs text-secondary">Amount</div><div class="font-weight-bold">K {{ grand_total.loan_amount|floatformat:2 }}</div></div>
+            <div class="col"><div class="text-xs text-secondary">Repayment</div><div class="font-weight-bold">K {{ grand_total.repayment_amount|floatformat:2 }}</div></div>
+            <div class="col"><div class="text-xs text-secondary">Total Paid</div><div class="font-weight-bold">K {{ grand_total.total_paid|floatformat:2 }}</div></div>
+            <div class="col"><div class="text-xs text-secondary">Outstanding</div><div class="font-weight-bold">K {{ grand_total.total_outstanding|floatformat:2 }}</div></div>
+            <div class="col"><div class="text-xs text-secondary">Defaults</div><div class="font-weight-bold">{{ grand_total.number_of_defaults }}</div></div>
+            <div class="col"><div class="text-xs text-secondary">Arrears</div><div class="font-weight-bold text-danger">K {{ grand_total.total_arrears|floatformat:2 }}</div></div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+    </div>
+
+
+  <!-- Content Ends Here -->
+
+  
+
+ 
+{% endblock %}
+
+
+
+{% block scripts %}
+
+
+
+
+<!-- DATATables LOCAL JS -->
+<script defer type="text/javascript" src="{% static 'DataTables/datatables.min.js' %}"></script>   
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/v/bs5/jq-3.6.0/jszip-2.5.0/dt-1.12.1/b-2.2.3/b-colvis-2.2.3/b-html5-2.2.3/b-print-2.2.3/cr-1.5.6/kt-2.7.0/sp-2.0.2/datatables.min.js"></script>
+
+<script>
+    $("#allLoansTable").DataTable({
+        // DataTable configurations
+        paging: true,
+        pageLength: 10,
+        lengthChange: true,
+        autoWidth: true,
+        searching: true,
+        bInfo: true,
+        bSort: true,
+
+        dom: 'lBfrtip',
+        buttons: [
+            {
+                extend: 'copy',
+                text: '<i class="fa fa-solid fa-copy"></i>',
+                className: 'btn btn-secondary',
+                titleAttr: 'Copy Data',
+                // Choose Columns
+                exportOptions: {
+                  columns: [0,1,2,3,4,5,6,7,8,9]
+                }
+            },
+            {
+              extend: 'excel',
+              text: '<i class="fa fa-solid fa-file-excel"></i>',
+              className: 'btn btn-secondary',
+              titleAttr: 'Export to Excel',
+              // Choose Columns
+              exportOptions: {
+                columns: [0,1,2,3,4,5,6,7,8,9]
+              }
+            },
+            {
+              extend: 'print',
+              text: '<i class="fa fa-solid fa-print"></i>',
+              className: 'btn btn-secondary',
+              titleAttr: 'Print Table',
+              // Choose Columns
+              exportOptions: {
+                columns: [0,1,2,3,4,5,6,7,8,9]
+              },
+              // Font size when printing
+              customize: function ( win ) {
+                $(win.document.body).css('font-size', '10pt')
+                $(win.document.body).find('table')
+                  .addClass('compact')
+                  .css('font-size', 'inherit');
+              }
+            },
+            {
+              extend: 'pdf',
+              text: '<i class="fa fa-solid fa-file-pdf"></i>',
+              className: 'btn btn-secondary',
+              titleAttr: 'Export to PDF',
+              orientation: 'landscape',
+              pageSize: 'A4',
+              
+              // Choose Columns
+              exportOptions: {
+                columns: []
+              },
+              
+              // center the table
+              tableHeader: {
+                alignment: 'left'
+              },
+              // Font size & Customization
+              customize: function (doc) {
+              //      doc.style.tableHeader.alignment = 'center'; // Header position 
+                   // doc.style.tableBodyOdd.alignment = 'center';
+                  // doc.style.tableBodyEven.alignment = 'center';
+              //      doc.style.tableHeader.fontSize = 7;
+               //     doc.defaultStyle.fontSize = 6;
+              //      // TO GET 100% width on table
+                   doc.content[1].table.widths = Array(doc.content[1].table.body[1].length + 1).join('*').split('');
+              },
+              
+            },
+            {
+              extend: 'collection',
+              className: 'custom-html-collection',
+              buttons: [
+                  '<h6>Export</h6>',
+                  'csv',
+                  '<h6 class="not-top-heading">Hide/Show Columns</h6>',
+                  'colvis',
+              ]
+          }
+
+        ]
+    });
+</script>
+
+
+
+{% endblock %}

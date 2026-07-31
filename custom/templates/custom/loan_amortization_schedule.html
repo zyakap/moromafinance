@@ -1,0 +1,226 @@
+{% load finance_formats %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Loan Amortization Schedule - {{ loan.ref }}</title>
+  <style>
+    :root {
+      --doc-primary: {{ document_theme.primary_color|default:'#344767' }};
+      --doc-header: {{ document_theme.topbar_color|default:'#344767' }};
+      --doc-dark: {{ document_theme.sidebar_bg_color|default:'#1f2a44' }};
+    }
+    @page { size: A4; margin: 15mm 15mm 15mm 15mm; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #fff; }
+    body {
+      color: #000;
+      font-family: "{{ document_theme.font_family|default:'Roboto' }}", Arial, sans-serif;
+      font-size: 10pt;
+      line-height: 1.3;
+    }
+
+    /* ── Header ── */
+    .header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8mm;
+      border-bottom: 2px solid var(--doc-primary);
+      padding-bottom: 4mm;
+    }
+    .header-logo { flex: 1; }
+    .header-logo img { max-width: 75mm; max-height: 21mm; width: auto; height: auto; }
+    .brand-name { color: var(--doc-header); font-size: 18pt; font-weight: 700; }
+    .header-info {
+      flex: 1;
+      text-align: right;
+      font-size: 9pt;
+      color: #444;
+      line-height: 1.5;
+    }
+    .header-info .company { font-size: 12pt; font-weight: 700; color: var(--doc-header); }
+
+    /* ── Title ── */
+    h1 {
+      text-align: center;
+      font-size: 13pt;
+      font-weight: 700;
+      color: var(--doc-header);
+      margin: 0 0 6mm;
+      text-transform: uppercase;
+    }
+
+    /* ── Client Info ── */
+    .client-info {
+      margin-bottom: 5mm;
+      font-size: 10pt;
+    }
+    .client-info table { border-collapse: collapse; }
+    .client-info td { padding: 1.5mm 4mm 1.5mm 0; }
+    .client-info .label { color: #555; width: 40mm; }
+    .client-info .value { font-weight: 700; }
+
+    /* ── Summary table ── */
+    .summary {
+      border-collapse: collapse;
+      margin-bottom: 6mm;
+      width: auto;
+    }
+    .summary td {
+      border: 0.5pt solid #bbb;
+      padding: 2mm 4mm;
+      font-size: 10pt;
+      white-space: nowrap;
+    }
+    .summary .s-label { background: #f2f2f2; font-weight: 600; }
+    .summary .s-value { background: #e8f0fe; font-weight: 700; text-align: left; }
+
+    /* ── Amortization table ── */
+    .amort-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 9.5pt;
+    }
+    .amort-table thead tr { background: var(--doc-header); color: #fff; }
+    .amort-table thead th {
+      padding: 2.5mm 3mm;
+      text-align: center;
+      font-weight: 700;
+      border: 0.5pt solid var(--doc-dark);
+    }
+    .amort-table tbody tr:nth-child(even) { background: #f9f4ff; }
+    .amort-table tbody td {
+      padding: 2mm 3mm;
+      text-align: right;
+      border: 0.5pt solid #ddd;
+    }
+    .amort-table tbody td:first-child { text-align: center; font-weight: 600; }
+    .amort-table tfoot tr { background: var(--doc-header); color: #fff; font-weight: 700; }
+    .amort-table tfoot td {
+      padding: 2.5mm 3mm;
+      text-align: right;
+      border: 0.5pt solid var(--doc-dark);
+    }
+    .amort-table tfoot td:first-child { text-align: center; }
+
+    /* ── Footer ── */
+    .footer {
+      margin-top: 8mm;
+      font-size: 8pt;
+      color: #777;
+      border-top: 1pt solid #ddd;
+      padding-top: 3mm;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header with logo and company info -->
+  <div class="header">
+    <div class="header-logo">
+      {% if document_theme.brand_logo_data_uri %}
+        <img src="{{ document_theme.brand_logo_data_uri }}" alt="{{ document_theme.brand_name }} logo">
+      {% elif document_theme.brand_logo_url %}
+        <img src="{{ document_theme.brand_logo_url }}" alt="{{ document_theme.brand_name }} logo">
+      {% else %}
+        <div class="brand-name">{{ document_theme.brand_name|default:"LoanMasta" }}</div>
+      {% endif %}
+    </div>
+    <div class="header-info"><div class="company">{{ document_theme.brand_name|default:"LoanMasta" }}</div></div>
+  </div>
+
+  <h1>Loan Amortization Schedule</h1>
+
+  <!-- Client info -->
+  <div class="client-info">
+    <table>
+      <tr>
+        <td class="label">Client:</td>
+        <td class="value">{{ user.first_name }} {{ user.last_name }}</td>
+        <td style="width:15mm;"></td>
+        <td class="label">Loan Ref:</td>
+        <td class="value">{{ loan.ref }}</td>
+      </tr>
+      <tr>
+        <td class="label">Employer:</td>
+        <td class="value">{{ user.employer }}</td>
+        <td></td>
+        <td class="label">Generated:</td>
+        <td class="value">{{ today }}</td>
+      </tr>
+      <tr>
+        <td class="label">Employee File #:</td>
+        <td class="value">{{ user.employee_file_number }}</td>
+        <td></td>
+        <td class="label">Funding Date:</td>
+        <td class="value">{{ loan.funding_date }}</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- Summary -->
+  <table class="summary">
+    <tr>
+      <td class="s-label">Loan Amount</td>
+      <td class="s-value">K{{ loan.amount|currency }}</td>
+    </tr>
+    <tr>
+      <td class="s-label">Number of Fortnights</td>
+      <td class="s-value">{{ loan.number_of_fortnights }}</td>
+    </tr>
+    <tr>
+      <td class="s-label">Fortnight Repayment</td>
+      <td class="s-value">K{{ loan.repayment_amount|currency }}</td>
+    </tr>
+    <tr>
+      <td class="s-label">Total Loan Incl Interest</td>
+      <td class="s-value">K{{ loan.total_loan_amount|currency }}</td>
+    </tr>
+  </table>
+
+  <!-- Amortization table -->
+  <table class="amort-table">
+    <thead>
+      <tr>
+        {% if cols.period %}<th>Period</th>{% endif %}
+        {% if cols.date %}<th>Repayment Date</th>{% endif %}
+        {% if cols.opening %}<th>Opening Balance</th>{% endif %}
+        {% if cols.interest %}<th>Interest</th>{% endif %}
+        {% if cols.principal %}<th>Principal</th>{% endif %}
+        {% if cols.repayment %}<th>Repayment</th>{% endif %}
+        {% if cols.closing %}<th>Closing Balance</th>{% endif %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in schedule %}
+      <tr>
+        {% if cols.period %}<td>{{ row.period }}</td>{% endif %}
+        {% if cols.date %}<td style="text-align:left;">{{ row.date }}</td>{% endif %}
+        {% if cols.opening %}<td>{{ row.opening|currency }}</td>{% endif %}
+        {% if cols.interest %}<td>{{ row.interest|currency }}</td>{% endif %}
+        {% if cols.principal %}<td>{{ row.principal|currency }}</td>{% endif %}
+        {% if cols.repayment %}<td>{{ row.repayment|currency }}</td>{% endif %}
+        {% if cols.closing %}<td>{{ row.closing|currency }}</td>{% endif %}
+      </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot>
+      <tr>
+        {% if cols.period %}<td>Total</td>{% endif %}
+        {% if cols.date %}<td></td>{% endif %}
+        {% if cols.opening %}<td></td>{% endif %}
+        {% if cols.interest %}<td>{{ total_interest|currency }}</td>{% endif %}
+        {% if cols.principal %}<td>{{ total_principal|currency }}</td>{% endif %}
+        {% if cols.repayment %}<td>{{ total_repayment|currency }}</td>{% endif %}
+        {% if cols.closing %}<td>0.00</td>{% endif %}
+      </tr>
+    </tfoot>
+  </table>
+
+  <div class="footer">
+    {% if bank_config.bank %}{{ bank_config.bank }}{% if bank_config.bank_acc_name %} &nbsp;|&nbsp; Acc Name: {{ bank_config.bank_acc_name }}{% endif %}{% if bank_config.bank_acc_num %} &nbsp;|&nbsp; Acc No: {{ bank_config.bank_acc_num }}{% endif %}{% if bank_config.bank_branch %} &nbsp;|&nbsp; Branch: {{ bank_config.bank_branch }}{% endif %}{% if bank_config.bank_bsb %} &nbsp;|&nbsp; BSB: {{ bank_config.bank_bsb }}{% endif %}{% if bank_config.support_email %} &nbsp;|&nbsp; {{ bank_config.support_email }}{% endif %}{% else %}For queries contact: {{ bank_config.support_email }}{% endif %}
+  </div>
+
+</body>
+</html>

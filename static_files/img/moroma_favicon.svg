@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Moroma Finance">
+  <rect width="64" height="64" rx="15" fill="#0f6e3a"/>
+  <!-- gold circle with person cut-out (per client logo) -->
+  <circle cx="32" cy="28" r="17" fill="#e0a323"/>
+  <circle cx="32" cy="22.5" r="5" fill="#0f6e3a"/>
+  <path d="M 22 39 C 23.5 30, 40.5 30, 42 39 C 37 34.5, 27 34.5, 22 39 Z" fill="#0f6e3a"/>
+  <!-- hand sweep -->
+  <path d="M 14 44 C 22 54, 42 54, 50 44 C 42 50, 22 50, 14 44 Z" fill="#e0a323"/>
+</svg>

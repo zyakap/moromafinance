@@ -1,0 +1,1229 @@
+{% extends "staff_base.html" %}
+{% load static %}
+
+{% block title %}Staff Instructions{% endblock %}
+{% block breadcrumb %}<a href="{% url 'staff_dashboard' %}">Staff Dashboard</a>{% endblock %}
+{% block breadcrumb_active %}Instructions{% endblock %}
+{% block dashboard_title %}Staff Usage Instructions{% endblock %}
+
+{% block css %}
+<style>
+/* ══════════════════════════════════════
+   OUTER NAV
+══════════════════════════════════════ */
+.inst-nav {
+  display: flex;
+  gap: 4px;
+  border-bottom: 2px solid #dee2e6;
+  margin-bottom: 1.5rem;
+}
+.inst-nav .inst-tab {
+  padding: 10px 22px;
+  font-weight: 600;
+  font-size: 0.88rem;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: #6c757d;
+  border: 2px solid transparent;
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  cursor: pointer;
+  background: #f8f9fa;
+  transition: all 0.15s;
+  user-select: none;
+}
+.inst-nav .inst-tab:hover { background: #e9ecef; color: #344767; }
+.inst-nav .inst-tab.active {
+  background: #fff;
+  color: #344767;
+  border-color: #dee2e6;
+  margin-bottom: -2px;
+}
+.inst-pane { display: none; }
+.inst-pane.active { display: block; }
+
+/* ══════════════════════════════════════
+   USAGE GUIDE – two-panel inner layout
+══════════════════════════════════════ */
+.guide-layout {
+  display: flex;
+  gap: 0;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 14px rgba(0,0,0,.08);
+  overflow: hidden;
+  height: calc(100vh - 220px);
+  min-height: 520px;
+}
+.guide-sidebar {
+  width: 210px;
+  flex-shrink: 0;
+  background: #f8f9fa;
+  border-right: 1px solid #e9ecef;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+.guide-sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 16px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #6c757d;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: all 0.12s;
+  user-select: none;
+  white-space: nowrap;
+}
+.guide-sidebar-item:hover { background: #e9ecef; color: #344767; }
+.guide-sidebar-item.active {
+  background: #fff;
+  color: #344767;
+  border-left-color: #4CAF50;
+}
+.guide-sidebar-item .si-icon { font-size: 1rem; opacity: .8; }
+.guide-sidebar-item.active .si-icon { color: #4CAF50; opacity: 1; }
+.guide-sidebar-divider { height: 1px; background: #e9ecef; margin: 6px 12px; }
+
+.guide-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 28px;
+}
+.guide-panel { display: none; }
+.guide-panel.active { display: block; }
+
+.guide-panel h5 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #344767;
+  margin-bottom: 0.3rem;
+}
+.guide-panel .panel-intro {
+  font-size: 0.84rem;
+  color: #6c757d;
+  margin-bottom: 1.2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #f0f2f5;
+}
+.guide-panel h6 {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #344767;
+  margin: 1.2rem 0 0.4rem;
+}
+.guide-panel h6:first-of-type { margin-top: 0; }
+.guide-panel p, .guide-panel ul, .guide-panel li {
+  font-size: 0.86rem;
+  color: #495057;
+  line-height: 1.7;
+}
+.guide-panel ul { padding-left: 1.3rem; margin-bottom: 0.6rem; }
+.guide-panel ul li { margin-bottom: 3px; }
+
+.step {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 9px;
+  padding: 9px 13px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 3px solid #4CAF50;
+  font-size: 0.86rem;
+  color: #495057;
+}
+.step-num {
+  background: #344767;
+  color: #fff;
+  border-radius: 50%;
+  min-width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.badge-tip {
+  display: inline-block;
+  background: #e8f5e9; color: #2e7d32;
+  font-size: 0.7rem; font-weight: 700;
+  padding: 2px 8px; border-radius: 20px;
+  margin-right: 5px;
+}
+.badge-warn {
+  display: inline-block;
+  background: #fff8e1; color: #f57f17;
+  font-size: 0.7rem; font-weight: 700;
+  padding: 2px 8px; border-radius: 20px;
+  margin-right: 5px;
+}
+.badge-info {
+  display: inline-block;
+  background: #e3f2fd; color: #1565c0;
+  font-size: 0.7rem; font-weight: 700;
+  padding: 2px 8px; border-radius: 20px;
+  margin-right: 5px;
+}
+.info-box {
+  background: #f0f4ff;
+  border-left: 3px solid #344767;
+  border-radius: 0 8px 8px 0;
+  padding: 10px 14px;
+  font-size: 0.84rem;
+  margin: 0.8rem 0;
+  color: #344767;
+}
+.warn-box {
+  background: #fff8e1;
+  border-left: 3px solid #f57f17;
+  border-radius: 0 8px 8px 0;
+  padding: 10px 14px;
+  font-size: 0.84rem;
+  margin: 0.8rem 0;
+  color: #5d4037;
+}
+
+/* ══════════════════════════════════════
+   FAQ
+══════════════════════════════════════ */
+.faq-category { margin-bottom: 1.8rem; }
+.faq-category-title {
+  font-size: 0.75rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 1px;
+  color: #6c757d; margin-bottom: 0.7rem;
+  padding-bottom: 5px; border-bottom: 2px solid #e9ecef;
+}
+.faq-item {
+  background: #fff; border-radius: 8px;
+  box-shadow: 0 1px 6px rgba(0,0,0,.06);
+  margin-bottom: 7px; overflow: hidden;
+}
+.faq-question {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px; font-weight: 600;
+  font-size: 0.855rem; color: #344767;
+  cursor: pointer; user-select: none; gap: 10px;
+}
+.faq-question i.faq-icon { color: #4CAF50; font-size: 1rem; flex-shrink: 0; }
+.faq-question .faq-chevron { flex-shrink: 0; color: #aaa; transition: transform 0.2s; font-size: 0.88rem; }
+.faq-question.open .faq-chevron { transform: rotate(180deg); }
+.faq-answer {
+  display: none;
+  padding: 4px 16px 13px 42px;
+  font-size: 0.83rem; color: #5a6a82;
+  line-height: 1.7; border-top: 1px solid #f0f0f0;
+}
+.faq-answer ul { padding-left: 1.2rem; margin-top: 5px; }
+.faq-answer ul li { margin-bottom: 3px; }
+.faq-panel { display: none; }
+.faq-panel.active { display: block; }
+.faq-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #344767;
+  margin-bottom: 1.2rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid #f0f2f5;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Outer navigation -->
+<div class="inst-nav mt-3" id="instNav">
+  <div class="inst-tab active" data-pane="pane-guide">
+    <i class="material-icons-round align-middle me-1" style="font-size:1rem;">menu_book</i>
+    Usage Guide
+  </div>
+  <div class="inst-tab" data-pane="pane-faq">
+    <i class="material-icons-round align-middle me-1" style="font-size:1rem;">help_outline</i>
+    FAQ
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════
+     PANE 1 – USAGE GUIDE
+═══════════════════════════ -->
+<div class="inst-pane active" id="pane-guide">
+  <div class="guide-layout">
+
+    <!-- Sidebar -->
+    <nav class="guide-sidebar" id="guideSidebar">
+      <div class="guide-sidebar-item active" data-panel="g-dashboard">
+        <i class="material-icons-round si-icon">dashboard</i> Dashboard
+      </div>
+      <div class="guide-sidebar-item" data-panel="g-clients">
+        <i class="material-icons-round si-icon">people</i> Clients
+      </div>
+      <div class="guide-sidebar-item" data-panel="g-loans">
+        <i class="material-icons-round si-icon">account_balance</i> Loans
+      </div>
+      <div class="guide-sidebar-item" data-panel="g-create-loan">
+        <i class="material-icons-round si-icon">add_circle</i> Creating a Loan
+      </div>
+      <div class="guide-sidebar-item" data-panel="g-payments">
+        <i class="material-icons-round si-icon">payments</i> Recording Payments
+      </div>
+      <div class="guide-sidebar-item" data-panel="g-documents">
+        <i class="material-icons-round si-icon">picture_as_pdf</i> Documents
+      </div>
+      <div class="guide-sidebar-item" data-panel="g-credit">
+        <i class="material-icons-round si-icon">verified</i> Credit Rating
+      </div>
+      <div class="guide-sidebar-item" data-panel="g-sme">
+        <i class="material-icons-round si-icon">business</i> SME Profiles
+      </div>
+      <div class="guide-sidebar-item" data-panel="g-alesco">
+        <i class="material-icons-round si-icon">receipt_long</i> Alesco Update
+      </div>
+      <div class="guide-sidebar-item" data-panel="g-statements">
+        <i class="material-icons-round si-icon">list_alt</i> Statements
+      </div>
+      <div class="guide-sidebar-item" data-panel="g-uploads">
+        <i class="material-icons-round si-icon">upload_file</i> Existing Loan Functions
+      </div>
+      <div class="guide-sidebar-item" data-panel="g-credits">
+        <i class="material-icons-round si-icon">volunteer_activism</i> Loan Credits &amp; Refunds
+      </div>
+      <div class="guide-sidebar-item" data-panel="g-automation">
+        <i class="material-icons-round si-icon">schedule</i> Automation &amp; Alerts
+      </div>
+      <div class="guide-sidebar-divider"></div>
+      <div class="guide-sidebar-item" data-panel="g-support">
+        <i class="material-icons-round si-icon">support_agent</i> Support Tickets
+      </div>
+      <div class="guide-sidebar-item" data-panel="g-referrers">
+        <i class="material-icons-round si-icon">share</i> Referrers
+      </div>
+    </nav>
+
+    <!-- Content area -->
+    <div class="guide-content" id="guideContent">
+
+      <!-- Dashboard -->
+      <div class="guide-panel active" id="g-dashboard">
+        <h5><i class="material-icons-round align-middle me-1" style="font-size:1.1rem;">dashboard</i> Staff Dashboard</h5>
+        <p class="panel-intro">The Staff Dashboard is your home screen. It shows live portfolio statistics for all loans in the system and quick-access cards to the most common tasks.</p>
+
+        <h6>Summary Cards</h6>
+        <ul>
+          <li><strong>Total Loans</strong> – all loan records regardless of status.</li>
+          <li><strong>Running</strong> – active loans with repayments in progress.</li>
+          <li><strong>Pending</strong> – applications submitted by clients awaiting review.</li>
+          <li><strong>Defaulted</strong> – loans with overdue repayments beyond the grace period.</li>
+          <li><strong>Completed</strong> – fully repaid and closed loans.</li>
+        </ul>
+
+        <h6>Navigation</h6>
+        <p>Use the left sidebar to access all staff functions:</p>
+        <ul>
+          <li><a href="{% url 'usermembers' %}"><strong>Clients</strong></a> – view and manage client profiles.</li>
+          <li><a href="{% url 'userloans' %}"><strong>Loans</strong></a> – view and manage the loan pipeline.</li>
+          <li><a href="{% url 'userstatements' %}"><strong>Transactions</strong></a> – view payment history across all loans.</li>
+          <li><a href="{% url 'usermessages' %}"><strong>Messages</strong></a> – send or view messages.</li>
+          <li><a href="{% url 'support_tickets' %}"><strong>Support Tickets</strong></a> – manage client support requests.</li>
+          <li><a href="{% url 'usercredit' %}"><strong>Credit Rating</strong></a> – assess a client's credit standing.</li>
+          <li><a href="{% url 'usersmes' %}"><strong>SME Profiles</strong></a> – manage SME loan applicant profiles.</li>
+          <li><a href="{% url 'existing_loan_functions' %}"><strong>Existing Loan Functions</strong></a> – add loans/statements for existing clients, in bulk or one at a time (see sidebar).</li>
+          <li><a href="{% url 'staff_client_credits' %}"><strong>Client Credits</strong></a> – track and refund client overpayments (see <strong>Loan Credits &amp; Refunds</strong>).</li>
+          <li><a href="{% url 'staff_alesco_update' %}"><strong>Alesco Update</strong></a> – process government payroll deduction files.</li>
+        </ul>
+
+        <h6>Switching Dashboards</h6>
+        <p>The top navigation bar has buttons to switch between <strong>Admin</strong>, <strong>Staff</strong>, and <strong>User</strong> dashboards if you have access to multiple roles.</p>
+      </div>
+
+      <!-- Clients -->
+      <div class="guide-panel" id="g-clients">
+        <h5><i class="material-icons-round align-middle me-1" style="font-size:1.1rem;">people</i> Managing Clients</h5>
+        <p class="panel-intro">The Clients section lists every registered borrower. You can search, view, add, and update their profiles and documents.</p>
+
+        <h6>Viewing the Client List</h6>
+        <div class="step"><div class="step-num">1</div><div>Click <strong>Clients</strong> in the sidebar. The table shows all registered clients with name, employer, status, and loan count.</div></div>
+        <div class="step"><div class="step-num">2</div><div>Use the search bar or column filters to find a client by name, employer, or ID number.</div></div>
+        <div class="step"><div class="step-num">3</div><div>Click <strong>View</strong> to open the client's full profile page.</div></div>
+
+        <h6>Client Profile Sections</h6>
+        <ul>
+          <li><strong>Personal</strong> – name, date of birth, gender, NID number, marital status, place of origin.</li>
+          <li><strong>Contact</strong> – email, work email, mobile numbers, work phone.</li>
+          <li><strong>Employment</strong> – employer, job title, work ID, office address, start date.</li>
+          <li><strong>Banking</strong> – bank, branch, account name, account number.</li>
+          <li><strong>Residential</strong> – current address.</li>
+          <li><strong>Loans</strong> – all loan records tied to this client with status badges.</li>
+          <li><strong>Documents</strong> – uploaded supporting files (payslips, ID, signed forms).</li>
+        </ul>
+
+        <h6>Editing a Client Profile</h6>
+        <ul>
+          <li>Each section on the profile page has an <strong>Edit</strong> button. Click it, update the relevant fields, and save.</li>
+          <li>Changes take effect immediately and are reflected in all future PDF documents generated for this client.</li>
+        </ul>
+
+        <h6>Adding a New Client</h6>
+        <div class="step"><div class="step-num">1</div><div>Click <a href="{% url 'add_user' %}"><strong>Clients → Add Client</strong></a> (or the <strong>Add User</strong> button on the clients list).</div></div>
+        <div class="step"><div class="step-num">2</div><div>Fill in the client's email address and set an initial password. The client can change their password after first login.</div></div>
+        <div class="step"><div class="step-num">3</div><div>Open the new client's profile and complete all personal, employment, and banking sections before creating a loan.</div></div>
+
+        <h6>Employer &amp; Payroll Officer Details</h6>
+        <ul>
+          <li>The Employer tab on the profile wizard has two modes depending on system settings:
+            <ul>
+              <li><strong>Preregistration ON</strong> – only an employer dropdown is shown. Select the employer and the system automatically saves the payroll officer name, phone, and email from the employer record. You do not need to enter these fields manually.</li>
+              <li><strong>Preregistration OFF</strong> – all employer and payroll officer fields are shown as editable inputs. Fill in all fields manually.</li>
+            </ul>
+          </li>
+          <li><strong>Work Email</strong> is the client's own personal work email (unique per client). <strong>Payroll Officer Email</strong> is the shared payroll section email for the client's employer — all clients from the same employer share the same payroll officer contact.</li>
+        </ul>
+
+        <h6>Bank Account – Branch Filtering</h6>
+        <ul>
+          <li>On the Bank Account tab, selecting a <strong>Bank</strong> from the dropdown automatically filters the <strong>Bank Branch</strong> list to show only branches belonging to that bank.</li>
+          <li>If you change the bank, the branch field resets — re-select the correct branch for the new bank.</li>
+        </ul>
+
+        <h6>Uploading Client Documents</h6>
+        <ul>
+          <li>On the client profile, each document section (Payslips, ID, Bank Statement, etc.) has an <strong>Upload</strong> button.</li>
+          <li>Documents should be uploaded as PDF or image files. Maximum file size is typically 5 MB per file.</li>
+          <li>Uploaded documents are required before a loan can proceed beyond the <em>Documents Pending</em> stage.</li>
+        </ul>
+
+        <div class="info-box">
+          <strong>Tip:</strong> Always complete the client's profile fully — including employer and banking details — before submitting a loan application. Incomplete profiles cause delays in the approval process.
+        </div>
+      </div>
+
+      <!-- Loans -->
+      <div class="guide-panel" id="g-loans">
+        <h5><i class="material-icons-round align-middle me-1" style="font-size:1.1rem;">account_balance</i> Managing Loans</h5>
+        <p class="panel-intro">The Loans section is where you track the full lifecycle of every loan — from application through to completion.</p>
+
+        <h6>Loan Status Flow</h6>
+        <ul>
+          <li><strong>Awaiting T&amp;C</strong> – client has submitted an application; documents are being prepared.</li>
+          <li><strong>Under Review</strong> – application submitted for admin review.</li>
+          <li><strong>On Hold</strong> – application paused pending additional information.</li>
+          <li><strong>Approved</strong> – approved by admin; awaiting disbursement.</li>
+          <li><strong>Running</strong> – loan disbursed and repayments active.</li>
+          <li><strong>Defaulted</strong> – one or more repayments overdue beyond the grace period.</li>
+          <li><strong>Completed</strong> – all repayments received; loan fully settled.</li>
+        </ul>
+
+        <h6>Viewing Loan Lists</h6>
+        <ul>
+          <li><a href="{% url 'userloans_all' %}"><strong>Loans → All</strong></a> – full loan list with search and filter (includes an <strong>Awaiting Refund</strong> tab — see <strong>Loan Credits &amp; Refunds</strong> in the sidebar).</li>
+          <li><a href="{% url 'userloans_pending' %}"><strong>Loans → Pending</strong></a> – applications awaiting review.</li>
+          <li><a href="{% url 'userloans_review' %}"><strong>Loans → Under Review</strong></a> – loans in the review stage.</li>
+          <li><a href="{% url 'userloans_unfinished' %}"><strong>Loans → Unfinished</strong></a> – incomplete applications not yet submitted.</li>
+        </ul>
+
+        <h6>Loan Amount Limits &amp; Apply Advance to Missed Payments <span class="badge-tip">NEW</span></h6>
+        <ul>
+          <li>Every loan amount you enter — whether creating a loan, an additional loan, or an existing-loan-with-details — is checked against the admin's configured minimum/maximum (or a personal override on the client's profile). An amount outside the limit is rejected immediately with a clear message.</li>
+          <li>If a client has a prepaid <strong>Advance Balance</strong> large enough to cover a missed repayment, <strong>Create Default</strong> is blocked — use <strong>Apply Advance to Missed Payments</strong> on the loan page instead. It settles the repayment straight from the advance with no default charged.</li>
+        </ul>
+
+        <h6>Viewing a Loan</h6>
+        <div class="step"><div class="step-num">1</div><div>Click <strong>View Loan</strong> on any loan row to open the full loan detail page.</div></div>
+        <div class="step"><div class="step-num">2</div><div>Review the loan summary: amount, repayment amount, number of fortnights, start and end dates.</div></div>
+        <div class="step"><div class="step-num">3</div><div>Check the <strong>Statement</strong> tab for the full transaction history.</div></div>
+        <div class="step"><div class="step-num">4</div><div>Check the <strong>Documents</strong> section to confirm all signed documents have been uploaded.</div></div>
+
+        <h6>Submitting a Loan for Review</h6>
+        <div class="step"><div class="step-num">1</div><div>Ensure the client profile is fully filled out and all required documents are uploaded.</div></div>
+        <div class="step"><div class="step-num">2</div><div>Open the loan and click <strong>Submit for Review</strong>. The status changes to <em>Under Review</em> and the admin is notified.</div></div>
+
+        <div class="warn-box">
+          <strong>Note:</strong> Staff cannot approve or disburse loans — only admins can perform those actions. Your role is to prepare the application and documents to the required standard.
+        </div>
+      </div>
+
+      <!-- Creating a Loan -->
+      <div class="guide-panel" id="g-create-loan">
+        <h5><i class="material-icons-round align-middle me-1" style="font-size:1.1rem;">add_circle</i> Creating a Loan</h5>
+        <p class="panel-intro">Staff can create a loan application on behalf of a client directly from the staff portal.</p>
+
+        <h6>Before You Start</h6>
+        <ul>
+          <li>The client must already have a registered account.</li>
+          <li>Their personal, employment, and banking details must be complete.</li>
+          <li>At least one payslip must be uploaded to their profile.</li>
+          <li>The client must not have an existing active or pending loan — if they do, you will be redirected to the <em>Existing Loan</em> page (see below).</li>
+        </ul>
+
+        <h6>Step-by-Step</h6>
+        <div class="step"><div class="step-num">1</div><div>Go to <a href="{% url 'create_loan' %}"><strong>Loans → Create Loan</strong></a>.</div></div>
+        <div class="step"><div class="step-num">2</div><div>Search for the client by name or email and select them.</div></div>
+        <div class="step"><div class="step-num">3</div><div>Select the <strong>Location</strong>.</div></div>
+        <div class="step"><div class="step-num">4</div><div>Enter the <strong>Loan Amount</strong> and <strong>Number of Fortnights</strong>. The system calculates the repayment amount from the repayment table.</div></div>
+        <div class="step"><div class="step-num">5</div><div>Set the <strong>Repayment Start Date</strong> to the client's next pay date.</div></div>
+        <div class="step"><div class="step-num">6</div><div>Click <strong>Create Loan</strong>. The system generates the loan and sends the application documents (Loan Form, T&amp;C, IRSDA, Stat Dec) to the client's email.</div></div>
+        <div class="step"><div class="step-num">7</div><div>Upload the signed documents to the loan file once the client returns them.</div></div>
+        <div class="step"><div class="step-num">8</div><div>Click <strong>Submit for Review</strong> once all documents are in place.</div></div>
+
+        <h6>Client Already Has a Loan</h6>
+        <ul>
+          <li>If you select a client who already has an active or pending loan, you will be redirected to the <strong>Existing Loan</strong> page instead of the creation form.</li>
+          <li>The page shows the client's current loan: reference, amount, outstanding balance, status, and next payment date.</li>
+          <li>If the client needs additional funds on top of their existing balance, click <a href="{% url 'add_additional_loan' %}"><strong>Get Additional Loan</strong></a>. This opens the Additional Loan form which automatically handles the balance transfer and recalculates repayments — structured according to whichever Refinance Type the admin has configured.</li>
+          <li>A new standalone loan cannot be created while an active or pending loan exists.</li>
+          <li><span class="badge-warn">NEW</span> If the admin has set Refinance Type to <strong>Refinance Not Allowed</strong>, the <strong>Get Additional Loan</strong> button won't even appear — a client with any existing loan cannot get a new one under any circumstances until it reaches Completed.</li>
+        </ul>
+
+        <h6>Loan Calculator</h6>
+        <p>The built-in loan calculator lets you test different amounts and terms before committing. Use it to show the client what their repayments would be at various loan amounts.</p>
+
+        <h6>Uploading Signed Documents</h6>
+        <ul>
+          <li>On the loan view page, each document type has an upload slot.</li>
+          <li>Upload the signed PDF for: Loan Application, Terms &amp; Conditions, IRSDA, and Statutory Declaration.</li>
+          <li>The document checklist turns green once all four are uploaded.</li>
+        </ul>
+      </div>
+
+      <!-- Recording Payments -->
+      <div class="guide-panel" id="g-payments">
+        <h5><i class="material-icons-round align-middle me-1" style="font-size:1.1rem;">payments</i> Recording Payments</h5>
+        <p class="panel-intro">Repayments can be entered individually from a loan or uploaded in bulk from a payroll file.</p>
+
+        <h6>Entering a Single Payment</h6>
+        <div class="step"><div class="step-num">1</div><div>Open the loan via <strong>Loans → View Loan</strong>.</div></div>
+        <div class="step"><div class="step-num">2</div><div>Click <strong>Add Payment</strong> (or go to <strong>Enter Payment</strong> from the sidebar).</div></div>
+        <div class="step"><div class="step-num">3</div><div>Enter the <strong>Payment Date</strong> (the date the deduction was made, not today's date).</div></div>
+        <div class="step"><div class="step-num">4</div><div>Enter the <strong>Amount</strong> received. Click <strong>Save Payment</strong>.</div></div>
+        <div class="step"><div class="step-num">5</div><div>The loan statement updates immediately. The outstanding balance decreases by the payment amount.</div></div>
+
+        <h6>Bulk Upload from Payroll</h6>
+        <div class="step"><div class="step-num">1</div><div>Go to <strong>Existing Loans → Add Existing Statements</strong> or the <strong>Upload Statements</strong> function.</div></div>
+        <div class="step"><div class="step-num">2</div><div>Download the payment template (CSV/Excel). Fill in: <code>Loan Ref</code>, <code>Payment Date</code>, <code>Amount</code>.</div></div>
+        <div class="step"><div class="step-num">3</div><div>Upload the completed file. The system validates each row and posts matching payments.</div></div>
+        <div class="step"><div class="step-num">4</div><div>Review the results summary — errors are listed with reasons so you can correct and re-upload.</div></div>
+
+        <h6>Repayment Reminders</h6>
+        <ul>
+          <li>Use <a href="{% url 'send_repayment_reminder' %}"><strong>Send Repayment Reminder</strong></a> from the sidebar to trigger bulk reminder emails to all clients with upcoming repayments.</li>
+          <li>To send a reminder for a single loan, open the loan and click <strong>Send Reminder</strong>.</li>
+        </ul>
+
+        <div class="warn-box">
+          <strong>Important:</strong> Always enter the actual deduction date from the payroll file — not today's date. The system uses the payment date to calculate arrears and default status.
+        </div>
+      </div>
+
+      <!-- Documents -->
+      <div class="guide-panel" id="g-documents">
+        <h5><i class="material-icons-round align-middle me-1" style="font-size:1.1rem;">picture_as_pdf</i> Documents &amp; PDFs</h5>
+        <p class="panel-intro">The system generates pre-filled PDF documents from client and loan data. Staff can download and share these from the loan view page.</p>
+
+        <h6>Documents You Can Download</h6>
+        <ul>
+          <li><strong>Loan Application Form</strong> – pre-filled with client's personal, contact, work, bank, and loan details.</li>
+          <li><strong>Terms &amp; Conditions / Loan Agreement</strong> – includes all legal clauses with the client's name and loan amounts filled in.</li>
+          <li><strong>IRSDA (Irrevocable Authority to Deduct Salary)</strong> – addressed to the client's employer with deduction amounts and schedule.</li>
+          <li><strong>Statutory Declaration</strong> – for client signature.</li>
+          <li><strong>Cash Disbursement Notice (CDN)</strong> – generated when a loan is disbursed.</li>
+          <li><strong>Loan Amortization Schedule (LAS)</strong> – full projected repayment table showing principal, interest, and balance for every fortnight.</li>
+          <li><strong>Loan Account Statement</strong> – full transaction history including all payments and default charges.</li>
+        </ul>
+
+        <h6>Downloading Documents</h6>
+        <div class="step"><div class="step-num">1</div><div>Open the loan via <strong>Loans → View Loan</strong>.</div></div>
+        <div class="step"><div class="step-num">2</div><div>Scroll to the documents section or use the tab navigation at the top of the loan page.</div></div>
+        <div class="step"><div class="step-num">3</div><div>Click the <strong>Download</strong> button next to the document you need.</div></div>
+
+        <h6>Emailing Documents to the Client</h6>
+        <p>When a loan application is first created, all four application documents (Loan Form, T&amp;C, IRSDA, Stat Dec) are automatically emailed to the client. If the client did not receive them, open the loan and click <strong>Resend Documents</strong>.</p>
+
+        <div class="info-box">
+          <strong>Tip:</strong> Print the IRSDA and Loan Application and have the client sign them in person when possible — this avoids the back-and-forth of scanning and uploading.
+        </div>
+      </div>
+
+      <!-- Credit Rating -->
+      <div class="guide-panel" id="g-credit">
+        <h5><i class="material-icons-round align-middle me-1" style="font-size:1.1rem;">verified</i> Credit Rating</h5>
+        <p class="panel-intro">The Credit Rating section lets you assess a client's financial position before creating a loan.</p>
+
+        <h6>What the Credit Check Shows</h6>
+        <ul>
+          <li><strong>Total Active Loans</strong> – number of currently running loans for this client.</li>
+          <li><strong>Total Outstanding Balance</strong> – combined amount still owed across all active loans.</li>
+          <li><strong>Monthly/Fortnightly Commitments</strong> – total repayments the client is currently making.</li>
+          <li><strong>Debt-to-Income Ratio</strong> – total repayments as a percentage of salary. The system flags this if it exceeds the maximum allowed limit set in Settings.</li>
+          <li><strong>Default History</strong> – any loans that have previously entered default status.</li>
+        </ul>
+
+        <h6>Loan Requirements Matrix</h6>
+        <p>The <strong>Loan Requirements</strong> page (sidebar) shows a checklist of all required documents and profile fields for each loan type. Use this to quickly see what is still missing before submitting a loan for review.</p>
+
+        <h6>When to Run a Credit Check</h6>
+        <ul>
+          <li>Always run a credit check before creating a loan for a client who already has active loans.</li>
+          <li>If the debt-to-income ratio is above the allowed limit, do not proceed — the admin will reject the application.</li>
+        </ul>
+      </div>
+
+      <!-- SME Profiles -->
+      <div class="guide-panel" id="g-sme">
+        <h5><i class="material-icons-round align-middle me-1" style="font-size:1.1rem;">business</i> SME (Business) Profiles</h5>
+        <p class="panel-intro">SME profiles hold the business information for clients applying for business loans (Sole Trader, SME, or MSME). Staff can create, view, and edit SME profiles alongside the client's personal profile.</p>
+
+        <h6>Viewing SME Profiles</h6>
+        <div class="step"><div class="step-num">1</div><div>Click <strong>SME Profiles</strong> in the sidebar to see the full list of clients with business profiles.</div></div>
+        <div class="step"><div class="step-num">2</div><div>Click <strong>View</strong> on any row to open the SME profile detail page.</div></div>
+
+        <h6>Creating an SME Profile</h6>
+        <div class="step"><div class="step-num">1</div><div>Go to <strong>SME Profiles &rarr; Add SME Profile</strong> and select the client.</div></div>
+        <div class="step"><div class="step-num">2</div><div>Fill in the business details: Category (Sole Trader / SME / MSME), Trading Name, Registered Name, Business Address, Email, Phone, Website, IPA Registration Number, and TIN Number.</div></div>
+        <div class="step"><div class="step-num">3</div><div>Click <strong>Save</strong>. The client is now flagged as having an SME profile.</div></div>
+
+        <h6>Uploading SME Documents</h6>
+        <ul>
+          <li>Open the SME profile and use the <strong>Uploads</strong> section to attach: IPA Certificate, TIN Certificate, Cash Flow Statement, SME Bank Statement, and a Business Location Picture.</li>
+          <li>Documents should be PDF or image files.</li>
+        </ul>
+
+        <h6>Editing SME Bank Information</h6>
+        <ul>
+          <li>The SME Bank Info section stores the business bank account (Bank, Branch, Account Name, Account Number) and a bank standing order upload.</li>
+          <li>This is separate from the client's personal bank account &mdash; business loan disbursements go to the SME bank account.</li>
+        </ul>
+
+        <div class="info-box"><strong>Tip:</strong> An SME profile is required before a client can apply for an SME loan type. Complete the personal profile <em>and</em> the SME profile before creating an SME loan application.</div>
+      </div>
+
+      <!-- Alesco Payroll -->
+      <div class="guide-panel" id="g-alesco">
+        <h5><i class="material-icons-round align-middle me-1" style="font-size:1.1rem;">receipt_long</i> Alesco Payroll Integration</h5>
+        <p class="panel-intro">Alesco is the government payroll system. The Alesco integration lets you upload the periodic deduction listing file and automatically match deductions to client loans &mdash; instead of entering payments one by one.</p>
+
+        <h6>Uploading an Alesco Deduction File</h6>
+        <div class="step"><div class="step-num">1</div><div>Go to <a href="{% url 'staff_alesco_update' %}"><strong>Alesco &rarr; Update</strong></a> in the sidebar.</div></div>
+        <div class="step"><div class="step-num">2</div><div>Upload the Alesco Deduction Variation Report text file received from the payroll department.</div></div>
+        <div class="step"><div class="step-num">3</div><div>The system parses the fixed-layout file, creates a Pay Run record, and matches each deduction line to a client by Employee File Number.</div></div>
+        <div class="step"><div class="step-num">4</div><div>Review the confirmation page: it shows how many lines were matched, unmatched, or pending.</div></div>
+
+        <h6>Confirming Deduction Lines</h6>
+        <ul>
+          <li><strong>Confirm a single line:</strong> Click <strong>Confirm</strong> next to a matched line. The system records the payment against the client's loan, creates a statement entry, and updates the loan balance.</li>
+          <li><strong>Confirm all lines:</strong> Click <strong>Confirm All</strong> to batch-confirm every pending matched line in the run. This is the fastest way to process a clean payroll file.</li>
+          <li><strong>Skip a line:</strong> If a deduction doesn't match a loan (e.g. the client has no active loan), you can skip it.</li>
+        </ul>
+
+        <h6>Understanding Line Statuses</h6>
+        <ul>
+          <li><strong>Pending</strong> &ndash; matched to a client and loan; awaiting your confirmation.</li>
+          <li><strong>Confirmed</strong> &ndash; payment has been posted to the loan statement; the action button changes to <strong>Rollback</strong>.</li>
+          <li><strong>Unmatched</strong> &ndash; the Employee File Number didn't match any client in the system. Check the file number on the client's profile.</li>
+          <li><strong>Skipped</strong> &ndash; the listing shows a zero deduction for this pay (no money came in), so there is nothing to confirm. The expected repayment still falls due and can be defaulted from the loan page if unpaid.</li>
+        </ul>
+
+        <h6>Cancel Update</h6>
+        <p>On the Confirm page, <strong>Cancel Update</strong> abandons the whole upload so you can fix and re-upload the file:</p>
+        <ul>
+          <li>If nothing was confirmed yet, the upload and its pending lines are simply deleted.</li>
+          <li>If the run was <strong>partially confirmed</strong>, every confirmed payment is <strong>rolled back</strong> first (see below) and the pending lines are discarded, then the upload is deleted.</li>
+        </ul>
+
+        <h6>Rollback (wrong upload confirmed)</h6>
+        <p>Every confirmation snapshots the loan first, so it can be reversed exactly:</p>
+        <ul>
+          <li><strong>Per line:</strong> on the Confirm page, click <strong>Rollback</strong> next to a confirmed line. The payment and its statement entries are removed and the loan balance, arrears, schedule position and status are restored to exactly what they were before.</li>
+          <li><strong>Whole upload:</strong> on the Alesco Update page, the <strong>most recent</strong> completed/partial upload shows a <strong>Rollback</strong> button in the Recent Uploads table. It reverses every confirmed payment in that run, discards any pending lines, and removes the upload &mdash; a clean slate to re-upload the corrected file.</li>
+        </ul>
+        <div class="warn-box"><strong>Safety rule:</strong> a line will <em>refuse</em> to roll back if any newer payment or statement was recorded on that loan after the confirmation &mdash; rolling back would erase that later work. Those loans are listed in the error message and must be corrected manually. Payments confirmed before rollback support existed have no snapshot and also cannot be auto-reversed.</div>
+
+        <h6>Categorized Unmatched Payments <span class="badge-tip">NEW</span></h6>
+        <p>A deduction that couldn't be matched to any loan lands on the <a href="{% url 'staff_alesco_unmatched' %}"><strong>Unmatched Payment Listing</strong></a>, sorted into a reason so you know what to do next: <strong>No Client Record</strong> (file number matches nobody), <strong>Possible Typo</strong> (a very close match exists — one click links it), <strong>Ambiguous Match</strong> (more than one client shares the number — pick the right one), or <strong>Client Has No Loan</strong> (the client exists but has nothing to apply the payment to). Use the <strong>Link to Client</strong> action to fix a file number and re-match a line — it becomes payable immediately on the normal Confirm page.</p>
+
+        <div class="warn-box"><strong>Important:</strong> The Alesco deduction category must be enabled in <strong>Admin Settings &rarr; General Settings</strong> for this feature to be available. If you don't see the Alesco menu item, ask an admin to enable it.</div>
+      </div>
+
+      <!-- Statements -->
+      <div class="guide-panel" id="g-statements">
+        <h5><i class="material-icons-round align-middle me-1" style="font-size:1.1rem;">list_alt</i> Transaction Statements</h5>
+        <p class="panel-intro">The Transactions/Statements page shows every payment, default, and adjustment across all loans. Use it to investigate payment issues, audit balances, and generate reports.</p>
+
+        <h6>Viewing All Transactions</h6>
+        <div class="step"><div class="step-num">1</div><div>Click <strong>Transactions</strong> in the sidebar to open the full transaction list.</div></div>
+        <div class="step"><div class="step-num">2</div><div>The table shows: date, loan reference, client name, statement type, debit, credit, and balance for each entry.</div></div>
+        <div class="step"><div class="step-num">3</div><div>Summary totals are shown at the top: total payments, total defaults, and total credits.</div></div>
+
+        <h6>Filtering Transactions</h6>
+        <ul>
+          <li><strong>Date range</strong> &ndash; filter by start and end date to see transactions for a specific period.</li>
+          <li><strong>Loan type</strong> &ndash; filter by Personal or SME loans.</li>
+          <li><strong>Transaction type</strong> &ndash; filter by PAYMENT, DEFAULT, or OTHER to isolate specific entry types.</li>
+        </ul>
+
+        <h6>Statement Entry Types</h6>
+        <ul>
+          <li><strong>PAYMENT</strong> &ndash; a repayment received (payroll deduction, bank deposit, or cash). Increases credit, reduces balance.</li>
+          <li><strong>DEFAULT</strong> &ndash; a missed repayment beyond the grace period. Increases debit (adds default interest), increases balance.</li>
+          <li><strong>ADVANCE</strong> &ndash; an over-payment recorded as advance balance for future arrears allocation.</li>
+          <li><strong>OTHER</strong> &ndash; adjustments such as advance-balance allocation to arrears or manual corrections.</li>
+        </ul>
+
+        <h6>Loan Requirements Matrix</h6>
+        <p>The <strong>Loan Requirements Matrix</strong> page shows all pending loans and their document completion status at a glance. Each row shows which required documents have been uploaded and which are still missing. Use it to prioritise which clients to follow up with.</p>
+
+        <div class="info-box"><strong>Tip:</strong> If a client reports a payment isn't showing, use the Transactions page filtered by their loan reference to verify. Only admins can delete or correct statement entries &mdash; escalate to an admin if a correction is needed.</div>
+      </div>
+
+      <!-- Bulk Uploads -->
+      <div class="guide-panel" id="g-uploads">
+        <h5><i class="material-icons-round align-middle me-1" style="font-size:1.1rem;">upload_file</i> Existing Loan Functions <span class="badge-tip">NEW</span></h5>
+        <p class="panel-intro">Everything for entering a client's existing/historical loan data — or adding a loan for a client the normal way — lives in one place: <a href="{% url 'existing_loan_functions' %}"><strong>Existing Loan Functions</strong></a> in the sidebar. This replaced the three separate menu items that used to be here (Add Existing Loan, Add Existing Statements, Add a Loan Statement) with six clearly-explained buttons.</p>
+
+        <h6>1. Add Existing Loan with Details</h6>
+        <p>Use <a href="{% url 'add_new_loan' %}"><strong>Add Existing Loan with Details</strong></a> to create a single new loan for one client, entering the full amount, term, and dates by hand — the normal loan-creation form, one client at a time. Blocked if the client already has an active or pending loan (redirects to the Existing Loan page).</p>
+
+        <h6>2. Add Additional Loan</h6>
+        <p>Use <a href="{% url 'add_additional_loan' %}"><strong>Add Additional Loan</strong></a> when a client with a running loan needs more funds — the system closes the old loan, transfers the outstanding balance, and structures the new combined loan according to the admin's configured Refinance Type. If Refinance Type is set to <strong>Refinance Not Allowed</strong>, this button will refuse and tell you to wait until the client's existing loan is fully Completed.</p>
+
+        <h6>3. Upload Files for Existing Loan <span class="badge-tip">NEW</span></h6>
+        <div class="step"><div class="step-num">1</div><div>Click <a href="{% url 'loan_files' %}"><strong>Upload Files for Existing Loan</strong></a>.</div></div>
+        <div class="step"><div class="step-num">2</div><div>Search for the loan by reference or client name in the list, then click <strong>Upload Files</strong> on the correct row.</div></div>
+        <div class="step"><div class="step-num">3</div><div>You'll see every document slot for that loan (application form, T&amp;Cs, payslips, bank/super statements, funding receipt). Use <strong>Add</strong> or <strong>Replace</strong> next to any slot to upload a file — PDF or images, up to 15&nbsp;MB.</div></div>
+
+        <h6>4. Add Existing Loans in Bulk</h6>
+        <div class="step"><div class="step-num">1</div><div>Click <a href="{% url 'add_existing_loan' %}"><strong>Add Existing Loans in Bulk</strong></a>.</div></div>
+        <div class="step"><div class="step-num">2</div><div>Download the loan upload template (Excel). Fill in all required columns: client email, loan amount, repayment amount, start date, status, etc.</div></div>
+        <div class="step"><div class="step-num">3</div><div>Upload the completed file. The system creates loan records for each valid row.</div></div>
+
+        <h6>5. Add Existing Statements in Bulk</h6>
+        <div class="step"><div class="step-num">1</div><div>Click <a href="{% url 'add_existing_statements' %}"><strong>Add Existing Statements in Bulk</strong></a>.</div></div>
+        <div class="step"><div class="step-num">2</div><div>Use the statements template covering many loans at once. Each row should have: Loan Ref, Date, Statement description, Debit or Credit amount.</div></div>
+        <div class="step"><div class="step-num">3</div><div>Upload the file. The system posts each transaction to the matching loan statement.</div></div>
+
+        <h6>6. Add a Loan Statement</h6>
+        <div class="step"><div class="step-num">1</div><div>Click <a href="{% url 'add_existing_loan_statement' %}"><strong>Add a Loan Statement</strong></a>.</div></div>
+        <div class="step"><div class="step-num">2</div><div>Pick <strong>one</strong> existing loan from the list — this is for entering a single loan's full history, rather than a spreadsheet covering many loans at once.</div></div>
+        <div class="step"><div class="step-num">3</div><div>Upload that loan's statement file. Zero-amount rows are recorded as a default; credit-only rows as an adjustment; debit-only rows as a payment.</div></div>
+
+        <div class="warn-box">
+          <strong>Warning:</strong> Bulk uploads are difficult to reverse. Always check your template data carefully and test with a small batch before uploading the full file. Keep a copy of the source file for your records.
+        </div>
+      </div>
+
+      <!-- Loan Credits & Refunds -->
+      <div class="guide-panel" id="g-credits">
+        <h5><i class="material-icons-round align-middle me-1" style="font-size:1.1rem;">volunteer_activism</i> Loan Credits &amp; Refunds <span class="badge-tip">NEW</span></h5>
+        <p class="panel-intro">When a closing payment overpays a loan's balance — most commonly an external refinance payoff for a bit more than was actually owed — the excess is never silently discarded. It's tracked as a credit owed back to the client until it's refunded.</p>
+
+        <h6>Awaiting Refund Loans</h6>
+        <ul>
+          <li>A loan like this is marked <strong>Awaiting Refund</strong> instead of Completed. The debt itself is fully settled — only the refund is still outstanding.</li>
+          <li>The excess amount is recorded against the client in <a href="{% url 'staff_client_credits' %}"><strong>Client Credits</strong></a> (sidebar).</li>
+        </ul>
+
+        <h6>Recording a Refund</h6>
+        <div class="step"><div class="step-num">1</div><div>Go to <a href="{% url 'staff_client_credits' %}"><strong>Client Credits</strong></a>.</div></div>
+        <div class="step"><div class="step-num">2</div><div>Find the client in the "Owing to Clients" table.</div></div>
+        <div class="step"><div class="step-num">3</div><div>Once you've actually paid them back, use the <strong>Mark Refunded</strong> form: enter the date, an optional note, and upload the refund receipt.</div></div>
+        <div class="step"><div class="step-num">4</div><div>This automatically finalises the loan to Completed if it was still Awaiting Refund — no extra step needed.</div></div>
+
+        <h6>Closing the Loan Before the Refund Happens</h6>
+        <p>If you need to close the loan out now and deal with the refund later, open the loan itself — the Awaiting Refund banner has an <strong>Attribute to Client Credit &amp; Close Now</strong> button. This closes the loan immediately; the credit stays open in Client Credits until refunded whenever.</p>
+
+        <div class="info-box"><strong>Good to know:</strong> if an admin has set Refinance Type to <strong>Refinance Not Allowed</strong>, a client with any existing loan cannot get a new or additional loan at all until it reaches Completed — the <strong>Add Additional Loan</strong> button will refuse with a message telling you why.</div>
+      </div>
+
+      <!-- Automation & Alerts -->
+      <div class="guide-panel" id="g-automation">
+        <h5><i class="material-icons-round align-middle me-1" style="font-size:1.1rem;">schedule</i> Automation &amp; Alerts</h5>
+        <p class="panel-intro">Several routine tasks now run automatically in the background on a schedule. Knowing what is automatic saves you doing it by hand — and tells you when manual action is still useful.</p>
+
+        <h6>What Runs Automatically</h6>
+        <ul>
+          <li><strong>Repayment reminders</strong> are emailed to clients each day before their repayment is due — you do not need to send these manually for routine reminders.</li>
+          <li><strong>Default processing</strong> runs every 30 minutes: loans overdue beyond the grace period are flagged as defaulted, default interest is applied, and the client is notified.</li>
+          <li><strong>Default classification</strong> (aging/recovery) is refreshed automatically.</li>
+          <li><strong>Payment confirmations</strong> and <strong>completion notices</strong> are emailed to clients automatically when you record a payment that clears a balance.</li>
+        </ul>
+
+        <h6>When to Still Act Manually</h6>
+        <ul>
+          <li>Use <strong>Send Repayment Reminder</strong> for an ad-hoc push (e.g. after a public holiday) or to remind a single client from their loan page.</li>
+          <li>Use <strong>Run Defaults</strong> right after a large batch payment upload, so arrears and balances reflect the new data immediately rather than waiting for the next scheduled run.</li>
+        </ul>
+
+        <div class="info-box">
+          <strong>Good to know:</strong> When you send a bulk message, it is processed in the background so the page returns straight away. If the background worker is briefly unavailable, the system still sends the message within the request — nothing is silently lost.
+        </div>
+        <div class="warn-box">
+          <strong>Login security:</strong> After several failed login attempts an account is temporarily blocked for a few minutes. If a client reports being locked out, tell them to wait a few minutes and then use <strong>Forgot Password</strong> if needed.
+        </div>
+      </div>
+
+      <!-- Support Tickets -->
+      <div class="guide-panel" id="g-support">
+        <h5><i class="material-icons-round align-middle me-1" style="font-size:1.1rem;">support_agent</i> Support Tickets</h5>
+        <p class="panel-intro">Staff can view and respond to client support tickets raised through the client portal. Prompt, professional responses help resolve client issues quickly.</p>
+
+        <h6>Accessing Support Tickets</h6>
+        <p>Click <a href="{% url 'support_tickets' %}"><strong>Support Ticket</strong></a> in the sidebar. This shows all tickets in the system — not just the ones assigned to you.</p>
+
+        <h6>Ticket Statuses</h6>
+        <ul>
+          <li><strong>Awaiting Reply</strong> – client has sent a message and is waiting for a staff response.</li>
+          <li><strong>Replied</strong> – a staff or admin member has responded.</li>
+          <li><strong>Closed</strong> – the ticket has been resolved.</li>
+        </ul>
+
+        <h6>Viewing a Ticket</h6>
+        <div class="step"><div class="step-num">1</div><div>Click <strong>View Thread</strong> on any ticket row to open the conversation.</div></div>
+        <div class="step"><div class="step-num">2</div><div>The thread shows the full conversation history. Client messages are on the left; staff replies are on the right.</div></div>
+        <div class="step"><div class="step-num">3</div><div>Review the ticket category and subject to understand what the client needs help with.</div></div>
+
+        <h6>Replying to a Ticket</h6>
+        <div class="step"><div class="step-num">1</div><div>Type your reply in the <strong>Reply</strong> text box at the bottom of the thread.</div></div>
+        <div class="step"><div class="step-num">2</div><div>Click <strong>Reply</strong> to send. The client receives an email notification with your response and a link to view the ticket.</div></div>
+        <div class="step"><div class="step-num">3</div><div>The ticket status automatically changes to <strong>Replied</strong>.</div></div>
+
+        <h6>Closing a Ticket</h6>
+        <p>Once the client's issue is fully resolved, click <strong>Close Ticket</strong>. The client receives a closure notification. If a ticket was closed prematurely, the admin can reopen it.</p>
+
+        <h6>Ticket Categories &amp; How to Handle Them</h6>
+        <ul>
+          <li><strong>Loan Requirements</strong> – tell the client what documents or information is needed and how to upload them.</li>
+          <li><strong>Pending Loan</strong> – check the loan status and update the client on where it is in the process.</li>
+          <li><strong>Loan Repayment</strong> – verify payment records and clarify repayment dates or amounts.</li>
+          <li><strong>Loan Issue</strong> – investigate the specific loan, check the statement, and escalate to admin if needed.</li>
+          <li><strong>Account Activation</strong> – direct the client to use Forgot Password, or flag to admin to manually activate the account.</li>
+          <li><strong>Web App Usage</strong> – guide the client through the feature they are having difficulty with.</li>
+        </ul>
+
+        <div class="info-box">
+          <strong>Best practice:</strong> Always reply using clear, professional language. If you are unsure of the answer, say "I'll look into this and get back to you shortly" rather than leaving the ticket in Awaiting Reply with no response. Escalate complex issues to an admin.
+        </div>
+      </div>
+
+      <!-- Referrers -->
+      <div class="guide-panel" id="g-referrers">
+        <h5><i class="material-icons-round align-middle me-1" style="font-size:1.1rem;">share</i> Referrers &amp; Commission</h5>
+        <p class="panel-intro">The referral system lets you record who referred a new client to the company. Once a referrer is linked at client registration, the system automatically calculates and tracks the commission owed to them.</p>
+
+        <h6>What Is a Referrer?</h6>
+        <p>A referrer is any individual — existing client, community contact, or business partner — who recommends the company's services and brings in a new client. The company pays them a fixed commission per referred client at the end of each month.</p>
+
+        <h6>How to Assign a Referrer When Creating a Client</h6>
+        <div class="step"><div class="step-num">1</div><div>Go to <strong>Clients → Add Client</strong>.</div></div>
+        <div class="step"><div class="step-num">2</div><div>Fill in the client's personal details as normal.</div></div>
+        <div class="step"><div class="step-num">3</div><div>In the <strong>Referred By</strong> dropdown, select the referrer's name. Only Active referrers appear in this list.</div></div>
+        <div class="step"><div class="step-num">4</div><div>If no referrer is applicable, leave the field blank (it is optional).</div></div>
+        <div class="step"><div class="step-num">5</div><div>Submit the form. The system automatically creates a referral record and assigns the current commission rate to the referrer. A confirmation message will appear confirming the amount recorded.</div></div>
+
+        <h6>What Happens After You Assign a Referrer</h6>
+        <ul>
+          <li>A referral record is created instantly — you do not need to do anything else.</li>
+          <li>The commission is set at the rate configured in Admin Settings at the time of registration.</li>
+          <li>The admin reviews and pays all outstanding commissions at the end of each month through the <strong>Commission Overview</strong> page (admin-only).</li>
+        </ul>
+
+        <h6>What If the Referrer Is Not in the List?</h6>
+        <ul>
+          <li>The referrer must be registered in the system by an admin before they appear in the dropdown.</li>
+          <li>Ask your admin to add the referrer under <strong>Referrers → Add Referrer</strong>.</li>
+          <li>Do not create the client without selecting the referrer — if you forget, the referral will not be recorded automatically.</li>
+        </ul>
+
+        <h6>What Staff Cannot Do</h6>
+        <ul>
+          <li>Staff cannot add or edit referrers — that is an admin function.</li>
+          <li>Staff cannot view commission amounts or mark commissions as paid.</li>
+          <li>Staff can only <em>assign</em> a referrer at the time of client creation.</li>
+        </ul>
+
+        <div class="warn-box">
+          <strong>Important:</strong> Always ask the client at registration whether they were referred by someone. If you forget to select the referrer when creating the client, contact an admin — they can update the <strong>Referred By</strong> field on the client's profile directly.
+        </div>
+      </div>
+
+    </div><!-- /guide-content -->
+  </div><!-- /guide-layout -->
+</div><!-- /pane-guide -->
+
+
+<!-- ═══════════════════════════
+     PANE 2 – FAQ
+═══════════════════════════ -->
+<div class="inst-pane" id="pane-faq">
+  <div class="guide-layout">
+
+    <!-- FAQ Sidebar -->
+    <nav class="guide-sidebar" id="faqSidebar">
+      <div class="guide-sidebar-item active" data-faq="fq-clients">
+        <i class="material-icons-round si-icon">people</i> Clients
+      </div>
+      <div class="guide-sidebar-item" data-faq="fq-loans">
+        <i class="material-icons-round si-icon">account_balance</i> Loans
+      </div>
+      <div class="guide-sidebar-item" data-faq="fq-payments">
+        <i class="material-icons-round si-icon">payments</i> Payments
+      </div>
+      <div class="guide-sidebar-item" data-faq="fq-documents">
+        <i class="material-icons-round si-icon">picture_as_pdf</i> Documents
+      </div>
+      <div class="guide-sidebar-item" data-faq="fq-sme">
+        <i class="material-icons-round si-icon">business</i> SME &amp; Alesco
+      </div>
+      <div class="guide-sidebar-item" data-faq="fq-support">
+        <i class="material-icons-round si-icon">support_agent</i> Support Tickets
+      </div>
+      <div class="guide-sidebar-item" data-faq="fq-referrers">
+        <i class="material-icons-round si-icon">share</i> Referrers
+      </div>
+      <div class="guide-sidebar-item" data-faq="fq-credits">
+        <i class="material-icons-round si-icon">volunteer_activism</i> Loan Credits &amp; Refunds
+      </div>
+    </nav>
+
+    <!-- FAQ Content -->
+    <div class="guide-content" id="faqContent">
+
+      <!-- Clients -->
+      <div class="faq-panel active" id="fq-clients">
+        <div class="faq-panel-title"><i class="material-icons-round" style="font-size:1.1rem;">people</i> Clients</div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>A client cannot log in — what should I do?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Direct the client to the <strong>Forgot Password</strong> link on the login page. A reset email will be sent to their registered email address. If their account is inactive (not yet activated), flag this to an admin — only admins can activate accounts.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>How do I update a client's employer details?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Open the client's profile, find the <strong>Employment</strong> section, and click <strong>Edit</strong>. Update the employer and office address. If the new employer is not in the approved employer list, ask an admin to add it under <strong>Settings → Employers</strong> first.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>Can I create a client account from the staff portal?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Yes. Go to <strong>Clients → Add User</strong>. Enter the client's email address and a temporary password. Then complete their profile before creating a loan. Let the client know to log in and change their password.</div>
+        </div>
+      </div>
+
+      <!-- Loans -->
+      <div class="faq-panel" id="fq-loans">
+        <div class="faq-panel-title"><i class="material-icons-round" style="font-size:1.1rem;">account_balance</i> Loans</div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>A client applied online but their loan is not in the list — where is it?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Check <strong>Loans → All</strong> and search by the client's name or email. It may have been placed in a different status. Also check if the client completed the final submit step — partially filled applications stay in <em>Unfinished</em> until fully submitted.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>I tried to create a loan but was redirected to an "Existing Loan" page — what does this mean?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">The client already has an active or pending loan. The system prevents creating a second standalone loan while one exists. The page shows the current loan details. If the client needs additional funds, click <strong>Get Additional Loan</strong> — this opens the additional loan form which transfers the existing balance to the new loan automatically.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>Can I approve or reject a loan application as a staff member?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">No. Staff can review and submit loans for admin review, but only admins can approve, reject, or disburse a loan. Once you have verified all documents are in order, click <strong>Submit for Review</strong> and the admin will be notified.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>The client wants to know what their remaining balance is — where do I find this?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Open the loan and check the <strong>Statement</strong> tab. The current outstanding balance is shown at the top of the statement. You can also download a PDF statement for the client from this page.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>A loan shows as Defaulted but the client has paid — what do I do?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Verify the payment is recorded in the statement with the correct date. If the payment date was entered incorrectly, flag this to an admin — only admins can delete and re-enter statement entries. Once the correct payment is in place, an admin can update the loan status back to Running.</div>
+        </div>
+      </div>
+
+      <!-- Payments -->
+      <div class="faq-panel" id="fq-payments">
+        <div class="faq-panel-title"><i class="material-icons-round" style="font-size:1.1rem;">payments</i> Payments</div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>I entered a payment with the wrong amount — can I fix it?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Contact an admin. Only admin users can delete statement entries. Explain the error and the correct amount, and the admin will delete and re-enter it.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>How do I send repayment reminders to clients?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Use <strong>Send Repayment Reminder</strong> in the sidebar for bulk reminders to all clients with upcoming repayments. For a single client, open their loan and click <strong>Send Reminder</strong> on the loan view page.</div>
+        </div>
+      </div>
+
+      <!-- Documents -->
+      <div class="faq-panel" id="fq-documents">
+        <div class="faq-panel-title"><i class="material-icons-round" style="font-size:1.1rem;">picture_as_pdf</i> Documents</div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>The client says they never received the document email — what do I do?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Ask the client to check their spam/junk folder. If nothing is there, open the loan view page and click <strong>Resend Documents</strong>. Verify the client's email address on their profile is correct before resending.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>Where do I download the Loan Amortization Schedule?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Open the loan, go to the <strong>LAS</strong> tab (or look for the <strong>Download LAS</strong> button on the loan view page), and click download. The PDF will be generated and downloaded immediately.</div>
+        </div>
+      </div>
+
+      <!-- SME & Alesco -->
+      <div class="faq-panel" id="fq-sme">
+        <div class="faq-panel-title"><i class="material-icons-round" style="font-size:1.1rem;">business</i> SME &amp; Alesco Payroll</div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>When should I create an SME profile for a client?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Create an SME profile when the client is applying for a business loan (Sole Trader, SME, or MSME category). The personal profile must already exist. Complete the SME profile &mdash; including business details, documents, and SME bank account &mdash; before creating the SME loan application.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>An Alesco line shows as "Unmatched" &mdash; what do I do?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">This means the Employee File Number in the Alesco file doesn't match any client profile. Open the client's profile, check the <strong>Employee File Number</strong> field under Job Information, and correct it if it's wrong. Then re-upload the Alesco file, or ask an admin to manually record the payment.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>Can I undo a confirmed Alesco line?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">No &mdash; once confirmed, the payment is posted to the loan statement. If a line was confirmed in error, contact an admin; they can delete the statement entry and re-enter it correctly.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>I don't see the Alesco menu item &mdash; where is it?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">The Alesco feature is only available when the Alesco Payroll deduction category is enabled in Admin Settings. Ask an admin to turn on <strong>ALESCO Payroll</strong> under <strong>Settings &rarr; General Settings &rarr; Deduction Category Toggles</strong>.</div>
+        </div>
+      </div>
+
+      <!-- Support Tickets -->
+      <div class="faq-panel" id="fq-support">
+        <div class="faq-panel-title"><i class="material-icons-round" style="font-size:1.1rem;">support_agent</i> Support Tickets</div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>Can I close a ticket if the client has not responded?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Yes. If you have resolved the issue and the client has not responded after a reasonable time, you can click <strong>Close Ticket</strong>. The client will receive a closure email. If they re-open the issue later, they can create a new ticket or an admin can reopen the closed one.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>A client's ticket is about something I cannot resolve — what should I do?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Reply to the ticket to acknowledge receipt and let the client know you are escalating it. Then notify an admin directly. Admins have access to settings, financial adjustments, and account-level actions that staff cannot perform.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>Does the client get notified when I reply?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Yes. Every reply you post through the ticket system automatically sends an email to the client with your response and a link to view the full thread in their portal.</div>
+        </div>
+      </div>
+
+      <!-- Referrers -->
+      <div class="faq-panel" id="fq-referrers">
+        <div class="faq-panel-title"><i class="material-icons-round" style="font-size:1.1rem;">share</i> Referrers &amp; Commission</div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>The referrer a client mentioned is not in the dropdown — what do I do?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">The referrer must be registered in the system by an admin before they appear in the list. Ask your admin to add them under <strong>Referrers → Add Referrer</strong>. Once added and set to Active, they will appear in the dropdown. In the meantime, create the client without selecting a referrer and ask the admin to update the <strong>Referred By</strong> field on the client's profile afterwards.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>I forgot to select the referrer when I created the client — can it be fixed?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Yes. Contact an admin and let them know the client's name and the referrer's name. The admin can update the <strong>Referred By</strong> field on the client's profile. Note that the referral commission record should then be created manually — the admin handles this through the referral management pages.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>Does every new client need a referrer?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">No. The <strong>Referred By</strong> field is optional. Only fill it in if the client was genuinely referred by someone registered in the system. Leave it blank for walk-in clients, online sign-ups, or any client whose referrer is unknown.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>Can I see how much commission a referrer will earn?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">The commission amount is set by the admin in <strong>Referral Settings</strong>. When you select a referrer and submit the client form, a confirmation message shows the commission amount that was recorded. Detailed commission tracking and payment management is handled by admins only.</div>
+        </div>
+      </div>
+
+      <!-- Loan Credits & Refunds -->
+      <div class="faq-panel" id="fq-credits">
+        <div class="faq-panel-title"><i class="material-icons-round" style="font-size:1.1rem;">volunteer_activism</i> Loan Credits &amp; Refunds</div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>A client's loan shows "Awaiting Refund" instead of Completed — what does that mean?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">The closing payment (often an external refinance payoff) paid more than the loan actually owed. The debt is settled, but the excess is still owed back to the client — tracked in <strong>Client Credits</strong> — so the loan is deliberately kept out of Completed until the refund is handled.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>How do I mark a client's credit as refunded?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Go to <strong>Client Credits</strong> in the sidebar, find their row, and use <strong>Mark Refunded</strong> — enter the date, an optional note, and upload the refund receipt. The loan finalises to Completed automatically if it was still Awaiting Refund.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>The "Get Additional Loan" button has disappeared for a client with an existing loan — why?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">An admin has set Refinance Type to <strong>Refinance Not Allowed</strong>. While that's active, a client with any existing loan (funded or pending) cannot get a new or additional loan at all — the button is hidden and the action is blocked server-side too. Wait until their existing loan reaches Completed.</div>
+        </div>
+      </div>
+
+    </div><!-- /faqContent -->
+  </div><!-- /guide-layout -->
+</div><!-- /pane-faq -->
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Outer tab switching
+  document.querySelectorAll('#instNav .inst-tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('#instNav .inst-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.inst-pane').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.pane).classList.add('active');
+    });
+  });
+
+  // FAQ sidebar switching
+  document.querySelectorAll('#faqSidebar .guide-sidebar-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+      document.querySelectorAll('#faqSidebar .guide-sidebar-item').forEach(i => i.classList.remove('active'));
+      document.querySelectorAll('#faqContent .faq-panel').forEach(p => p.classList.remove('active'));
+      item.classList.add('active');
+      var panel = document.getElementById(item.dataset.faq);
+      if (panel) panel.classList.add('active');
+      document.getElementById('faqContent').scrollTop = 0;
+      document.querySelectorAll('#faqContent .faq-question.open').forEach(function(q) {
+        q.classList.remove('open');
+        q.nextElementSibling.style.display = 'none';
+      });
+    });
+  });
+
+  // Inner guide sidebar switching
+  document.querySelectorAll('#guideSidebar .guide-sidebar-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+      document.querySelectorAll('#guideSidebar .guide-sidebar-item').forEach(i => i.classList.remove('active'));
+      document.querySelectorAll('#guideContent .guide-panel').forEach(p => p.classList.remove('active'));
+      item.classList.add('active');
+      var panel = document.getElementById(item.dataset.panel);
+      if (panel) panel.classList.add('active');
+      document.getElementById('guideContent').scrollTop = 0;
+    });
+  });
+
+  // FAQ accordion
+  function toggleFaq(question) {
+    var answer = question.nextElementSibling;
+    var isOpen = question.classList.contains('open');
+    document.querySelectorAll('.faq-question.open').forEach(function(q) {
+      q.classList.remove('open');
+      q.nextElementSibling.style.display = 'none';
+    });
+    if (!isOpen) {
+      question.classList.add('open');
+      answer.style.display = 'block';
+    }
+  }
+
+  // URL hash deep-linking: #faq, #guide, #guide-support, etc.
+  var hash = window.location.hash.replace('#', '');
+  if (hash === 'faq') {
+    document.querySelectorAll('#instNav .inst-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.inst-pane').forEach(p => p.classList.remove('active'));
+    document.querySelector('[data-pane="pane-faq"]').classList.add('active');
+    document.getElementById('pane-faq').classList.add('active');
+  } else if (hash.startsWith('guide-')) {
+    var panelId = 'g-' + hash.replace('guide-', '');
+    document.querySelectorAll('#instNav .inst-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.inst-pane').forEach(p => p.classList.remove('active'));
+    document.querySelector('[data-pane="pane-guide"]').classList.add('active');
+    document.getElementById('pane-guide').classList.add('active');
+    document.querySelectorAll('#guideSidebar .guide-sidebar-item').forEach(i => i.classList.remove('active'));
+    document.querySelectorAll('#guideContent .guide-panel').forEach(p => p.classList.remove('active'));
+    var sideItem = document.querySelector('[data-panel="' + panelId + '"]');
+    var panel = document.getElementById(panelId);
+    if (sideItem) sideItem.classList.add('active');
+    if (panel) panel.classList.add('active');
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,180 @@
+{% extends 'manager_base.html' %}
+{% load humanize %}
+
+{% block title %}Loan Approval - {{ loan.ref }}{% endblock %}
+{% block breadcrumb %}<a href="{% url 'manager:dashboard' %}">Manager</a> / <a href="{% url 'manager:pending_loans' %}">Pending Loans</a>{% endblock %}
+{% block breadcrumb_active %}{{ loan.ref }}{% endblock %}
+{% block dashboard_title %}Loan Approval - {{ loan.ref }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-3">
+        <!-- Loan Details -->
+        <div class="col-xl-8">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h4 class="mb-3">Loan Application Details</h4>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr><td><strong>Loan Reference:</strong></td><td>{{ loan.ref }}</td></tr>
+                                <tr><td><strong>Loan Type:</strong></td><td><span class="badge bg-info">{{ loan.loan_type }}</span></td></tr>
+                                <tr><td><strong>Amount Requested:</strong></td><td><strong class="text-primary">K{{ loan.amount|floatformat:0|intcomma }}</strong></td></tr>
+                                <tr><td><strong>Term:</strong></td><td>{{ loan.number_of_fortnights }} fortnights</td></tr>
+                                <tr><td><strong>Repayment Amount:</strong></td><td><strong>K{{ loan.repayment_amount|floatformat:0|intcomma }}</strong></td></tr>
+                                <tr><td><strong>Total Loan Amount:</strong></td><td><strong>K{{ loan.total_loan_amount|floatformat:0|intcomma }}</strong></td></tr>
+                                <tr><td><strong>Interest:</strong></td><td>K{{ loan.interest|floatformat:2|intcomma }}</td></tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr><td><strong>Application Date:</strong></td><td>{{ loan.application_date|date:"M d, Y" }}</td></tr>
+                                <tr><td><strong>Status:</strong></td><td><span class="badge bg-warning">{{ loan.status }}</span></td></tr>
+                                <tr><td><strong>Officer:</strong></td><td>{% if loan.officer %}{{ loan.officer.user.first_name }} {{ loan.officer.user.last_name }}{% else %}<span class="text-muted">Not assigned</span>{% endif %}</td></tr>
+                                <tr><td><strong>Repayment Start:</strong></td><td>{{ loan.repayment_start_date|date:"M d, Y" }}</td></tr>
+                                <tr><td><strong>Location:</strong></td><td>{% if loan.location %}{{ loan.location.name }}{% else %}Not specified{% endif %}</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer Information -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h4 class="mb-3">Customer Information</h4>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr><td><strong>Name:</strong></td><td>{{ loan.owner.first_name }} {{ loan.owner.last_name }}</td></tr>
+                                <tr><td><strong>Email:</strong></td><td>{{ loan.owner.email }}</td></tr>
+                                <tr><td><strong>Mobile:</strong></td><td>{{ loan.owner.mobile1|default:"Not provided" }}</td></tr>
+                                <tr><td><strong>Employee File Number:</strong></td><td>{{ loan.owner.work_id_number|default:"Not provided" }}</td></tr>
+                                <tr><td><strong>Employer:</strong></td><td>{{ loan.owner.organisation|default:"Not provided" }}</td></tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Monthly Income:</strong></td>
+                                    <td>{% if loan_details.monthly_income %}K{{ loan_details.monthly_income|floatformat:0|intcomma }}{% else %}<span class="text-muted">Not provided</span>{% endif %}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Existing Loans:</strong></td>
+                                    <td>{% if loan_details.existing_loans %}<span class="badge bg-warning">{{ loan_details.existing_loans }} active</span>{% else %}<span class="badge bg-success">No active loans</span>{% endif %}</td>
+                                </tr>
+                                <tr><td><strong>Total Outstanding:</strong></td><td>K{{ loan_details.total_outstanding|floatformat:0|intcomma }}</td></tr>
+                                <tr><td><strong>Member Since:</strong></td><td>{{ loan.owner.created_at|date:"M d, Y" }}</td></tr>
+                                <tr><td><strong>Category:</strong></td><td>{{ loan.owner.category|default:"Not specified" }}</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if loan_details.payment_history %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h4 class="mb-3">Recent Payment History</h4>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead><tr><th>Date</th><th>Amount</th><th>Mode</th><th>Reference</th></tr></thead>
+                            <tbody>
+                                {% for payment in loan_details.payment_history %}
+                                <tr>
+                                    <td>{{ payment.date|date:"M d, Y" }}</td>
+                                    <td>K{{ payment.amount|floatformat:0|intcomma }}</td>
+                                    <td>{{ payment.mode }}</td>
+                                    <td>{{ payment.ref|default:"-" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Approval Actions -->
+        <div class="col-xl-4">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h4 class="mb-3">Approval Decision</h4>
+                    {% if contract_enabled %}
+                    <p class="text-muted" style="font-size:.82rem;">Approving will generate a loan contract PDF and email it to the client and lending officer.</p>
+                    {% endif %}
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="comments" class="form-label">Comments/Notes</label>
+                            <textarea class="form-control" id="comments" name="comments" rows="4"
+                                      placeholder="Enter your comments or notes about this loan application..."></textarea>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" name="action" value="approve" class="btn btn-success btn-lg"
+                                    onclick="return confirm('Are you sure you want to APPROVE this loan?')">
+                                <i class="fa-solid fa-circle-check"></i> Approve Loan
+                            </button>
+                            <button type="submit" name="action" value="hold" class="btn btn-warning btn-lg"
+                                    onclick="return confirm('Are you sure you want to put this loan ON HOLD?')">
+                                <i class="fa-solid fa-circle-pause"></i> Put on Hold
+                            </button>
+                            <button type="submit" name="action" value="reject" class="btn btn-danger btn-lg"
+                                    onclick="return confirm('Are you sure you want to REJECT this loan?')">
+                                <i class="fa-solid fa-circle-xmark"></i> Reject Loan
+                            </button>
+                        </div>
+                    </form>
+                    <hr>
+                    <div class="d-grid">
+                        <a href="{% url 'manager:pending_loans' %}" class="btn btn-secondary">
+                            <i class="fa-solid fa-arrow-left"></i> Back to Pending Loans
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Risk Assessment -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h4 class="mb-3">Risk Assessment</h4>
+                    <div class="mb-3">
+                        <label class="form-label">Debt-to-Income Ratio</label>
+                        {% if loan_details.monthly_income and loan_details.monthly_income > 0 %}
+                            {% widthratio loan.repayment_amount loan_details.monthly_income 100 as debt_ratio %}
+                            <div class="progress">
+                                <div class="progress-bar {% if debt_ratio > 50 %}bg-danger{% elif debt_ratio > 30 %}bg-warning{% else %}bg-success{% endif %}"
+                                     style="width: {{ debt_ratio }}%">{{ debt_ratio }}%</div>
+                            </div>
+                            <small class="text-muted">
+                                {% if debt_ratio > 50 %}High Risk - Exceeds 50%
+                                {% elif debt_ratio > 30 %}Medium Risk - 30-50%
+                                {% else %}Low Risk - Under 30%{% endif %}
+                            </small>
+                        {% else %}
+                            <p class="text-muted">Income information not available</p>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Customer Status</label>
+                        <div>
+                            {% if loan_details.existing_loans == 0 %}<span class="badge bg-success">New Customer</span>
+                            {% elif loan_details.existing_loans == 1 %}<span class="badge bg-info">Existing Customer</span>
+                            {% else %}<span class="badge bg-warning">Multiple Loans</span>{% endif %}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Payment History</label>
+                        <div>
+                            {% if loan_details.payment_history %}<span class="badge bg-success">Good Payment History</span>
+                            {% else %}<span class="badge bg-secondary">No Payment History</span>{% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

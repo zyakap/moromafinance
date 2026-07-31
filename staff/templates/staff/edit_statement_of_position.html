@@ -1,0 +1,30 @@
+{% extends "staff_base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %} {{ user.first_name }} {% if user.middle_name %}{{ user.middle_name }}{% endif %} {{ user.last_name }} {% endblock %}
+
+{% block breadcrumb %} <a href="{% url 'staff_dashboard' %}">Staff Dashboard</a>  /  <a href="{% url 'view_member' user.id %}">Member</a> {% endblock %}
+{% block breadcrumb_active %} Statement of Position {% endblock %}
+{% block dashboard_title %} Edit Statement of Position for {{ user.first_name }} {% if user.middle_name %}{{ user.middle_name }}{% endif %} {{ user.last_name }} {% endblock %}
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-xl-8 col-lg-10 col-md-12 col-sm-12 col-xs-12">
+      <div class="card mt-2 p-1">
+        <div class="card-header bg-secondary m-0 pt-2 pr-1 pb-0 pl-2">
+          <h5 class="text-light"> Statement of Position </h5>
+        </div>
+        <div class="card-body m-0 p-2">
+          <form method="POST">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <br>
+            <button type="submit" class="btn btn-primary">SAVE</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}

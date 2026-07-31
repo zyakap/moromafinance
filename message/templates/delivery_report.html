@@ -1,0 +1,318 @@
+{% extends "staff_base.html" %}
+{% load static %}
+{% block title %} Delivery Report for {{ message.ref }} {% endblock %}
+{% block breadcrumb %} 
+  <a href="{% url 'admin_dashboard' %}">Staff Dashboard</a>  /  
+  <a href="{% url 'clients' %}">Message</a> 
+{% endblock %}
+{% block breadcrumb_active %} Delivery Report {% endblock %}
+{% block dashboard_title %} Delivery report for message Ref# {{ message.ref }} {% endblock %}
+
+{% block css %}
+<!-- DataTables LOCAL CSS -->
+<link rel="stylesheet" type="text/css" href="{% static 'DataTables/datatables.min.css' %}"/>   
+<!-- link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs5/jq-3.6.0/jszip-2.5.0/dt-1.12.1/b-2.2.3/b-colvis-2.2.3/b-html5-2.2.3/b-print-2.2.3/cr-1.5.6/kt-2.7.0/sp-2.0.2/datatables.min.css"/ -->
+<!-- Font Awesome Icons -->
+<script src="{% static 'fontawesomefree/js/all.min.js' %}"></script>
+
+<!-- FLEX BOX Styles -->
+<style>
+  .flex-container {
+    display: flex;
+  }
+  .flex-child {
+    flex: 1;
+  }  
+  .flex-child:first-child {
+    margin-right: 5px;
+  } 
+  .flex-child:last-child {
+    margin-left: 5px;
+  } 
+</style>
+{% endblock %}
+
+{% block content %}
+
+  <div class="row mt-1">
+    <div class="table-responsive p-2">
+      <table class="table table-dark table-striped table-sm p-0 m-0" style="border-radius: 10px;">
+        <thead>
+          <tr>
+            <th class="text-center text-sm">Total Recipients</th>
+            <th class="text-center text-sm">Personal Emails</th>
+            <th class="text-center text-sm">Work Emails</th>
+            <th class="text-center text-sm">Delivered</th>
+            <th class="text-center text-sm">Failed</th>
+            <th class="text-center text-sm">Read</th>
+            <th class="text-center text-sm">UNREAD</th>
+            <th class="text-center text-sm">Read on App</th>
+            <th class="text-center text-sm">UnRead on App</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="text-center text-sm">{% if clients_filtered.count %}{{ clients_filtered.count }}{% else %}None {% endif %}</td>
+            <td class="text-center text-sm">{% if members_filtered.count %}{{ members_filtered.count }}{% else %}None{% endif %}</td>
+            <td class="text-center text-sm">{% if nonmembers_filtered.count %}{{ nonmembers_filtered.count }}{% else %}None{% endif %}</td>
+            <td class="text-center text-sm">{% if private_filtered.count %}{{ private_filtered.count }}{% else %}None{% endif %}</td>
+            <td class="text-center text-sm">{% if public_filtered.count %}{{public_filtered.count }}{% else %}None{% endif %}</td>
+            
+            <td class="text-center text-sm">{% if withl_filtered.count %}{{ withl_filtered.count }}{% else %}None{% endif %}</td>
+            <td class="text-center text-sm">{% if withoutl_filtered.count %}{{ withoutl_filtered.count }}{% else %}None{% endif %}</td>
+            <td class="text-center text-sm">{% if withl_filtered.count %}{{ withl_filtered.count }}{% else %}None{% endif %}</td>
+            <td class="text-center text-sm">{% if withoutl_filtered.count %}{{ withoutl_filtered.count }}{% else %}None{% endif %}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="row mt-5">
+    <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-xs-12 mt-2">
+      <div class="card pb-2 z-index-2 text-center">
+        <div class="card-header p-1 position-relative mt-n4 mx-3 z-index-2 bg-secondary">
+          <h5 class="pb-0 text-light">Delivery of Email</h5>
+        </div><!-- Card Header -->
+        <div class="card-body p-2 m-0">
+          <div class="row">
+            <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-xs-12 mt-2">
+              <div class="card bg-success pb-2 z-index-2 text-center"  style="height: 340px;">
+                <h6 class="pt-3 pb-1">Delivery Ratio</h6>
+                <p class="display-1 text-light">{{ delivery_ratio }} %</p>
+              </div>
+            </div><!-- Column 11-->
+            <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-xs-12 mt-2">
+              <div class="bg-gradient-light shadow-light border-radius-lg py-3 pe-1">
+                <div class="chart">
+                    <h6 class="text-primary text-xs">Delivery Status</h5>
+                    <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+                    <canvas id="delivery_ratio_chart" class="chart-canvas" height="100"></canvas>
+                </div>
+              </div>
+            </div><!-- Column 12-->
+          </div><!-- Inner Row -->
+        </div><!-- Body -->
+      </div><!-- Main Card -->
+    </div>
+    <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-xs-12 mt-2">
+      <div class="card pb-2 z-index-2 text-center">
+        <div class="card-header p-1 position-relative mt-n4 mx-3 z-index-2 bg-secondary">
+          <h5 class="pb-0 text-light">Email Open Statistics</h5>
+        </div><!-- Card Header -->
+        <div class="card-body p-2 m-0">
+          <div class="row">
+            <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-xs-12 mt-2">
+              <div class="card bg-info pb-2 z-index-2 text-center" style="min-height: 200px;">
+                <h6 class="pt-3 pb-1">Read Ratio</h6>
+                <p class="display-1 text-light">{{ email_read_ratio }} %</p>
+              </div>
+            </div><!-- Column 11-->
+            <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-xs-12 mt-2">
+              <div class="bg-gradient-light shadow-light border-radius-lg py-3 pe-1">
+                <div class="chart">
+                    <h6 class="text-primary text-xs">Read vs Unread</h5>
+                    <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+                    <canvas id="resbreakupdj" class="chart-canvas" height="100"></canvas>
+                </div>
+              </div>
+            </div><!-- Column 12-->
+          </div><!-- Inner Row -->
+        </div><!-- Body -->
+      </div><!-- Main Card -->
+    </div>
+  </div><!-- ROW -->
+
+  <div class="row mt-5">
+    <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-xs-12 mt-2">
+      <div class="card pb-2 z-index-2 text-center">
+        <div class="card-header p-1 position-relative mt-n4 mx-3 z-index-2 bg-secondary">
+          <h5 class="pb-0 text-light">PERSONAL EMAIL ADDRESSES</h5>
+        </div><!-- Card Header -->
+        <div class="card-body p-2 m-0">
+          <div class="row">
+            <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-xs-12 mt-2">
+              <div class="bg-gradient-light shadow-light border-radius-lg py-3 pe-1">
+                <div class="chart">
+                    <h6 class="text-primary text-xs">Delivered vs Failed</h5>
+                    <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+                    <canvas id="personal_email_chart" class="chart-canvas" height="100"></canvas>
+                </div>
+              </div>
+            </div><!-- Column 11-->
+            <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-xs-12 mt-2">
+              <div class="bg-gradient-light shadow-light border-radius-lg py-3 pe-1">
+                <div class="chart">
+                    <h6 class="text-primary text-xs">Read vs Unread</h5>
+                    <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+                    <canvas id="resbreakupdj22" class="chart-canvas" height="100"></canvas>
+                </div>
+              </div>
+            </div><!-- Column 12-->
+          </div><!-- Inner Row -->
+        </div><!-- Body -->
+      </div><!-- Main Card -->
+    </div>
+    <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-xs-12 mt-2">
+      <div class="card pb-2 z-index-2 text-center">
+        <div class="card-header p-1 position-relative mt-n4 mx-3 z-index-2 bg-secondary">
+          <h5 class="pb-0 text-light">WORK EMAIL ADDRESSES</h5>
+        </div><!-- Card Header -->
+        <div class="card-body p-2 m-0">
+          <div class="row">
+            <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-xs-12 mt-2">
+              <div class="bg-gradient-light shadow-light border-radius-lg py-3 pe-1">
+                <div class="chart">
+                    <h6 class="text-primary text-xs">Delivered vs Failed</h5>
+                    <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+                    <canvas id="resbreakupdj2" class="chart-canvas" height="100"></canvas>
+                </div>
+              </div>
+            </div><!-- Column 11-->
+            <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-xs-12 mt-2">
+              <div class="bg-gradient-light shadow-light border-radius-lg py-3 pe-1">
+                <div class="chart">
+                    <h6 class="text-primary text-xs">Read vs Unread</h5>
+                    <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+                    <canvas id="resbreakupdj3" class="chart-canvas" height="100"></canvas>
+                </div>
+              </div>
+            </div><!-- Column 12-->
+          </div><!-- Inner Row -->
+        </div><!-- Body -->
+      </div><!-- Main Card -->
+    </div>
+  </div><!-- ROW -->
+
+  <div class="row mt-5">
+    <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12 col-xs-12 mt-2">
+      <div class="card pb-2 z-index-2 text-center">
+        <div class="card-header p-1 pt-3 position-relative mt-n4 mx-3 z-index-2 bg-secondary">
+          <h5 class="pb-0 text-light">Message on WebApp</h5>
+        </div><!-- Card Header -->
+        <div class="card-body p-2 m-0">
+          <div class="chart">
+            <h6 class="text-primary text-xs">Read vs Unread</h5>
+            <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+            <canvas id="resbreakupdj4" class="chart-canvas" height="100"></canvas>
+          </div>
+        </div><!-- Body -->
+      </div><!-- Main Card -->
+    </div>
+    <div class="col-xl-9 col-lg-9 col-md-9 col-sm-12 col-xs-12 mt-2">
+      <div class="bg-gradient-light shadow-light border-radius-lg py-3 pe-1">
+        <div class="chart">
+          <h6 class="text-primary text-xs text-center">General Message Trend</h5>
+          <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+          <canvas id="resbreakupdj5" class="chart-canvas" height="100"></canvas>
+        </div>
+      </div>
+    </div>
+  </div><!-- ROW -->
+ 
+
+<p>
+  email_sent_total,
+        'email_not_sent_total': email_not_sent_total,
+        'email_sent_work_total': email_sent_work_total,
+        'email_not_sent_work_total': email_not_sent_work_total,
+</p>
+
+  
+  <!-- Content Ends Here -->
+
+{% endblock %}
+
+  {% block scripts %}
+ 
+
+  
+  
+  <!-- CHART JS -->
+  <!--script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script -->
+  <script type="script" src="{% static 'thirdparty/js/chartjs.min.js"></script>
+  
+  <script>
+    
+    const lb_data = {
+      labels: ['Sent to Personal Email', 'Sent to Work Email', 'Not Sent to Work Email', 'Not Sent to Personal Email'],
+      datasets: [{
+        label: 'Delivery Ratio',
+        data: [ {{email_sent_total}}, {{email_sent_work_total}}, {{email_not_sent_work_total}}, {{email_not_sent_total}} ],
+        backgroundColor: [
+                    'rgb(0, 255, 0)',
+                    'rgb(0, 205, 35)',
+                    'rgb(205, 0, 35)', 
+                    'rgb(255, 0, 0)',
+                    
+        ],
+        hoverOffset: 4
+      }]
+    };
+
+    const options13 = {
+      plugins: {
+        legend: {
+          labels:{
+                boxWidth: 10,
+          }
+        }
+      }
+    }
+  
+    const lb_config = {
+      type: 'doughnut',
+      data: lb_data,
+      options: options13,
+    };
+  
+    const delivery_ratio_chart = new Chart(
+      document.getElementById('delivery_ratio_chart'),
+      lb_config
+    );
+  
+  </script>
+  
+  <script>
+    
+    const personal_email_data = {
+      labels: ['Sent to Personal Email', 'Sent to Work Email', 'Not Sent to Personal Email', 'Not Sent to Work Email'],
+      datasets: [{
+        label: 'Delivery Ratio',
+        data: [{{email_sent_total}}, {{email_sent_work_total}}, {{email_not_sent_total}}, {{email_not_sent_work_total}}],
+        backgroundColor: [
+              'rgb(0, 255, 0)',
+              'rgb(0, 205, 35)',
+              'rgb(255, 0, 0)',
+              'rgb(205, 0, 35)', 
+        ],
+        hoverOffset: 4
+      }]
+    };
+
+    const personal_email_options = {
+      plugins: {
+        legend: {
+          labels:{
+                boxWidth: 10,
+          }
+        }
+      }
+    }
+  
+    const personal_email_config = {
+      type: 'doughnut',
+      data: personal_email_data,
+      options: personal_email_options,
+    };
+  
+    const personal_email_chart = new Chart(
+      document.getElementById('personal_email_chart'),
+      personal_email_config
+    );
+  
+  </script>
+ 
+  
+  
+  {% endblock %}

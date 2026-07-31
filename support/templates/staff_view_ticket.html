@@ -1,0 +1,472 @@
+{% extends "staff_base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block title %} View Ticket {{ ticket.ref }} {% endblock %}
+{% block breadcrumb %} <a href="{% url 'staff_dashboard' %}">Dashboard</a> {% endblock %}
+{% block breadcrumb_active %} Support {% endblock %}
+{% block dashboard_title %}View Ticket {{ ticket.ref }} {% endblock %}
+
+{% block css %}
+<!-- DataTables LOCAL CSS -->
+<link rel="stylesheet" type="text/css" href="{% static 'DataTables/datatables.min.css' %}"/>   
+<!-- link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs5/jq-3.6.0/jszip-2.5.0/dt-1.12.1/b-2.2.3/b-colvis-2.2.3/b-html5-2.2.3/b-print-2.2.3/cr-1.5.6/kt-2.7.0/sp-2.0.2/datatables.min.css"/ -->
+<!-- Font Awesome Icons -->
+<script src="{% static 'fontawesomefree/js/all.min.js' %}"></script>
+
+<!-- FLEX BOX Styles -->
+<style>
+  .flex-container {
+    display: flex;
+  }
+  .flex-child {
+    flex: 1;
+  }  
+  .flex-child:first-child {
+    margin-right: 5px;
+  } 
+  .flex-child:last-child {
+    margin-left: 5px;
+  } 
+</style>
+{% endblock %}
+
+{% block content %}
+
+
+  <!-- Content Goes Here -->
+  <div class="row mt-3">
+    <div class="col-xl-8 col-lg-8 col-md-12 col-sm-12 colxs-12">
+      <div class="card mt-2 p-1">
+        <div class="card-header bg-secondary m-0 pt-2 pr-1 pb-0 pl-2">
+          <p class="text-light p-0 m-0">Ticket Ref: <span style="color: #5bea3a"><b>{{ ticket.ref }}</b></span></p>
+          <p class="text-light p-0 m-0">Category: <span style="color: #5bea3a"><b>{{ ticket.category }}</b></span></p>
+          <p class="text-light p-0 m-0">Subject: <span style="color: #5bea3a"><b>{{ ticket.subject }}</b></span></p>
+          <p class="p-1 m-2 badge bg-light text-primary text-xs">Created at: {{ ticket.date }}</p>
+        </div>
+        <div class="card-body m-0 p-2 mt-3 bg-light">
+          <div class="overflow-auto">
+            
+            {% for thread in ticketthread %}
+              {% if 'U' in thread.thread %}
+             
+                <div class="d-flex flex-row bd-highlight p-1 mb-2" style="border: 1px blue solid; border-radius: 10px; background-image: url({{domain}}/static/img/supportticket_bg_blue.png);">
+                  <div class="bd-highlight badge bg-primary">
+                    <span class="badge bg-dark" >
+                    {{ user.first_name }} {{ user.last_name }}
+                    </span> <br><br>
+                    <span style="color: #fcfe3d">{{ thread.date }}</span>{% if thread.attachment_name %}
+                    <br>
+                      <p class="mt-1 mb-0" style="color: #fcfe3d"><a href="{{ thread.attachment_url }}" target="_blank"><span class="badge bg-light text-xs text-primary p-1 m-0">View Attachment</span></a></p> 
+                    {% endif %}
+                  </div>
+                  <div class="bd-highlight p-2">
+                    <span style="color: #000">{{ thread.thread_content|striptags }}</span>
+                  </div>
+                </div>
+          
+              {% else %}
+                
+              <div class="d-flex flex-row-reverse bd-highlight p-1 mb-2" style="border: 1px green solid; border-radius: 10px; background-image: url({{domain}}/static/img/supportticket_bg_green.png);">
+                <div class="bd-highlight badge bg-success">
+                  <span style="color: #fff">{{ thread.date }}</span><br><br>
+                  <span class="badge bg-dark">
+                  {{ thread.responder }}
+                  </span>
+                  {% if thread.attachment_name %}
+                  <br>
+                    <p class="mt-1 mb-0" style="color: #fcfe3d"><a href="{{ thread.attachment_url }}" target="_blank"><span class="badge bg-light text-xs text-primary p-1 m-0">View Attachment</span></a></p> 
+                  {% endif %}
+
+                </div>
+                <div class="bd-highlight p-2">
+                  <span style="color: #000">{{ thread.thread_content|striptags }}</span>
+                </div>
+              </div>
+               
+              {% endif %}
+            {% endfor %}
+          </div>
+
+          {% if ticket.status != 'closed' %}
+          <div class="card-footer bg-light m-0 p-1 mt-3">
+            <form method="POST" action="">
+              {% csrf_token %}
+              <div class="form-group">
+                <label for="thread_content" class="text-secondary">Reply</label>
+                <textarea class="form-control" id="thread_content" name="thread_content" rows="3"></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary mt-2">Reply</button>
+            </form>
+          </div>
+          <div class="d-flex justify-content-center bg-secondary p-2 mt-2"><a href="{% url 'staff_close_ticket' ticket.ref %}"><button type="button" class="btn btn-dark m-0">Close Ticket</button></a></div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Content Ends Here -->
+
+  
+
+  
+
+  
+  <!-- Content Ends Here -->
+
+{% endblock %}
+
+{% block scripts %}
+<!-- DATATables LOCAL JS -->
+<script type="text/javascript" src="{% static 'DataTables/datatables.min.js' %}"></script> 
+<!--
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/v/bs5/jq-3.6.0/jszip-2.5.0/dt-1.12.1/b-2.2.3/b-colvis-2.2.3/b-html5-2.2.3/b-print-2.2.3/cr-1.5.6/kt-2.7.0/sp-2.0.2/datatables.min.js"></script>
+-->
+
+<!-- DATATABLE SCRIPT-->
+<script>
+  $("#collectionStatement").DataTable({
+      // DataTable configurations
+      paging: true,
+      pageLength: 10,
+      lengthChange: true,
+      autoWidth: true,
+      searching: true,
+      bInfo: true,
+      bSort: true,
+
+      dom: 'lBfrtip',
+      buttons: [
+          {
+              extend: 'copy',
+              text: '<i class="fa fa-solid fa-copy"></i>',
+              className: 'btn btn-secondary',
+              titleAttr: 'Copy Data',
+              // Choose Columns
+              exportOptions: {
+                columns: [0,1,2,3,4,5,6,7,8,9,10,11]
+              }
+          },
+          {
+            extend: 'excel',
+            text: '<i class="fa fa-solid fa-file-excel"></i>',
+            className: 'btn btn-secondary',
+            titleAttr: 'Export to Excel',
+            // Choose Columns
+            exportOptions: {
+              columns: [0,1,2,3,4,5,6,7,8,9,10,11]
+            }
+          },
+          {
+            extend: 'print',
+            text: '<i class="fa fa-solid fa-print"></i>',
+            className: 'btn btn-secondary',
+            titleAttr: 'Print Table',
+            // Choose Columns
+            exportOptions: {
+              columns: [0,1,2,3,4,5,6,7,8,9,10,11]
+            },
+            // Font size when printing
+            customize: function ( win ) {
+              $(win.document.body).css('font-size', '10pt')
+              $(win.document.body).find('table')
+                .addClass('compact')
+                .css('font-size', 'inherit');
+            }
+          },
+          {
+            extend: 'pdf',
+            text: '<i class="fa fa-solid fa-file-pdf"></i>',
+            className: 'btn btn-secondary',
+            titleAttr: 'Export to PDF',
+            orientation: 'landscape',
+            pageSize: 'A4',
+            
+            // Choose Columns
+            exportOptions: {
+              columns: [0,1,2,3,4,5,6,7,8,9,10,11]
+            },
+            
+            // center the table
+            tableHeader: {
+              alignment: 'left'
+            },
+            // Font size & Customization
+            customize: function (doc) {
+            //      doc.style.tableHeader.alignment = 'center'; // Header position 
+                 // doc.style.tableBodyOdd.alignment = 'center';
+                // doc.style.tableBodyEven.alignment = 'center';
+            //      doc.style.tableHeader.fontSize = 7;
+             //     doc.defaultStyle.fontSize = 6;
+            //      // TO GET 100% width on table
+                 doc.content[1].table.widths = Array(doc.content[1].table.body[1].length + 1).join('*').split('');
+            },
+            
+          },
+          {
+            extend: 'collection',
+            className: 'custom-html-collection',
+            buttons: [
+                '<h6>Export</h6>',
+                'csv',
+                '<h6 class="not-top-heading">Hide/Show Columns</h6>',
+                'colvis',
+            ]
+        }
+
+      ]
+  });
+</script>
+
+<!-- CHARTJS SCRIPT -->
+<script type="text/javascript" src="{% static 'scripts/chartjs.min.js' %}"></script>
+<script>
+  var ctx = document.getElementById("chartpie1").getContext("2d");
+
+  new Chart(ctx, {
+    type: "pie",
+    data: {
+      labels: ["M", "T", "W", "T", "F", "S", "S"],
+      datasets: [{
+        label: "Sales",
+        tension: 0.4,
+        borderWidth: 0,
+        borderRadius: 4,
+        borderSkipped: false,
+        backgroundColor: "rgba(255, 255, 255, .8)",
+        data: [50, 20, 10, 22, 50, 10, 40],
+        maxBarThickness: 6
+      }, ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false,
+        }
+      },
+      interaction: {
+        intersect: false,
+        mode: 'index',
+      },
+      scales: {
+        y: {
+          grid: {
+            drawBorder: false,
+            display: true,
+            drawOnChartArea: true,
+            drawTicks: false,
+            borderDash: [5, 5],
+            color: 'rgba(255, 255, 255, .2)'
+          },
+          ticks: {
+            suggestedMin: 0,
+            suggestedMax: 500,
+            beginAtZero: true,
+            padding: 10,
+            font: {
+              size: 14,
+              weight: 300,
+              family: "Roboto",
+              style: 'normal',
+              lineHeight: 2
+            },
+            color: "#fff"
+          },
+        },
+        x: {
+          grid: {
+            drawBorder: false,
+            display: true,
+            drawOnChartArea: true,
+            drawTicks: false,
+            borderDash: [5, 5],
+            color: 'rgba(255, 255, 255, .2)'
+          },
+          ticks: {
+            display: true,
+            color: '#f8f9fa',
+            padding: 10,
+            font: {
+              size: 14,
+              weight: 300,
+              family: "Roboto",
+              style: 'normal',
+              lineHeight: 2
+            },
+          }
+        },
+      },
+    },
+  });
+
+
+  var ctx2 = document.getElementById("chart-line").getContext("2d");
+
+  new Chart(ctx2, {
+    type: "line",
+    data: {
+      labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+      datasets: [{
+        label: "Mobile apps",
+        tension: 0,
+        borderWidth: 0,
+        pointRadius: 5,
+        pointBackgroundColor: "rgba(255, 255, 255, .8)",
+        pointBorderColor: "transparent",
+        borderColor: "rgba(255, 255, 255, .8)",
+        borderColor: "rgba(255, 255, 255, .8)",
+        borderWidth: 4,
+        backgroundColor: "transparent",
+        fill: true,
+        data: [50, 40, 300, 320, 500, 350, 200, 230, 500],
+        maxBarThickness: 6
+
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false,
+        }
+      },
+      interaction: {
+        intersect: false,
+        mode: 'index',
+      },
+      scales: {
+        y: {
+          grid: {
+            drawBorder: false,
+            display: true,
+            drawOnChartArea: true,
+            drawTicks: false,
+            borderDash: [5, 5],
+            color: 'rgba(255, 255, 255, .2)'
+          },
+          ticks: {
+            display: true,
+            color: '#f8f9fa',
+            padding: 10,
+            font: {
+              size: 14,
+              weight: 300,
+              family: "Roboto",
+              style: 'normal',
+              lineHeight: 2
+            },
+          }
+        },
+        x: {
+          grid: {
+            drawBorder: false,
+            display: false,
+            drawOnChartArea: false,
+            drawTicks: false,
+            borderDash: [5, 5]
+          },
+          ticks: {
+            display: true,
+            color: '#f8f9fa',
+            padding: 10,
+            font: {
+              size: 14,
+              weight: 300,
+              family: "Roboto",
+              style: 'normal',
+              lineHeight: 2
+            },
+          }
+        },
+      },
+    },
+  });
+
+  var ctx3 = document.getElementById("chart-line-tasks").getContext("2d");
+
+  new Chart(ctx3, {
+    type: "line",
+    data: {
+      labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+      datasets: [{
+        label: "Mobile apps",
+        tension: 0,
+        borderWidth: 0,
+        pointRadius: 5,
+        pointBackgroundColor: "rgba(255, 255, 255, .8)",
+        pointBorderColor: "transparent",
+        borderColor: "rgba(255, 255, 255, .8)",
+        borderWidth: 4,
+        backgroundColor: "transparent",
+        fill: true,
+        data: [50, 40, 300, 220, 500, 250, 400, 230, 500],
+        maxBarThickness: 6
+
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false,
+        }
+      },
+      interaction: {
+        intersect: false,
+        mode: 'index',
+      },
+      scales: {
+        y: {
+          grid: {
+            drawBorder: false,
+            display: true,
+            drawOnChartArea: true,
+            drawTicks: false,
+            borderDash: [5, 5],
+            color: 'rgba(255, 255, 255, .2)'
+          },
+          ticks: {
+            display: true,
+            padding: 10,
+            color: '#f8f9fa',
+            font: {
+              size: 14,
+              weight: 300,
+              family: "Roboto",
+              style: 'normal',
+              lineHeight: 2
+            },
+          }
+        },
+        x: {
+          grid: {
+            drawBorder: false,
+            display: false,
+            drawOnChartArea: false,
+            drawTicks: false,
+            borderDash: [5, 5]
+          },
+          ticks: {
+            display: true,
+            color: '#f8f9fa',
+            padding: 10,
+            font: {
+              size: 14,
+              weight: 300,
+              family: "Roboto",
+              style: 'normal',
+              lineHeight: 2
+            },
+          }
+        },
+      },
+    },
+  });
+</script>
+
+{% endblock %}

@@ -1,0 +1,315 @@
+
+{% extends "admin_base.html" %}
+{% load static %}
+
+
+{% block title %} Support System {% endblock %}
+
+{% block breadcrumb %} <a href="{% url 'admin_dashboard' %}">Admin Dashboard</a> {% endblock %}
+{% block breadcrumb_active %} Support {% endblock %}
+{% block dashboard_title %} Support Ticket System {% endblock %}
+
+{% block css %}
+
+<!-- DataTables LOCAL CSS -->
+<link rel="stylesheet" type="text/css" href="{% static 'DataTables/datatables.min.css' %}"/>   
+
+<style>
+  .flex-container {
+    display: flex;
+  }
+  
+  .flex-child {
+    flex: 1;
+  }  
+  
+  .flex-child:first-child {
+    margin-right: 5px;
+  } 
+  .flex-child:last-child {
+    margin-left: 5px;
+  } 
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+
+  <!-- Content Goes Here -->
+  
+  <div class="row mt-3 p-2">
+    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+      <div class="card">
+        <div class="card-header bg-secondary pt-2 pr-2 pb-0 pl-2">
+          <h4 class="text-light p-2">SUPPORT SYSTEM</h4>
+        </div>
+        <div class="card-body mt-0 pt-0">
+          <div class="p-5">
+            Support Ticket System is currently being developed to be rolled out in version 1.1 which is planned within approvximately 2 months time.
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+ 
+
+
+
+
+  <!-- Content Ends Here -->
+
+  
+
+ 
+{% endblock %}
+
+
+
+{% block scripts %}
+
+
+
+
+<!-- DATATables LOCAL JS -->
+<script defer type="text/javascript" src="{% static 'DataTables/datatables.min.js' %}"></script>   
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/v/bs5/jq-3.6.0/jszip-2.5.0/dt-1.12.1/b-2.2.3/b-colvis-2.2.3/b-html5-2.2.3/b-print-2.2.3/cr-1.5.6/kt-2.7.0/sp-2.0.2/datatables.min.js"></script>
+
+<script>
+    $("#allLoansTable").DataTable({
+        // DataTable configurations
+        paging: true,
+        pageLength: 10,
+        lengthChange: true,
+        autoWidth: true,
+        searching: true,
+        bInfo: true,
+        bSort: true,
+
+        dom: 'lBfrtip',
+        buttons: [
+            {
+                extend: 'copy',
+                text: '<i class="fa fa-solid fa-copy"></i>',
+                className: 'btn btn-secondary',
+                titleAttr: 'Copy Data',
+                // Choose Columns
+                exportOptions: {
+                  columns: [0,1,2,3,4,5,6,7,8]
+                }
+            },
+            {
+              extend: 'excel',
+              text: '<i class="fa fa-solid fa-file-excel"></i>',
+              className: 'btn btn-secondary',
+              titleAttr: 'Export to Excel',
+              // Choose Columns
+              exportOptions: {
+                columns: [0,1,2,3,4,5,6,7,8]
+              }
+            },
+            {
+              extend: 'print',
+              text: '<i class="fa fa-solid fa-print"></i>',
+              className: 'btn btn-secondary',
+              titleAttr: 'Print Table',
+              // Choose Columns
+              exportOptions: {
+                columns: [0,1,2,3,4,5,6,7,8]
+              },
+              // Font size when printing
+              customize: function ( win ) {
+                $(win.document.body).css('font-size', '10pt')
+                $(win.document.body).find('table')
+                  .addClass('compact')
+                  .css('font-size', 'inherit');
+              }
+            },
+            {
+              extend: 'pdf',
+              text: '<i class="fa fa-solid fa-file-pdf"></i>',
+              className: 'btn btn-secondary',
+              titleAttr: 'Export to PDF',
+              orientation: 'landscape',
+              pageSize: 'A4',
+              
+              // Choose Columns
+              exportOptions: {
+                columns: [0,1,2,3,4,5,6,7,8]
+              },
+              
+              // center the table
+              tableHeader: {
+                alignment: 'left'
+              },
+              // Font size & Customization
+              customize: function (doc) {
+              //      doc.style.tableHeader.alignment = 'center'; // Header position 
+                   // doc.style.tableBodyOdd.alignment = 'center';
+                  // doc.style.tableBodyEven.alignment = 'center';
+              //      doc.style.tableHeader.fontSize = 7;
+               //     doc.defaultStyle.fontSize = 6;
+              //      // TO GET 100% width on table
+                   doc.content[1].table.widths = Array(doc.content[1].table.body[1].length + 1).join('*').split('');
+              },
+              
+            },
+            {
+              extend: 'collection',
+              className: 'custom-html-collection',
+              buttons: [
+                  '<h6>Export</h6>',
+                  'csv',
+                  '<h6 class="not-top-heading">Hide/Show Columns</h6>',
+                  'colvis',
+              ]
+          }
+
+        ]
+    });
+</script>
+
+
+
+<!-- CHART JS -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+
+<script>
+  const lb_data = {
+    labels: {{ labels|safe }},
+    datasets: [{
+      label: 'Loan Breakup',
+      data: [{{ data.0 }}, {{ data.1 }},{{ data.2 }}, {{ data.3 }}],
+      backgroundColor: [
+        'rgb(25, 123, 252)',
+        'rgb(252, 40, 252)',
+        'rgb(255, 192, 35)',
+        'rgb(8, 214, 8)',
+
+      ],
+      hoverOffset: 4
+    }]
+  };
+
+  const lb_config = {
+    type: 'doughnut',
+    data: lb_data,
+  };
+
+  const loanbreakupdj = new Chart(
+    document.getElementById('loanbreakupdj'),
+    lb_config
+  );
+
+</script>
+
+<!---- DUMMY CHARTS -->
+
+<!-- CHART JS DUMMY PIE CHART -->
+
+<script>
+  const data = {
+    labels: [
+      'SME',
+      'Personal',
+      'General'
+    ],
+    datasets: [{
+      label: 'My First Dataset',
+      data: [300, 50, 100],
+      backgroundColor: [
+        'rgb(255, 99, 132)',
+        'rgb(54, 162, 235)',
+        'rgb(255, 205, 86)'
+      ],
+      hoverOffset: 4
+    }]
+  };
+  const config = {
+    type: 'doughnut',
+    data: data,
+  };
+
+  const dummypie = new Chart(
+    document.getElementById('dummypie'),
+    config
+  );
+</script>
+
+<script>
+  const datax = {
+    labels: [
+      'Port Moresby',
+      'Wabag',
+      'Mt Hagen'
+    ],
+    datasets: [{
+      label: 'My First Dataset',
+      data: [300, 50, 100],
+      backgroundColor: [
+        'rgb(255, 99, 132)',
+        'rgb(54, 162, 235)',
+        'rgb(255, 205, 86)'
+      ],
+      hoverOffset: 4
+    }]
+  };
+  const configx = {
+    type: 'pie',
+    data: datax,
+  };
+
+  const dummydnut = new Chart(
+    document.getElementById('dummydnut'),
+    configx
+  );
+</script>
+
+
+<!-- CHART JS DUMMY -->
+<script>
+const ctx = document.getElementById('dummy1CJS').getContext('2d');
+const myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: ['Pending', 'Running', 'Defaulted', 'Recovery', 'Bad'],
+        datasets: [{
+            label: '# of Loans',
+            data: [12, 19, 3, 5, 2],
+            backgroundColor: [
+              'rgba(54, 162, 235, 0.2)',
+              'rgba(75, 192, 192, 0.2)',   
+              'rgba(255, 206, 86, 0.2)',
+              'rgba(255, 159, 64, 0.2)',
+              'rgba(255, 99, 132, 0.2)',
+            ],
+            borderColor: [
+                'rgba(54, 162, 235, 1)',
+                'rgba(75, 192, 192, 1)',   
+                'rgba(255, 206, 86, 1)',
+                'rgba(255, 159, 64, 1)',
+                'rgba(255, 99, 132, 1)',
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
+
+
+
+
+
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends "dashboard_base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %} Profile {% endblock %}
+
+{% block breadcrumb %} <a href="{% url 'dashboard' %}">Dashboard</a>  /  <a href="{% url 'profile' %}">Profile</a> {% endblock %}
+{% block breadcrumb_active %} Upload {% endblock %}
+{% block dashboard_title %} Upload Required Files {% endblock %}
+
+
+
+{% block content %}
+
+
+  <!-- Content Goes Here -->
+
+  
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <label class="form-label">NID</label>
+    <input type="file" name="personalid" class="form-control">
+    <button type="submit" class="btn btn-sm btn-success">Upload</button>
+  </form>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    
+    <label class="form-label">Passport</label>
+    <input type="file" name="passportid" class="form-control">
+    
+    <button type="submit" class="btn btn-sm btn-success">Upload</button>
+  </form>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    
+    <label class="form-label">Drivers License</label>
+    <input type="file" name="drivers_license" class="form-control">
+    
+    <button type="submit" class="btn btn-sm btn-success">Upload</button>
+  </form>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    
+    <input type="file" name="superid" class="form-control">
+    <button type="submit" class="btn btn-sm btn-success">Upload</button>
+  </form>
+
+
+  {% if uploaded_file_url %}
+    <p>File uploaded at: <a href="{{ nid_url }}">{{ nid_url }}</a></p>
+  {% endif %}
+
+
+    
+  
+ 
+  
+
+
+
+
+  <!-- Content Ends Here -->
+  
+
+ 
+{% endblock %}
+
+

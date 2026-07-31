@@ -1,0 +1,158 @@
+{% extends base_template %}
+{% load finance_formats %}
+
+{% block title %} Client Credits {% endblock %}
+{% block breadcrumb_active %} Client Credits {% endblock %}
+{% block dashboard_title %} Client Credits {% endblock %}
+
+{% block css %}
+  {{ block.super }}
+  <style>
+    .cc-cards { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:1rem; }
+    @media (max-width:900px){ .cc-cards{ grid-template-columns:1fr; } }
+    .cc-card { background:#fff; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,.06); padding:14px 16px; }
+    .cc-card .l { font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#8a94a6; }
+    .cc-card .v { font-size:1.3rem; font-weight:800; color:#28324a; }
+    .cc-tbl td, .cc-tbl th { vertical-align:middle; font-size:.85rem; }
+  </style>
+{% endblock %}
+
+{% block content %}
+<div class="row mt-3">
+  <div class="col-12">
+
+    <div class="cc-cards">
+      <div class="cc-card" style="border-left:4px solid #e2536a;">
+        <div class="l">Owing to Clients</div>
+        <div class="v">K {{ total_owing|currency }}</div>
+        <div class="text-secondary" style="font-size:.75rem;">{{ owing|length }} credit(s) not yet refunded</div>
+      </div>
+      <div class="cc-card" style="border-left:4px solid #6bb10d;">
+        <div class="l">Refunded</div>
+        <div class="v">K {{ total_refunded|currency }}</div>
+        <div class="text-secondary" style="font-size:.75rem;">{{ refunded|length }} credit(s) already returned</div>
+      </div>
+      <div class="cc-card d-flex align-items-center justify-content-between">
+        <div>
+          <div class="l">Export</div>
+          <div class="text-secondary" style="font-size:.75rem;">Full listing incl. refunded</div>
+        </div>
+        <a href="?download=csv" class="btn btn-sm btn-success mb-0"><i class="fa fa-file-csv"></i> CSV</a>
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header bg-secondary pt-2 pb-0 pl-2 d-flex justify-content-between align-items-center">
+        <h5 class="text-light mb-0 pt-1 pb-1">Owing to Clients</h5>
+        <span class="badge bg-light text-dark">{{ owing|length }}</span>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-sm table-hover cc-tbl mb-0">
+            <thead class="table-light">
+              <tr>
+                <th class="ps-3">Client</th><th>Loan Ref</th><th class="text-end">Amount</th>
+                <th>Reason</th><th>Note</th><th>Created</th>
+                <th class="text-center" style="min-width:320px;">Mark Refunded</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for c in owing %}
+              <tr>
+                <td class="ps-3 fw-bold">{{ c.owner }}</td>
+                <td>
+                  {% if c.loan %}
+                    {% if portal == 'admin' %}
+                      <a href="{% url 'view_loan' c.loan.ref %}">{{ c.loan.ref }}</a>
+                    {% else %}
+                      <a href="{% url 'view_loan_staff' c.loan.ref %}">{{ c.loan.ref }}</a>
+                    {% endif %}
+                    {% if c.loan.funded_category == 'AWAITING_REFUND' %}
+                      <span class="badge bg-warning text-dark">Awaiting Refund</span>
+                    {% endif %}
+                  {% else %}
+                    &mdash;
+                  {% endif %}
+                </td>
+                <td class="text-end fw-bold text-danger">K {{ c.amount|currency }}</td>
+                <td>{{ c.get_reason_display }}</td>
+                <td>{{ c.note|default:"—" }}</td>
+                <td>{{ c.created_at|sdate }}</td>
+                <td class="text-center">
+                  <form method="post" enctype="multipart/form-data"
+                        class="d-flex gap-1 justify-content-center align-items-center flex-wrap"
+                        onsubmit="return confirm('Mark K{{ c.amount }} for {{ c.owner }} as refunded?');">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="mark_refunded">
+                    <input type="hidden" name="credit_id" value="{{ c.pk }}">
+                    <input type="date" name="refunded_at" class="form-control form-control-sm" style="max-width:135px;">
+                    <input type="text" name="refund_note" class="form-control form-control-sm" placeholder="ref / note" style="max-width:110px;">
+                    <input type="file" name="refund_receipt" class="form-control form-control-sm" style="max-width:150px;">
+                    <button type="submit" class="btn btn-sm btn-outline-success py-0 px-2 mb-0">Refunded</button>
+                  </form>
+                </td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="7" class="text-center text-muted p-3">No client credits owing — all clear.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header bg-secondary pt-2 pb-0 pl-2 d-flex justify-content-between align-items-center">
+        <h5 class="text-light mb-0 pt-1 pb-1">Refunded</h5>
+        <span class="badge bg-light text-dark">{{ refunded|length }}</span>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-sm table-hover cc-tbl mb-0">
+            <thead class="table-light">
+              <tr>
+                <th class="ps-3">Client</th><th>Loan Ref</th><th class="text-end">Amount</th>
+                <th>Refunded On</th><th>Note</th><th>Receipt</th><th class="text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for c in refunded %}
+              <tr class="table-success">
+                <td class="ps-3">{{ c.owner }}</td>
+                <td>{{ c.loan.ref|default:"—" }}</td>
+                <td class="text-end">K {{ c.amount|currency }}</td>
+                <td>{{ c.refunded_at|sdate }}</td>
+                <td>{{ c.refund_note|default:"—" }}</td>
+                <td>
+                  {% if c.refund_receipt %}
+                    <a href="{{ c.refund_receipt.url }}" target="_blank"><i class="fa fa-file-arrow-down"></i> View</a>
+                  {% else %}—{% endif %}
+                </td>
+                <td class="text-center">
+                  <form method="post" class="d-inline" onsubmit="return confirm('Move this back to owing?');">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="unmark_refunded">
+                    <input type="hidden" name="credit_id" value="{{ c.pk }}">
+                    <button type="submit" class="btn btn-sm btn-outline-secondary py-0 px-2 mb-0">Undo</button>
+                  </form>
+                </td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="7" class="text-center text-muted p-3">No refunds recorded yet.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <p class="text-muted mt-2" style="font-size:.8rem;">
+      <i class="fa fa-circle-info me-1"></i>
+      Credits appear here automatically whenever a closing payment overpays a loan's outstanding balance
+      (e.g. an external refinance payoff for more than was actually owed). The loan is parked as
+      <strong>Awaiting Refund</strong> and stays open until the credit is marked refunded here, or staff
+      explicitly attribute it to the client's account and close the loan from the loan page.
+    </p>
+  </div>
+</div>
+{% endblock %}

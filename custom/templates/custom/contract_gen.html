@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Loan Contract</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 16px; color: #222; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .logo { width: 180px; margin-bottom: 10px; }
+        .section-title { font-weight: bold; margin-top: 20px; }
+        .signatures { margin-top: 40px; display: flex; justify-content: space-between; }
+        .signature-block { text-align: center; width: 30%; }
+        ol.terms { margin-left: 20px; }
+        .content { margin-left: 20px; margin-right:20px; font-size: 16px; }
+        .term-item { margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="{{domain}}/static/img/logo.png" class="logo" alt="{{settings.COMPANY_NAME}} logo">
+        <h2>Loan Contract</h2>
+        <p>Borrower acknowledgement and agreement</p>
+    </div>
+    <div class="content">
+    <p>By signing below, I acknowledge and agree to the following:</p>
+    <ol class="terms">
+        <li class="term-item">I certify that all the information provided in this loan application is true and accurate. I authorize {{settings.COMPANY_NAME}} to obtain and disclose information about me to any reference source credit reporting agency, or third party for due diligence and risk management purposes.</li>
+        <li class="term-item">I confirm that the details provided in this application are correct to the best of my knowledge. I authorize {{settings.COMPANY_NAME}} to use the information, including my bank account details, for processing and approving my loan application.</li>
+        <li class="term-item">I warrant that the bank account details (bank, branch, account number and account name) provided in the Section C - Account Detail section is accurate. This account will be used by {{settings.COMPANY_NAME}} for loan disbursement and any future redraws or releases.</li>
+        <li class="term-item">I confirm that I have carefully read and understood the terms of the loan agreement and agree to abide by all its terms and conditions.</li>
+        <li class="term-item">I accept full responsibility for any costs incurred by {{settings.COMPANY_NAME}} in relation to the preparation, negotiation or recovery of this loan, including legal and administrative fees, on a full indemnity basis.</li>
+        <li class="term-item">I acknowledge that a default fee of K{{default_fee}} and a default interest rate of {{default_interest_rate}}% per annum will be applied to my loan account each month from the time I fail to make a payment until all arrears are cleared.</li>
+        <li class="term-item">I authorize {{settings.COMPANY_NAME}} to deduct the outstanding balance of any previous loans from the proceeds of this loan.</li>
+        <li class="term-item">I consent to the release of my financial information held by {{settings.COMPANY_NAME}} to a Credit Data Bureau regarding credit facility.</li>
+        <li class="term-item">I accept all terms and conditions outlined here and also sign this statutory Declaration Form to comply with {{settings.COMPANY_NAME}} lending policies and repay the principal amount borrowed here with interest over the given term of repayment for the amount borrowed here.</li>
+        <li class="term-item">I would also agree and sign this loan contract with {{settings.COMPANY_NAME}} that if anything happens to me in the process of repaying this loan then I allow my employer, Human Resource Department as well as my account keeping bank to clear the amount(s) owed by me to {{settings.COMPANY_NAME}}.</li>
+        <li class="term-item">I sign here in the presence of {{settings.COMPANY_NAME}} Management, to accept their lending requirements, policies, guidelines and agree to pay the principal lending amount which is given to me on the stated date and repay the principal amount with interest over the term of given pay period endings here.</li>
+    </ol>
+    </div>
+
+    <div class="signatures">
+        <div class="signature-block">
+            <div>..................................................</div>
+            <div style="margin-top: 10px;">{{ user.first_name }} {{ user.last_name }}</div>
+            <div>(Client)</div>
+        </div>
+        <div class="signature-block">
+            <div style="height:40px;">{% if officer.signature %}<img src="{{ officer.signature.path }}" style="height:40px;" alt="signature">{% endif %}</div>
+            <div>..................................................</div>
+            <div style="margin-top: 10px;">{% if officer %}{{ officer.user.first_name }} {{ officer.user.last_name }}{% endif %}</div>
+            <div>(Lending Officer)</div>
+        </div>
+        <div class="signature-block">
+            <div style="height:40px;"></div>
+            <div>..................................................</div>
+            <div>(Approving Manager)</div>
+        </div>
+    </div>
+
+    <div class="section-title">Comments:</div>
+    <div style="min-height: 40px;"></div>
+
+</body>
+</html>

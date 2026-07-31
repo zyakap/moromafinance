@@ -1,0 +1,71 @@
+{% extends 'website/website_base.html' %}
+{% load static %}
+
+{% block title %}Moroma Finance Flyer — Loan Services at a Glance{% endblock %}
+{% block meta_desc %}Moroma Finance at a glance: personal loans, refinancing and special offers for trusted clients. Cash loan with the touch of your phone.{% endblock %}
+
+{% block hero %}
+<section class="page-hero">
+  <div class="container">
+    <span class="eyebrow"><i class="bi bi-file-earmark-text-fill"></i> Our Flyer</span>
+    <h1>Moroma Finance at a glance</h1>
+    <p>Everything we offer, on one page — share it with a workmate, wantok or friend.</p>
+  </div>
+</section>
+{% endblock %}
+
+{% block content %}
+
+<section class="section">
+  <div class="container" style="max-width:860px;">
+
+    <!-- Digital flyer card -->
+    <div class="reveal" style="border-radius:28px; overflow:hidden; box-shadow:var(--d-shadow-lg); border:1px solid var(--d-line);">
+
+      <!-- Flyer head -->
+      <div style="background:linear-gradient(120deg,var(--d-orange),var(--d-orange-600)); padding:2.5rem 2.5rem 3rem; color:#fff; position:relative; overflow:hidden;">
+        <div style="position:absolute; width:240px; height:240px; border-radius:50%; background:rgba(255,255,255,.14); right:-70px; top:-90px;"></div>
+        <div style="font-family:var(--font-head); font-weight:600; letter-spacing:.18em; font-size:.75rem; text-transform:uppercase; position:relative;">Moroma Finance Ltd</div>
+        <h2 style="color:#fff; font-size:clamp(2.2rem,6vw,3.4rem); font-weight:800; margin:.5rem 0 .6rem; position:relative;">MOROMA FINANCE</h2>
+        <p style="font-style:italic; font-size:1.1rem; margin:0; max-width:34ch; position:relative;">Become a trusted Client to benefit from our special offers.</p>
+      </div>
+
+      <!-- Flyer body -->
+      <div style="background:#fff; padding:2.5rem;">
+        <div class="split" style="gap:2rem; align-items:center;">
+          <div>
+            <h3 style="font-size:1.5rem; margin:0 0 1.2rem;">Loan Services</h3>
+            <ul class="checklist" style="margin:0;">
+              <li><i class="bi bi-circle-fill" style="color:var(--d-orange); font-size:.6rem; margin-top:.5rem;"></i> <span><strong>Personal Loan</strong></span></li>
+              <li><i class="bi bi-circle-fill" style="color:var(--d-orange); font-size:.6rem; margin-top:.5rem;"></i> <span><strong>Refinancing</strong></span></li>
+              <li><i class="bi bi-circle-fill" style="color:var(--d-orange); font-size:.6rem; margin-top:.5rem;"></i> <span><strong>Interest set by our repayment schedule</strong></span></li>
+              <li><i class="bi bi-circle-fill" style="color:var(--d-orange); font-size:.6rem; margin-top:.5rem;"></i> <span><strong>Special Offers</strong> for our trusted clients. <em>(T&amp;C apply)</em></span></li>
+            </ul>
+          </div>
+          <div style="display:grid; place-items:center;">
+            <div class="hero-disc" style="width:min(230px,80%);"><img src="{% static 'clientfiles/moroma_logo.svg' %}" alt="Moroma Finance"></div>
+          </div>
+        </div>
+
+        <div style="margin-top:2.5rem; padding-top:2rem; border-top:1px solid var(--d-line);">
+          <h3 style="font-size:1.35rem; margin:0 0 .4rem;">Cash loan with the touch of your phone.</h3>
+          <p class="text-muted2" style="margin:0 0 1.6rem;">Apply online in minutes — no queues, no paperwork.</p>
+
+          <h4 style="font-size:1.05rem; margin:0 0 .9rem;">Contact Info:</h4>
+          <div class="f-contact" style="color:var(--d-ink-2);">
+            <div><i class="bi bi-globe" style="color:var(--d-orange);"></i><a href="mailto:sales@moromafinance.com.pg">sales@moromafinance.com.pg</a></div>
+            <div><i class="bi bi-telephone-fill" style="color:var(--d-orange);"></i><span><a href="tel:+67570107473">7010 7473</a> &nbsp;/&nbsp; <a href="tel:+67583029377">8302 9377</a></span></div>
+          </div>
+
+          <div class="hero-actions" style="margin-top:1.8rem;">
+            <a href="{% url 'register' %}" class="btn-d btn-orange btn-lg">Apply Now <i class="bi bi-arrow-right"></i></a>
+            <a href="javascript:window.print()" class="btn-d btn-ghost btn-lg"><i class="bi bi-printer"></i> Print this page</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,118 @@
+{% extends "admin_base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %} Credit Check Settings {% endblock %}
+
+{% block breadcrumb %} <a href="{% url 'admin_dashboard' %}">Admin</a> / <a href="{% url 'admin_settings_general' %}">Settings</a> {% endblock %}
+{% block breadcrumb_active %} Credit Check {% endblock %}
+{% block dashboard_title %} Settings {% endblock %}
+
+
+
+{% block content %}
+
+  <div class="sx-wrap">
+    <div>
+      {% include "settings_nav.html" %}
+      <div class="card sx-card">
+        <div class="card-header sx-head">
+          <div class="sx-ico"><i class="fa fa-shield-halved"></i></div>
+          <div><h5>Credit Check Settings</h5><p>Approval rules, repayment limits, default interest and automatic classification.</p></div>
+        </div>
+        <div class="card-body pt-3 p-3">
+          <form method="post">
+            {% csrf_token %}
+
+            <div class="alert alert-light border mb-3" style="font-size:.85rem;">
+              <i class="fa fa-shield-halved me-1"></i>
+              DCC credit bureau options (pay-per-view credit checks, benchmark-score automation)
+              have moved to <a href="{% url 'admin_settings_dcc' %}">Settings &rarr; DCC</a>.
+            </div>
+
+            <h6 class="sx-sec">Automatic Credit Check</h6>
+            <div class="row g-2 mb-3">
+              <div class="col-md-4">{{ credit_form.credit_check|as_crispy_field }}</div>
+              <div class="col-md-4">{{ credit_form.approval_credit_threshold|as_crispy_field }}</div>
+              <div class="col-md-4">{{ credit_form.percentage_of_gross|as_crispy_field }}</div>
+            </div>
+
+            <h6 class="sx-sec">Repayment Limit</h6>
+            <div class="row g-2 mb-3">
+              <div class="col-md-4">{{ credit_form.default_repayment_limit|as_crispy_field }}</div>
+              <div class="col-md-4">{{ credit_form.minimum_repayment_limit|as_crispy_field }}</div>
+              <div class="col-md-4">{{ credit_form.repayment_limit_check_enabled|as_crispy_field }}</div>
+              <div class="col-md-4">{{ credit_form.bypass_activation_check|as_crispy_field }}</div>
+            </div>
+
+            <h6 class="sx-sec">Default Interest</h6>
+            <div class="row g-2 mb-3">
+              <div class="col-md-4">{{ credit_form.default_interest_type|as_crispy_field }}</div>
+              <div class="col-md-4">
+                {{ credit_form.default_interest_rate|as_crispy_field }}
+                <p id="rate-hint" class="text-muted" style="font-size:.78rem;margin-top:-8px;"></p>
+              </div>
+              <div class="col-md-4">
+                {{ credit_form.default_interest_calculation_mercy_days|as_crispy_field }}
+                <p class="text-muted" style="font-size:.78rem;margin-top:-8px;">
+                  Days after the payment due date before the automatic classifier applies default interest to the loan.
+                </p>
+              </div>
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-md-6">
+                {{ credit_form.default_interest_base|as_crispy_field }}
+                <p class="text-muted" style="font-size:.78rem;margin-top:-8px;">
+                  Shortfall charges percentage default interest only on the unpaid portion of the repayment
+                  (after netting any advance balance). Full charges it on the entire scheduled repayment.
+                </p>
+              </div>
+              <div class="col-md-6">
+                {{ credit_form.auto_default_on_shortfall|as_crispy_field }}
+                <p class="text-muted" style="font-size:.78rem;margin-top:-8px;">
+                  When on, a payment that is LESS than the scheduled repayment automatically defaults the
+                  unpaid shortfall (default interest on the shortfall + shortfall added to arrears).
+                </p>
+              </div>
+            </div>
+
+            <h6 class="sx-sec">Automatic Default Classification</h6>
+            <div class="row g-2 mb-3">
+              <div class="col-md-12">
+                {{ credit_form.auto_classify_default|as_crispy_field }}
+                <p class="text-muted" style="font-size:.8rem;margin-top:-6px;">
+                  <span class="material-icons align-middle" style="font-size:.9rem;">info</span>
+                  When <strong>ON</strong>, a Celery scheduled task checks all active loans and automatically applies default interest, updates balances, creates a statement entry, and emails the client — once the mercy period (days above) has elapsed with no payment recorded.
+                  When <strong>OFF</strong>, defaults must be registered manually via the loan view.
+                </p>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary"><i class="fa fa-save me-1"></i> Save Credit Check Settings</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var intTypeSelect = document.getElementById('id_default_interest_type');
+  var rateHint = document.getElementById('rate-hint');
+
+  function updateRateHint() {
+    if (!intTypeSelect || !rateHint) return;
+    if (intTypeSelect.value === 'PERCENTAGE') {
+      rateHint.textContent = 'Enter as a percentage, e.g. 20 = 20% of the missed repayment amount.';
+    } else {
+      rateHint.textContent = 'Enter a flat kina amount, e.g. 50 = K50.00 charged per default event.';
+    }
+  }
+
+  if (intTypeSelect) intTypeSelect.addEventListener('change', updateRateHint);
+  updateRateHint();
+});
+</script>
+{% endblock %}

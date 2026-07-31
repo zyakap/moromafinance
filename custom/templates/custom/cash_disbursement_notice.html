@@ -1,0 +1,234 @@
+{% load finance_formats %}
+{% load site_filter %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Cash Disbursement Notice - {{ loan.ref }}</title>
+  <style>
+    :root {
+      --doc-primary: {{ document_theme.primary_color|default:'#344767' }};
+      --doc-header: {{ document_theme.topbar_color|default:'#344767' }};
+      --doc-dark: {{ document_theme.sidebar_bg_color|default:'#1f2a44' }};
+    }
+    @page { size: A4; margin: 0; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #fff; }
+    body {
+      color: #000;
+      font-family: "{{ document_theme.font_family|default:'Roboto' }}", Arial, sans-serif;
+      font-size: 11pt;
+      line-height: 1.22;
+    }
+    .page {
+      position: relative;
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto;
+      background: #fff;
+      overflow: hidden;
+    }
+    .document-header {
+      width: 190mm;
+      min-height: 24mm;
+      margin: 10mm auto 0;
+      padding: 3mm 4mm;
+      border-bottom: 1mm solid var(--doc-primary);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .document-header img {
+      display: block;
+      max-width: 80mm;
+      max-height: 21mm;
+      width: auto;
+      height: auto;
+    }
+    .brand-name {
+      color: var(--doc-header);
+      font-size: 18pt;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+    .document-name {
+      color: var(--doc-dark);
+      font-size: 8pt;
+      font-weight: 700;
+      text-align: right;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+    .letter {
+      width: 164mm;
+      margin: 8mm auto 0;
+    }
+    p { margin: 0; }
+    .center { text-align: center; }
+    .date { margin-bottom: 6.8mm; }
+    .recipient { text-align: center; margin-bottom: 6.4mm; }
+    .recipient p { margin-bottom: 1.3mm; }
+    .employer, .blue { color: var(--doc-primary); }
+    h1 {
+      display: table;
+      margin: 0 auto 6.8mm;
+      border-bottom: 0.25mm solid #000;
+      font-size: 11pt;
+      line-height: 1.15;
+      font-weight: 700;
+    }
+    .underline {
+      border-bottom: 0.25mm solid var(--doc-primary);
+      font-weight: 700;
+    }
+    .employee-file { margin-top: 6.5mm; }
+    .note { margin-top: 9.4mm; }
+    .message { margin-top: 6.8mm; text-align: center; }
+    .loan-details, .bank-details {
+      border-collapse: collapse;
+      margin-left: 12.7mm;
+    }
+    .loan-details { margin-top: 7.1mm; }
+    .bank-details { margin-top: 5.1mm; }
+    th, td {
+      height: 5.16mm;
+      padding: 0;
+      font-size: 11pt;
+      line-height: 1.1;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { width: 76.2mm; font-weight: 700; }
+    td { width: 70mm; font-weight: 700; }
+    .deduction-row {
+      margin-top: 7.9mm;
+      margin-left: 12.7mm;
+    }
+    .deduction-label { font-weight: 700; display: inline; }
+    .code-boxes { display: inline-block; margin-left: 10mm; vertical-align: middle; }
+    .code {
+      display: inline-block;
+      width: 7mm;
+      height: 7mm;
+      line-height: 7mm;
+      text-align: center;
+      font-weight: 700;
+      font-size: 11pt;
+      color: #fff;
+      background: var(--doc-header);
+      margin-right: 1mm;
+    }
+    .thanks { margin-top: 6.8mm; }
+    .closing { margin-top: 6.8mm; line-height: 1.23; }
+    strong { font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="document-header">
+      <div>
+        {% if document_theme.brand_logo_data_uri %}
+          <img src="{{ document_theme.brand_logo_data_uri }}" alt="{{ document_theme.brand_name }} logo">
+        {% elif document_theme.brand_logo_url %}
+          <img src="{{ document_theme.brand_logo_url }}" alt="{{ document_theme.brand_name }} logo">
+        {% else %}
+          <div class="brand-name">{{ document_theme.brand_name|default:"LoanMasta" }}</div>
+        {% endif %}
+      </div>
+      <div class="document-name">Cash Disbursement Notice</div>
+    </header>
+
+    <section class="letter">
+      <p class="center date">{{ today }}</p>
+
+      <div class="recipient">
+        <p>HR/Payroll Section</p>
+        {% if user.payroll_officer_name %}<p><strong>{{ user.payroll_officer_name|upper }}</strong></p>{% endif %}
+        <p class="employer"><strong>{{ user.employer|upper }}</strong></p>
+        <p>{% if user.office_address %}{{ user.office_address }}{% else %}Port Moresby{% endif %}</p>
+      </div>
+
+      <h1>LOAN DISBURSEMENT NOTIFICATION</h1>
+
+      <p class="center">
+        <strong>Client:</strong>
+        <span class="blue underline">{{ user.first_name|upper }} {{ user.last_name|upper }}</span>
+      </p>
+
+      {% if user.employee_file_number %}
+      <p class="center employee-file">
+        <strong>Employee File Number:</strong>
+        <span class="blue underline">{{ user.employee_file_number }}</span>
+      </p>
+      {% endif %}
+
+      <p class="center note"><strong><u>Note</u></strong>:</p>
+
+      <p class="message">
+        We submit to your office to Effect Salary Deduction on the above Loan Client's loan<br>
+        request has been disbursed <strong><u>today</u></strong> - {{ funding_date }}.
+      </p>
+
+      <table class="loan-details">
+        <tbody>
+          <tr>
+            <th>Loan Amount Disbursed:</th>
+            <td>K{{ disbursed_amount|currency }}</td>
+          </tr>
+          <tr>
+            <th>Repayment Per Fortnight:</th>
+            <td>K{{ loan.repayment_amount|currency }}</td>
+          </tr>
+          <tr>
+            <th>Number of Fortnights:</th>
+            <td>{{ loan.number_of_fortnights }}</td>
+          </tr>
+          <tr>
+            <th>Salary Deduction Effective Date:</th>
+            <td>{{ first_repayment_date }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="deduction-row">
+        <span class="deduction-label">Deduction Code:</span>
+        <span class="code-boxes">
+          {% for character in deduction_code %}
+            <span class="code">{{ character }}</span>
+          {% empty %}
+            <span class="code">—</span>
+          {% endfor %}
+        </span>
+      </div>
+
+      <table class="bank-details">
+        <tbody>
+          <tr>
+            <th>Bank Name:</th>
+            <td>{{ bank_name }}</td>
+          </tr>
+          <tr>
+            <th>Account Name:</th>
+            <td>{{ bank_account_name }}</td>
+          </tr>
+          <tr>
+            <th>Account Number:</th>
+            <td>{{ bank_account_number }}</td>
+          </tr>
+          <tr>
+            <th>Branch:</th>
+            <td>{{ bank_branch }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p class="thanks">Thank you for your cooperation and together we can serve your staff in times of need.</p>
+
+      <p class="closing">
+        Best regards<br>
+        <strong>{{ document_theme.brand_name|default:"LoanMasta" }}</strong>
+      </p>
+    </section>
+  </div>
+</body>
+</html>

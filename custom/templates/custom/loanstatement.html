@@ -1,0 +1,162 @@
+
+{% load humanize %}
+{% load finance_formats %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=yes">
+  <title>
+    
+  </title>
+  <!-- CSS Files -->
+  <link href="{{ domain }}/static/assets/css/material_icons.css" rel="stylesheet" />
+  <link id="pagestyle" href="{{ domain }}/static/assets/css/material-dashboard.min.css" rel="stylesheet" />
+  
+</head>
+
+<body class="bg-gray-200">
+
+
+      <h4 class="text-center bg-primary text-light">{{ user.first_name.upper }} {% if user.middle_name.upper %}{{ user.middle_name.upper }}{% endif %} {{ user.last_name }}{% if last_name_s.upper == 'S' %}'{% else %}'s{% endif %} - LOAN INFORMATION</h4>
+        <div class="row">
+            <div class="col-4">
+                <div class="card p-3">
+                    <p class="p-0 m-0">Name: <span class="text-primary"><b>{{ user.first_name }} {% if user.middle_name %}{{ user.middle_name }}{% endif %} {{ user.last_name }}</span></b></p>
+                    <p class="p-0 m-0">Employer: <span class="text-primary"><b>{{ user.employer }}</span></b></p>
+                    <p class="p-0 m-0">Contact #: <span class="text-primary"><b>{{ user.mobile1 }}{% if user.mobile2 %} / {{ user.mobile2 }}{% endif %}</span></b></p>
+                    <p class="p-0 m-0">Email: <span class="text-primary"><b>{{ usr.email }}</span></b></p>
+                    <p class="p-0 m-0">Repayment Start: <span class="text-primary"><b>{{ loan.repayment_start_date }}</span></b></p>
+                    <p class="p-0 m-0">Expected End: <span class="text-primary"><b>{{ loan.expected_end_date }}</span></b></p> 
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="card p-3">
+                    <p class="p-0 m-0">Loan Amount: <span class="text-primary"><b>K {{ loan.amount|default_if_none:"0"|currency }}</span></b></p>
+                    <p class="p-0 m-0">Total Interest: <span class="text-primary"><b>K {{ loan.interest|default_if_none:"0"|currency }}</span></b></p>
+                    <p class="p-0 m-0">Application Fee: <span class="text-primary"><b>K {{ loan.application_fee|default_if_none:"0"|currency }}</span></b></p>
+                    <p class="p-0 m-0">Total Loan Amount: <span class="text-primary"><b>K {{ loan.total_loan_amount|default_if_none:"0"|currency }}</span></b></p>
+                    <p class="p-0 m-0">Repayment Amount: <span class="text-primary"><b>K {{ loan.repayment_amount|default_if_none:"0"|currency }}</span></b></p>
+                    <p class="p-0 m-0">Fortnights: <span class="text-primary"><b>{{ loan.number_of_fortnights }} fns</span></b></p>
+                </div>
+            </div>
+        </div>
+      
+        <div class="row">
+            <div class="col-4">
+                <div class="card p-3">
+                    <p class="p-0 m-0">Yet to be Paid: <span class="text-primary"><b>K {{ loan.amount_remaining|default_if_none:"0"|currency }}</span></b></p>
+                    <p class="p-0 m-0">Total Paid to Date: <span class="text-primary"><b>K {{ loan.total_paid|default_if_none:"0"|currency }}</span></b></p>
+                    <p class="p-0 m-0">Repayments to Date: <span class="text-primary"><b>{{ loan.number_of_repayments }}</span></b></p>
+                    <p class="p-0 m-0">Last Payment Date: <span class="text-primary"><b>{{ loan.last_repayment_date }}</span></b></p>
+                    <p class="p-0 m-0">Advance Payment Total: <span class="text-primary"><b>K {{ loan.advance_payments|default_if_none:"0"|currency }}</span></b></p>
+                    <p class="p-0 m-0">Total Outstanding: <span class="text-primary"><b>K {{ loan.total_outstanding|default_if_none:"0"|currency }}</span></b></p>
+                    
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="card p-4">
+                    <p class="p-0 m-0">Default Status: {% if loan.total_arrears != 0.00 %}<span class="badge bg-danger"><b>DEFAULTED</span></b>{% else %}<span class="badge bg-success"><b>Good Loan</span></b>{% endif %}</p>
+                    <p class="p-0 m-0">Number of Defaults: <span class="text-primary"><b>{{ loan.number_of_defaults }}</span></b></p>
+                    <p class="p-0 m-0">Last Default Date: <span class="text-primary"><b>{{ loan.last_default_date }}</span></b></p>
+                    <p class="p-0 m-0">Total Arrears: <span class="text-primary text-danger"><b>K {{ loan.total_arrears|default_if_none:"0"|currency }}</span></b></p>
+                    <p class="p-0 m-0">Total Default Interest: <span class="text-primary"><b>K {{ loan.default_interest_receivable|default_if_none:"0"|currency }}</span></b></p>
+                    <p class="p-0 m-0">Total Default Interest Paid: <span class="text-primary"><b>K {{ loan.default_interest_paid|default_if_none:"0"|currency }}</span></b></p>
+                </div>
+            </div>
+        </div>
+
+  
+    <div class="row">
+      
+      <div class="col-12">
+        <div class="card my-4">
+          <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+            <div class="bg-gradient-secondary shadow-secondary border-radius-lg pt-4 pb-3">
+              <h6 class="text-white text-center ps-3"> {{ loan.ref }} - LOAN STATEMENT</h6>
+            </div>
+          </div>
+          <div class="card-body px-0 pb-2">
+            <div class="table-responsive p-0">
+              <table class="table table-striped table-hover align-items-center justify-content-center mb-0">
+                <thead>
+                  <tr>
+                    <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Date</th>
+                    <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Description</th>
+                    <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Debit</th>
+                    <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Credit</th>
+                    <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Default</th>
+                    <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Default Int.</th>
+                    <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Loan Amt.</th>
+                    <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">App. Fee</th>
+                    <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Interest</th>
+                    <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Arrears</th>
+                    <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Balance</th>
+  
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for statement in stat %}
+                  <tr>
+                    <td>
+                      <div class="d-flex px-2">
+                          
+                          <div class="my-auto">
+                          <h6 class="mb-0 text-sm">{{ statement.date|sdate }}</h6>
+                          </div>
+                      </div>
+                    </td>
+                    <td>
+                      <h6 class="text-sm">{{ statement.statement }}</h6>
+                    </td>
+                    <td>
+                      <h6 class="text-sm">{{ statement.debit|default_if_none:"0"|currency }}</h6>
+                    </td>
+                    <td>
+                      <h6 class="text-sm">{{ statement.credit|default_if_none:"0"|currency }}</h6>
+                    </td>
+                    <td>
+                      <h6 class="text-sm">{{ statement.default_amount|default_if_none:"0"|currency }}</h6>
+                    </td>
+                    <td>
+                      <h6 class="text-sm">{{ statement.interest_on_default|default_if_none:"0"|currency }}</h6>
+                    </td>
+                    <td>
+                      <h6 class="text-sm">{{ statement.loan_amount }}</h6>
+                    </td>
+                    <td>
+                      <h6 class="text-sm">{{ statement.application_fee }}</h6>
+                    </td>
+                    <td>
+                      <h6 class="text-sm">{{ statement.interest }}</h6>
+                    </td>
+                    <td>
+                      <h6 class="text-sm">{{ statement.arrears }}</h6>
+                    </td>
+                    <td>
+                      <h6 class="text-sm">{{ statement.balance }}</h6>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                  
+                </tbody>
+              </table>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+      </div>
+  
+    </div>
+
+    
+
+
+</body>
+
+</html>
+

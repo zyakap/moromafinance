@@ -1,0 +1,224 @@
+/* inter-regular - latin */
+@font-face {
+	font-family: 'Inter';
+	font-style: normal;
+	font-weight: 400;
+	src: local(''),
+		 url('inter-v12-latin/inter-v12-latin-regular.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+		 url('inter-v12-latin/inter-v12-latin-regular.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+  }
+
+
+.3_3 { 
+	overflow:hidden;
+}
+.e3_3 { 
+	background-color:rgba(255, 255, 255, 1);
+	width:365.6700134277344pt;
+	height:229.60675048828125pt;
+	position:absolute;
+}
+.e4_15 { 
+	box-shadow:0pt 4pt 4pt rgba(0, 0, 0, 0.25);
+	width:366pt;
+	height:230pt;
+	position:absolute;
+	left:0pt;
+	top:0pt;
+	background-image:url(images/rectangle_3.png);
+	background-repeat:no-repeat;
+	background-size:cover;
+}
+.e4_5 { 
+	background-color:rgba(255, 0, 0, 1);
+	width:29pt;
+	height:69pt;
+	position:absolute;
+	left:0pt;
+	top:96pt;
+}
+.e4_6 { 
+	border-radius:500pt;
+	width:138pt;
+	height:138pt;
+	position:absolute;
+	left:6pt;
+	top:61pt;
+	background-repeat:no-repeat;
+	background-size:cover;
+}
+.4_6 { 
+	border:5pt solid rgba(255, 0, 0, 1);
+}
+.e5_4 { 
+	color:rgba(43.00000123679638, 0, 1.0000000591389835, 1);
+	width:307pt;
+	height:25pt;
+	position:absolute;
+	left:42pt;
+	top:8pt;
+	font-family:Inter;
+	text-align:left;
+	font-size:25pt;
+	letter-spacing:0;
+}
+.e5_5 { 
+	color:rgba(255, 255, 255, 1);
+	opacity:0.800000011920929;
+	width:305pt;
+	height:17pt;
+	position:absolute;
+	left:44pt;
+	top:35pt;
+	font-family:Inter;
+	text-align:left;
+	font-size:17pt;
+	letter-spacing:0;
+}
+.e5_6 { 
+	color:rgba(255, 254.00000005960464, 2.000000118277967, 1);
+	width:172pt;
+	height:22pt;
+	position:absolute;
+	left:160pt;
+	top:68pt;
+	font-family:Inter;
+	text-align:left;
+	font-size:22pt;
+	letter-spacing:0;
+	line-height:pt;
+}
+.e17_3 { 
+	color:rgba(255, 254.00000005960464, 2.000000118277967, 1);
+	width:172pt;
+	height:22pt;
+	position:absolute;
+	left:160pt;
+	top:91pt;
+	font-family:Inter;
+	text-align:left;
+	font-size:22pt;
+	letter-spacing:0;
+	line-height:pt;
+}
+.e5_8 { 
+	color:rgba(255, 255, 255, 1);
+	width:99pt;
+	height:10pt;
+	position:absolute;
+	left:167pt;
+	top:160pt;
+	font-family:Inter;
+	text-align:left;
+	font-size:10pt;
+	letter-spacing:0;
+}
+.e5_9 { 
+	color:rgba(255, 255, 255, 1);
+	width:127pt;
+	height:10pt;
+	position:absolute;
+	left:167pt;
+	top:206pt;
+	font-family:Inter;
+	text-align:left;
+	font-size:10pt;
+	letter-spacing:0;
+}
+.e5_11 { 
+	color:rgba(255, 255, 255, 1);
+	width:123pt;
+	height:10pt;
+	position:absolute;
+	left:167pt;
+	top:194pt;
+	font-family:Inter;
+	text-align:left;
+	font-size:10pt;
+	letter-spacing:0;
+}
+.e5_7 { 
+	color:rgba(255, 255, 255, 1);
+	width:131pt;
+	height:10pt;
+	position:absolute;
+	left:53pt;
+	top:212pt;
+	text-align:left;
+	font-size:10pt;
+	letter-spacing:0;
+}
+.e10_3 { 
+	color:rgba(255, 255, 255, 1);
+	width:173pt;
+	height:10pt;
+	position:absolute;
+	left:167pt;
+	top:121pt;
+	font-family:Inter;
+	text-align:left;
+	font-size:10pt;
+	letter-spacing:0;
+}
+.e7_29 { 
+	width:50pt;
+	height:8.342246055603027pt;
+	position:absolute;
+	left:42pt;
+	top:0pt;
+	background-image:url(images/decor3.png);
+	background-repeat:no-repeat;
+	background-size:cover;
+}
+.e8_41 { 
+	width:98pt;
+	height:230pt;
+	position:absolute;
+	left:268pt;
+	top:0pt;
+	background-image:url(images/abstract3_1.png);
+	background-repeat:no-repeat;
+	background-size:cover;
+}
+.e4_17 { 
+	width:63pt;
+	height:59pt;
+	position:absolute;
+	left:296pt;
+	top:162pt;
+	background-image:url(images/pngsme_foundation_logo_tm_1.png);
+	background-repeat:no-repeat;
+	background-size:cover;
+}
+.e9_2 { 
+	color:rgba(255, 255, 255, 1);
+	width:127pt;
+	height:8pt;
+	position:absolute;
+	left:167pt;
+	top:133pt;
+	text-align:left;
+	font-size:8pt;
+	letter-spacing:0;
+}
+.e9_3 { 
+	color:rgba(255, 255, 255, 1);
+	width:122pt;
+	height:8pt;
+	position:absolute;
+	left:167pt;
+	top:143pt;
+	text-align:left;
+	font-size:8pt;
+	letter-spacing:0;
+}
+.e17_4 { 
+	width:62pt;
+	height:33.78443145751953pt;
+	position:absolute;
+	left:167pt;
+	top:165pt;
+	background-image:url(images/dickylaosignature_1.png);
+	background-repeat:no-repeat;
+	background-size:cover;
+}

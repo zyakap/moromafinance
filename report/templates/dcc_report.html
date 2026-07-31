@@ -1,0 +1,134 @@
+{% extends "report_base.html" %}
+{% load humanize %}
+
+{% block title %}DCC Report{% endblock %}
+{% block breadcrumb %}<a href="{% url 'admin_dashboard' %}">Admin Dashboard</a> / <a href="{% url 'reports' %}">Reports</a>{% endblock %}
+{% block breadcrumb_active %}DCC Report{% endblock %}
+{% block dashboard_title %}DCC Credit Bureau Report{% endblock %}
+
+{% block content %}
+<div class="row mt-4">
+  <div class="col-12">
+
+    <div class="card mb-3">
+      <div class="card-body pt-3 pb-3">
+        <form method="get" class="row g-2 align-items-end">
+          <div class="col-auto">
+            <label class="form-label mb-0 text-sm">Month</label>
+            <select name="month" class="form-select form-select-sm">
+              {% for m, name in months %}
+                <option value="{{ m }}" {% if m == month %}selected{% endif %}>{{ name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-auto">
+            <label class="form-label mb-0 text-sm">Year</label>
+            <select name="year" class="form-select form-select-sm">
+              {% for y in years %}
+                <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-auto">
+            <button type="submit" class="btn btn-sm btn-primary mb-0">Show</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="row mb-3">
+      <div class="col-md-4 mb-2">
+        <div class="card h-100">
+          <div class="card-body">
+            <p class="text-sm text-muted mb-1">DCC Running Cost (bureau invoice)</p>
+            {% if billing %}
+            <h3 class="mb-0">{{ billing.currency }} {{ billing.total|floatformat:2|intcomma }}</h3>
+            <p class="text-sm text-muted mb-0">incl. base fee {{ billing.currency }} {{ billing.base_fee|floatformat:2 }}</p>
+            {% else %}
+            <h3 class="mb-0">—</h3>
+            <p class="text-sm text-danger mb-0">Bureau unreachable — showing local log only.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 mb-2">
+        <div class="card h-100">
+          <div class="card-body">
+            <p class="text-sm text-muted mb-1">Paid Views (this tenant)</p>
+            <h3 class="mb-0">{% if billing %}{{ billing.paid_views }}{% else %}{{ views_count }}{% endif %}</h3>
+            <p class="text-sm text-muted mb-0">each view billed once per access window</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 mb-2">
+        <div class="card h-100">
+          <div class="card-body">
+            <p class="text-sm text-muted mb-1">Local Charges Logged</p>
+            <h3 class="mb-0">{{ local_cost|floatformat:2|intcomma }}</h3>
+            <p class="text-sm text-muted mb-0">sum of charges recorded at unlock time</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% if billing %}
+    <div class="card mb-3">
+      <div class="card-header pb-0"><h6>Usage by Service (from DCC)</h6></div>
+      <div class="card-body table-responsive">
+        <table class="table table-sm table-striped align-middle mb-0">
+          <thead><tr>
+            <th>Service</th><th class="text-end">Units</th>
+            <th class="text-end">Unit Price ({{ billing.currency }})</th>
+            <th class="text-end">Cost ({{ billing.currency }})</th>
+          </tr></thead>
+          <tbody>
+            {% for row in billing.rows %}
+            <tr>
+              <td>{{ row.label }}</td>
+              <td class="text-end">{{ row.units|intcomma }}</td>
+              <td class="text-end">{{ row.unit_price }}</td>
+              <td class="text-end">{{ row.cost }}</td>
+            </tr>
+            {% endfor %}
+            <tr><td><strong>Monthly base fee</strong></td><td></td><td></td><td class="text-end"><strong>{{ billing.base_fee }}</strong></td></tr>
+            <tr class="table-primary"><td><strong>Total</strong></td><td></td><td></td><td class="text-end"><strong>{{ billing.total }}</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="card mb-3">
+      <div class="card-header pb-0"><h6>Pay-Per-View Log ({{ views_count }})</h6>
+        <p class="text-sm text-muted mb-0">Who unlocked which client's DCC credit data, when, and until when the paid window runs.</p>
+      </div>
+      <div class="card-body table-responsive">
+        <table class="table table-sm table-striped align-middle mb-0">
+          <thead><tr>
+            <th>Client</th><th>Unlocked By</th><th>Unlocked At</th>
+            <th>Access Until</th><th class="text-end">Charge</th><th>Status</th>
+          </tr></thead>
+          <tbody>
+            {% for log in view_logs %}
+            <tr>
+              <td><a href="{% url 'view_client' log.client.id %}">{{ log.client.first_name }} {{ log.client.last_name }}</a></td>
+              <td>{{ log.viewed_by.first_name|default:log.viewed_by.username|default:"—" }} {{ log.viewed_by.last_name|default:"" }}</td>
+              <td>{{ log.unlocked_at|date:"Y-m-d H:i" }}</td>
+              <td>{{ log.expires_at|date:"Y-m-d H:i"|default:"—" }}</td>
+              <td class="text-end">{% if log.cost %}{{ log.currency }} {{ log.cost|floatformat:2 }}{% else %}0.00{% endif %}</td>
+              <td>
+                {% if log.is_active %}<span class="badge bg-success">OPEN</span>
+                {% else %}<span class="badge bg-secondary">EXPIRED</span>{% endif %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="text-center text-muted">No paid views in this period.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

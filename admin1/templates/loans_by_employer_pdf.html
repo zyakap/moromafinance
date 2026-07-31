@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body { font-family: Arial, Helvetica, sans-serif; font-size: 9px; color: #222; }
+  h1 { font-size: 16px; margin: 0 0 2px; color: #344767; }
+  .meta { color: #666; font-size: 9px; margin-bottom: 10px; }
+  .employer { font-size: 12px; font-weight: bold; color: #344767; margin: 12px 0 3px; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
+  th, td { border: 1px solid #ccc; padding: 3px 5px; text-align: left; }
+  th { background: #344767; color: #fff; }
+  tr:nth-child(even) td { background: #f6f7f9; }
+  tr.subtotal td { font-weight: bold; background: #eef1f6; }
+  table.grand { margin-top: 14px; }
+  table.grand td { font-weight: bold; background: #dbe2ee; font-size: 11px; border: 1px solid #344767; }
+</style>
+</head>
+<body>
+  <h1>Loans per Employer</h1>
+  <div class="meta">Generated {{ generated }}</div>
+
+  {% for block in blocks %}
+    <div class="employer">{{ block.employer }}</div>
+    <table>
+      <thead>
+        <tr>{% for h in headers %}<th>{{ h }}</th>{% endfor %}</tr>
+      </thead>
+      <tbody>
+        {% for row in block.rows %}
+        <tr>{% for cell in row %}<td>{{ cell }}</td>{% endfor %}</tr>
+        {% endfor %}
+        <tr class="subtotal">{% for cell in block.totals %}<td>{{ cell }}</td>{% endfor %}</tr>
+      </tbody>
+    </table>
+  {% endfor %}
+
+  {% if grand_row %}
+  <table class="grand">
+    <tr>{% for cell in grand_row %}<td>{{ cell }}</td>{% endfor %}</tr>
+  </table>
+  {% endif %}
+</body>
+</html>

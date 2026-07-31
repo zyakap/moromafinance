@@ -1,0 +1,98 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %} My Profile {% endblock %}
+
+{% block breadcrumb %} Dashboard {% endblock %}
+{% block breadcrumb_active %} Profile {% endblock %}
+{% block dashboard_title %} 
+                  {{ user.first_name.upper}} 
+                  {% if user.middle_name != None %}
+                    {{ user.middle_name.upper }} 
+                  {% endif %} 
+                  {{ user.last_name.upper }}
+ {% endblock %}
+
+{% block content %}
+
+
+
+  <!-- Content Goes Here -->
+  
+  <div class="card p-0 mt-2 mb-2">
+    <div class="card-header bg-secondary pt-2 pr-1 pb-2 pl-1 text-center">
+      <h5 class="text-light p-0 m-0"><b>SME Information</b></h5>
+    </div>
+    <div class="card-body p-2">
+      <div class="row">
+        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 mb-2">
+          <div class="card p-1">
+            <div class="card-body pt-2 p-1">
+              <ul class="list-group">
+                <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-0 pb-3 mb-2 bg-gray-100 border-radius-lg">
+                  <div class="d-flex flex-column">
+                    <h6 class="mb-3 text-md text-primary">Registration Details<span><a class="btn btn-link text-dark px-3 mb-0" href="{% url 'edit_sme_profile' %}"><i class="material-icons text-sm me-2">edit</i>Edit</a></span></h6>
+                    <span class="mb-2 text-sm">Trading Name: <span class="text-dark font-weight-bold ms-sm-2">
+                      {{ smeprofile.trading_name}} 
+                      </span></span>
+                    <span class="mb-2 text-sm">Registered Name: <span class="text-dark font-weight-bold ms-sm-2">{{ smeprofile.registered_name }}</span></span>
+                    <span class="mb-2 text-sm">IPA Registration Number: <span class="text-dark font-weight-bold ms-sm-2">{{ smeprofile.ipa_registration_number }}</span></span>
+                    <span class="mb-2 text-sm">TIN Number: <span class="text-dark font-weight-bold ms-sm-2">{{ smeprofile.tin_number }}</span></span>
+                      <hr class="p-0 mt-2 mb-2" style="border: solid 1px green">
+                    <span class="mb-2 text-sm">Business Address: <span class="text-dark font-weight-bold ms-sm-2">{{ smeprofile.business_address }}</span></span>
+                    <span class="mb-2 text-sm">Email: <span class="text-dark font-weight-bold ms-sm-2">{{ smeprofile.email }}</span></span>
+                    <span class="mb-2 text-sm">Phone: <span class="text-dark ms-sm-2 font-weight-bold">{{ smeprofile.phone }}</span></span>
+                    <span class="text-sm">Website: <span class="text-dark ms-sm-2 font-weight-bold">{{ smeprofile.website }}</span></span>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+  
+        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 mb-1">
+          <div class="card p-1">
+            <div class="card-body pt-2 p-1">
+              <ul class="list-group">                
+                <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-0 pb-3 mb-2 bg-gray-100 border-radius-lg">
+                  <div class="d-flex flex-column">
+                    <h6 class="mb-3 text-md text-primary">SME Uploads<span><a class="btn btn-link text-dark px-3 mb-0" href="{% url 'edit_sme_profile_uploads' %}"><i class="material-icons text-sm me-2">edit</i>Edit</a></span></h6>
+                    <span class="mb-2 text-sm">IPA Certificate: <span class="text-dark ms-sm-2 font-weight-bold"><a href="{{ smeprofile.ipa_certificate_url }}" target="_blank">{% if smeprofile.ipa_certificate_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View IPA Certificate</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>
+                    <span class="mb-2 text-sm">Tin Certificate: <span class="text-dark ms-sm-2 font-weight-bold"><a href="{{ smeprofile.tin_certificate_url }}" target="_blank">{% if smeprofile.tin_certificate_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View TIN Certificate</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>
+                    <span class="mb-2 text-sm">Cash Flow: <span class="text-dark font-weight-bold ms-sm-2"><a href="{{ smeprofile.cash_flow_url }}" target="_blank">{% if smeprofile.cash_flow_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View Cash Flow</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>
+                    <span class="mb-2 text-sm">Bank Statement: <span class="text-dark font-weight-bold ms-sm-2"><a href="{{ smeprofile.sme_bank_statement_url }}" target="_blank">{% if smeprofile.sme_bank_statement_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View Bank Statement</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>
+                    <span class="mb-2 text-sm">Picture of Business Location: <span class="text-dark ms-sm-2 font-weight-bold"><a href="{{ smeprofile.location_pic_url }}" target="_blank">{% if smeprofile.location_pic_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View Pic</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>
+                  </div>
+                </li> 
+                <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-0 pb-3 mb-2 bg-gray-100 border-radius-lg">
+                  <div class="d-flex flex-column">
+                    <p class="p-1">Cash Flow and Bank Statement must be uploaded when applying for an SME Loan or your repayment is coming from your SME Income</p>
+                  </div>
+                </li>  
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 mb-1">
+          <div class="card p-1">
+            <div class="card-body pt-2 p-1">
+              <ul class="list-group">
+                <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-0 pb-3 mb-2 bg-gray-100 border-radius-lg">
+                  <div class="d-flex flex-column">
+                    <h6 class="mb-3 text-md text-primary">Primary Account<span><a class="btn btn-link text-dark px-3 mb-0" href="{% url 'edit_sme_profile_bank' %}"><i class="material-icons text-sm me-2">edit</i>Edit</a></span></h6>
+                    <span class="mb-2 text-sm">Bank: <span class="text-dark font-weight-bold ms-sm-2">{{ smeprofile.bank }}</span></span>
+                    <span class="mb-2 text-sm">Account Name: <span class="text-dark ms-sm-2 font-weight-bold">{{ smeprofile.bank_account_name }}</span></span>
+                    <span class="mb-2 text-sm">Account Number: <span class="text-dark ms-sm-2 font-weight-bold">{{ smeprofile.bank_account_number }}</span></span>
+                    <span class="mb-2 text-sm">Bank Branch: <span class="text-dark ms-sm-2 font-weight-bold">{{ smeprofile.bank_branch }}</span></span>
+                  </div>
+                </li>     
+              </ul>
+            </div>
+          </div>        
+        </div>
+      </div><!-- row -->
+    </div><!-- card body -->
+  </div><!-- Container Card-->
+
+  <!-- Content Ends Here -->
+
+{% endblock %}

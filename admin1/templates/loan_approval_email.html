@@ -1,0 +1,113 @@
+{% autoescape off %}
+{% load humanize %}
+{% load finance_formats %}
+{% load site_filter %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>TC - EMAIL</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+</head>
+
+<body>
+
+    <div class="row mt-3 mb-2">
+        <div class="container text-center">
+            <img src="{{domain}}/static/clientfiles/brandlogo.png">  
+        </div>
+    </div>
+
+    <div class="row bg-primary">
+        <div class="container ">
+            <div class="text-center text-light p-3">
+                <h2>LOAN - {{ loan.ref }} - APPROVED</h2>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="row bg-light mt-1 pb-3">
+        <div class="container ">
+            <div class="container ">
+            
+                <div class="row p-2" style="background-color: #F8F8F8">
+
+                    <div class="col-6">
+                        <div class="card p-2">
+                            <p class="p-0 m-0">Client Name: <span class="text-primary"><b>{{ user.first_name }} {% if user.middle_name %}{{ user.middle_name }}{% endif %} {{ user.last_name }}</span></b></p>
+                            <p class="p-0 m-0">Client Employer: <span class="text-primary"><b>{{ user.employer }}</span></b></p>
+                            <p class="p-0 m-0">Contact #: <span class="text-primary"><b>{{ user.mobile1 }}{% if user.mobile2 %} / {{ user.mobile2 }}{% endif %}</span></b></p>
+                            <p class="p-0 m-0">Email: <span class="text-primary"><b>{{ user.email }}{% if user.work_email %} / {{ user.work_email }}{% endif %}</span></b></p>
+                            <p class="p-0 m-0">Deduction Start Date: <span class="text-primary"><b>{{ loan.repayment_start_date }}</span></b></p>
+                            <p class="p-0 m-0">Deduction End Date: <span class="text-primary"><b>{{ loan.expected_end_date }}</span></b></p>
+                            
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card p-2">
+                            <p class="p-0 m-0">Loan Amount: <span class="text-primary"><b>K {{ loan.amount|default_if_none:"0"|currency }}</span></b></p>
+                            <p class="p-0 m-0">Total Interest: <span class="text-primary"><b>K {{ loan.interest|default_if_none:"0"|currency }}</span></b></p>
+                            <p class="p-0 m-0">Application Fee: <span class="text-primary"><b>K {{ loan.application_fee|default_if_none:"0"|currency }}</span></b></p>
+                            <p class="p-0 m-0">Total Loan Amount: <span class="text-primary"><b>K {{ loan.total_loan_amount|default_if_none:"0"|currency }}</span></b></p>
+                            <p class="p-0 m-0">Repayment Amount: <span class="text-primary"><b>K {{ loan.repayment_amount|default_if_none:"0"|currency }}</span></b></p>
+                            <p class="p-0 m-0">Fortnights: <span class="text-primary"><b>{{ loan.number_of_fortnights }} fns</span></b></p>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                      <div class="card p-2">
+                          <p class="p-0 m-0">Yet to be Paid: <span class="text-primary"><b>K {{ loan.amount_remaining|default_if_none:"0"|currency }}</span></b></p>
+                          <p class="p-0 m-0">Total Paid to Date: <span class="text-primary"><b>K {{ loan.total_paid|default_if_none:"0"|currency }}</span></b></p>
+                          <p class="p-0 m-0">Repayments to Date: <span class="text-primary"><b>{{ loan.number_of_repayments }}</span></b></p>
+                          <p class="p-0 m-0">Last Payment Date: <span class="text-primary"><b>{{ loan.last_repayment_date }}</span></b></p>
+                          <p class="p-0 m-0">Advance Payment Total: <span class="text-primary"><b>K {{ loan.advance_payments|default_if_none:"0"|currency }}</span></b></p>
+                          <p class="p-0 m-0">Total Outstanding: <span class="text-primary"><b>K {{ loan.total_outstanding|default_if_none:"0"|currency }}</span></b></p>
+                          
+                      </div>
+                    </div>
+                      <div class="col-6">
+                        <div class="card p-2">
+                            <p class="p-0 m-0">Default Status: {% if loan.total_arrears != 0.00 %}<span class="badge bg-danger"><b>DEFAULTED</span></b>{% else %}<span class="badge bg-success"><b>Good Loan</span></b>{% endif %}</p>
+                            <p class="p-0 m-0">Number of Defaults: <span class="text-primary"><b>{{ loan.number_of_defaults }}</span></b></p>
+                            <p class="p-0 m-0">Last Default Date: <span class="text-primary"><b>{{ loan.last_default_date }}</span></b></p>
+                            <p class="p-0 m-0">Total Arrears: <span class="text-primary text-danger"><b>K {{ loan.total_arrears|default_if_none:"0"|currency }}</span></b></p>
+                            <p class="p-0 m-0">Total Default Interest: <span class="text-primary"><b>K {{ loan.default_interest_receivable|default_if_none:"0"|currency }}</span></b></p>
+                            <p class="p-0 m-0">Total Default Interest Paid: <span class="text-primary"><b>K {{ loan.default_interest_paid|default_if_none:"0"|currency }}</span></b></p>
+                        </div>
+                    </div>
+                    
+                  </div><!-- END ROW-->
+                
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+<!-- FOOTER -->
+    <div class="row bg-dark p-2">
+        <div class="container text-center">
+            
+            <span><a class="navbar-brand" href="#">{{ ''|sitename }}</a></span> |
+            <span><a class="navbar-brand" href="#">A Zacq Industries Company</a></span> |
+            <span><a class="navbar-brand" href="#">A Zacq Industries Company</a></span>
+
+
+        </div>
+    </div>
+<!-- end FOOTER -->
+
+
+</body>
+</html>
+
+
+{% endautoescape %}  

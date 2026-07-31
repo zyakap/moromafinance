@@ -1,0 +1,301 @@
+{% load humanize %}
+{% load finance_formats %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Statement of Account – {{ loan.ref }}</title>
+  <style>
+    :root {
+      --doc-primary: {{ document_theme.primary_color|default:'#344767' }};
+      --doc-header: {{ document_theme.topbar_color|default:'#344767' }};
+      --doc-dark: {{ document_theme.sidebar_bg_color|default:'#1f2a44' }};
+    }
+    @page { size: A4 portrait; margin: 0; }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0; background: #fff;
+      font-family: "{{ document_theme.font_family|default:'Roboto' }}", Arial, sans-serif;
+      font-size: 9pt; color: #1a1a1a;
+    }
+    .page { width: 210mm; min-height: 297mm; margin: 0 auto; background: #fff; }
+
+    /* ═══ TOP HEADER ═══ */
+    .page-header {
+      display: flex;
+      align-items: stretch;
+      padding: 7mm 10mm 5mm;
+      gap: 5mm;
+    }
+
+    /* Left: logo + company address */
+    .ph-left {
+      flex: 0 0 50%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Right: statement title + meta */
+    .ph-right {
+      flex: 1;
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+    }
+    .ph-title {
+      font-size: 15pt;
+      font-weight: 700;
+      color: var(--doc-header);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-bottom: 3mm;
+    }
+    .ph-details {
+      font-size: 8.5pt;
+      color: #333;
+      line-height: 1.75;
+    }
+    .ph-lbl  { font-weight: 700; color: #2a3029; }
+    .ph-ref  { font-weight: 700; color: var(--doc-primary); font-size: 9.5pt; }
+
+    .header-rule {
+      border: none;
+      border-top: 0.5mm solid var(--doc-primary);
+      margin: 0 10mm 4mm;
+    }
+
+    /* ═══ CONTENT ═══ */
+    .content { padding: 0 10mm 8mm; }
+
+    /* Two-column client/loan tables */
+    .header-grid { display: flex; gap: 4mm; margin-bottom: 4mm; }
+    .header-left  { flex: 1.1; }
+    .header-right { flex: 1; }
+
+    .info-table, .loan-meta-table {
+      width: 100%; border-collapse: collapse; font-size: 8.5pt;
+    }
+    .info-table td, .loan-meta-table td {
+      padding: 1.5mm 2.5mm; vertical-align: middle;
+      border: 0.2mm solid #ddd;
+    }
+    .info-table td.lbl, .loan-meta-table td.lbl {
+      font-weight: 700; background: #f5f0f3;
+      color: var(--doc-header); white-space: nowrap; width: 42%;
+    }
+
+    /* ═══ SUMMARY BAR ═══ */
+    .summary-bar {
+      display: flex; margin-bottom: 4mm;
+      border: 0.3mm solid #ccc; border-radius: 2mm; overflow: hidden;
+    }
+    .sum-box { flex: 1; padding: 2.8mm 3mm; text-align: center; }
+    .sum-box:not(:last-child) { border-right: 0.3mm solid #ccc; }
+    .sum-label { font-size: 7pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 1.5mm; }
+    .sum-value { font-size: 12pt; font-weight: 700; }
+
+    .sum-opening { background: var(--doc-primary); }
+    .sum-opening .sum-label { color: #fff; }
+    .sum-opening .sum-value { color: #fff; }
+
+    .sum-debits { background: #fff3e8; }
+    .sum-debits .sum-label { color: var(--doc-header); }
+    .sum-debits .sum-value { color: var(--doc-primary); }
+
+    .sum-credits { background: var(--doc-header); }
+    .sum-credits .sum-label { color: #fff; opacity: .75; }
+    .sum-credits .sum-value { color: #fff; }
+
+    .sum-closing { background: var(--doc-dark); }
+    .sum-closing .sum-label { color: #aaa; }
+    .sum-closing .sum-value { color: #fff; }
+
+    /* ═══ TRANSACTION TABLE ═══ */
+    .stmt-table { width: 100%; border-collapse: collapse; font-size: 8pt; page-break-inside: auto; }
+    .stmt-table thead tr { background: var(--doc-header); color: #fff; }
+    .stmt-table th {
+      padding: 2.2mm 2.5mm; text-align: left;
+      font-weight: 700; font-size: 7.5pt;
+      text-transform: uppercase; white-space: nowrap;
+    }
+    .stmt-table th.num { text-align: right; }
+    .stmt-table tbody tr { page-break-inside: avoid; }
+    .stmt-table tbody tr:nth-child(odd)  { background: #fafafa; }
+    .stmt-table tbody tr:nth-child(even) { background: #fff; }
+    .stmt-table td {
+      padding: 1.8mm 2.5mm; border-bottom: 0.15mm solid #e8e8e8; vertical-align: middle;
+    }
+    .stmt-table td.date-col { white-space: nowrap; color: #555; font-size: 7.5pt; }
+    .stmt-table td.num { text-align: right; white-space: nowrap; }
+    .stmt-table td.debit-col   { color: #c0392b; }
+    .stmt-table td.credit-col  { color: #1a7e3e; }
+    .stmt-table td.default-col { color: #e05820; }
+    .stmt-table td.balance-col { font-weight: 700; color: #2a3029; }
+    .stmt-table tfoot tr { background: var(--doc-dark); color: #fff; }
+    .stmt-table tfoot td { padding: 2mm 2.5mm; font-weight: 700; font-size: 8pt; border: none; }
+
+    /* ═══ FOOTER NOTE ═══ */
+    .footer-note {
+      margin-top: 5mm; padding: 2.5mm 3mm;
+      background: #f5f5f5; border-left: 1mm solid var(--doc-primary);
+      font-size: 7.5pt; color: #555; line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ── Top header: logo+address left │ title+meta right ── -->
+  <div class="page-header">
+
+    <div class="ph-left">
+      {% if document_theme.brand_logo_data_uri %}
+        <img src="{{ document_theme.brand_logo_data_uri }}"
+             alt="{{ document_theme.brand_name }} logo"
+             style="max-width:100%; max-height:32mm; width:auto; height:auto; display:block;">
+      {% elif document_theme.brand_logo_url %}
+        <img src="{{ document_theme.brand_logo_url }}"
+             alt="{{ document_theme.brand_name }} logo"
+             style="max-width:100%; max-height:32mm; width:auto; height:auto; display:block;">
+      {% else %}
+        <div style="font-size:18pt;font-weight:700;color:var(--doc-header);">
+          {{ document_theme.brand_name|default:"LoanMasta" }}
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="ph-right">
+      <div class="ph-title">Statement of Account</div>
+      <div class="ph-details">
+        <div><span class="ph-lbl">Statement Date:</span>&nbsp;&nbsp;{{ today }}</div>
+        <div><span class="ph-lbl">Statement Starts:</span>&nbsp;{{ stmt_start }}</div>
+        <div><span class="ph-lbl">Statement Ends:</span>&nbsp;&nbsp;{{ stmt_end }}</div>
+        <div style="margin-top:1.5mm;"><span class="ph-lbl">Loan Reference:</span>&nbsp;<span class="ph-ref">{{ loan.ref }}</span></div>
+        <div><span class="ph-lbl">Loan Started:</span>&nbsp;&nbsp;&nbsp;{{ loan_started }}</div>
+      </div>
+    </div>
+
+  </div>
+
+  <hr class="header-rule">
+
+  <div class="content">
+
+    <!-- Client / Loan info tables -->
+    <div class="header-grid">
+
+      <div class="header-left">
+        <table class="info-table">
+          <tr>
+            <td class="lbl">Account Name</td>
+            <td>{{ user.last_name }}, {{ user.first_name }}{% if user.middle_name %} {{ user.middle_name }}{% endif %}</td>
+          </tr>
+          <tr>
+            <td class="lbl">Organisation / Company</td>
+            <td>{{ user.employer|default:"—" }}</td>
+          </tr>
+          <tr>
+            <td class="lbl">Personal Phone</td>
+            <td>{{ user.mobile1|default:"—" }}{% if user.mobile2 %} / {{ user.mobile2 }}{% endif %}</td>
+          </tr>
+          <tr>
+            <td class="lbl">Email Address</td>
+            <td>{{ usr.email|default:"—" }}</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="header-right">
+        <table class="loan-meta-table">
+          <tr>
+            <td class="lbl">Loan Amount</td>
+            <td>K {{ loan.amount|default_if_none:"0"|currency }}</td>
+          </tr>
+          <tr>
+            <td class="lbl">Repayment Amount</td>
+            <td>K {{ loan.repayment_amount|default_if_none:"0"|currency }} / fortnight</td>
+          </tr>
+          <tr>
+            <td class="lbl">Repayment Start</td>
+            <td>{{ loan.repayment_start_date|date:"d M Y"|default:"—" }}</td>
+          </tr>
+          <tr>
+            <td class="lbl">Loan Term</td>
+            <td>{{ loan.number_of_fortnights|default:"—" }} fortnights</td>
+          </tr>
+        </table>
+      </div>
+
+    </div>
+
+    <!-- Summary bar -->
+    <div class="summary-bar">
+      <div class="sum-box sum-opening">
+        <div class="sum-label">Opening Balance</div>
+        <div class="sum-value">K {{ opening_balance|currency }}</div>
+      </div>
+      <div class="sum-box sum-debits">
+        <div class="sum-label">Plus Debits</div>
+        <div class="sum-value">K {{ extra_debits|currency }}</div>
+      </div>
+      <div class="sum-box sum-credits">
+        <div class="sum-label">Less Credits</div>
+        <div class="sum-value">K {{ total_credits|currency }}</div>
+      </div>
+      <div class="sum-box sum-closing">
+        <div class="sum-label">Closing Balance</div>
+        <div class="sum-value">K {{ closing_balance|currency }}</div>
+      </div>
+    </div>
+
+    <!-- Transaction table -->
+    <table class="stmt-table">
+      <thead>
+        <tr>
+          <th style="width:16mm;">Date</th>
+          <th>Reference &amp; Description</th>
+          <th class="num" style="width:20mm;">Debit (K)</th>
+          <th class="num" style="width:20mm;">Credit (K)</th>
+          <th class="num" style="width:20mm;">Default (K)</th>
+          <th class="num" style="width:22mm;">Balance (K)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for tx in statements %}
+        <tr>
+          <td class="date-col">{{ tx.date|date:"d/m/y" }}</td>
+          <td>{{ tx.statement }}</td>
+          <td class="num debit-col">{% if tx.debit %}{{ tx.debit|currency }}{% endif %}</td>
+          <td class="num credit-col">{% if tx.credit %}{{ tx.credit|currency }}{% endif %}</td>
+          <td class="num default-col">{% if tx.default_amount %}{{ tx.default_amount|currency }}{% endif %}</td>
+          <td class="num balance-col">{{ tx.balance|default_if_none:"0"|currency }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" style="text-align:center;color:#888;padding:4mm;">No transactions recorded for this loan.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="5">Closing Balance</td>
+          <td class="num" style="color:#ff7800;">K {{ closing_balance|currency }}</td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <div class="footer-note">
+      This statement was generated on {{ today }} and reflects all transactions recorded up to the statement end date.
+      This document is for information purposes only.
+      {% if bank_config.bank %}<br>
+      <strong>Bank Account Details:</strong>
+      {{ bank_config.bank }}{% if bank_config.bank_acc_name %} &mdash; {{ bank_config.bank_acc_name }}{% endif %}{% if bank_config.bank_acc_num %} &mdash; Acc No: {{ bank_config.bank_acc_num }}{% endif %}{% if bank_config.bank_branch %} &mdash; Branch: {{ bank_config.bank_branch }}{% endif %}{% if bank_config.bank_bsb %} &mdash; BSB: {{ bank_config.bank_bsb }}{% endif %}{% if bank_config.swift %} &mdash; SWIFT: {{ bank_config.swift }}{% endif %}
+      {% endif %}
+      {% if bank_config.support_email %}<br>For queries, contact us at <strong>{{ bank_config.support_email }}</strong>.{% endif %}
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

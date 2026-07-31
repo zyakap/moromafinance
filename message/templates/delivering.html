@@ -1,0 +1,90 @@
+{% extends "staff_base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block title %} Delivering Message {% endblock %}
+{% block breadcrumb %} 
+  <a href="{% url 'staff_dashboard' %}">Staff Dashboard</a>  /  
+  <a href="{% url 'usermembers' %}">Message</a> 
+{% endblock %}
+{% block breadcrumb_active %} Delivering {% endblock %}
+{% block dashboard_title %}Delivering Message {{ message.id }} {% endblock %}
+
+{% block css %}
+<!-- DataTables LOCAL CSS -->
+<link rel="stylesheet" type="text/css" href="{% static 'DataTables/datatables.min.css' %}"/>   
+<!-- link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs5/jq-3.6.0/jszip-2.5.0/dt-1.12.1/b-2.2.3/b-colvis-2.2.3/b-html5-2.2.3/b-print-2.2.3/cr-1.5.6/kt-2.7.0/sp-2.0.2/datatables.min.css"/ -->
+<!-- Font Awesome Icons -->
+<script src="{% static 'fontawesomefree/js/all.min.js' %}"></script>
+
+<!-- FLEX BOX Styles -->
+<style>
+  .flex-container {
+    display: flex;
+  }
+  .flex-child {
+    flex: 1;
+  }  
+  .flex-child:first-child {
+    margin-right: 5px;
+  } 
+  .flex-child:last-child {
+    margin-left: 5px;
+  } 
+</style>
+{% endblock %}
+{% block content %}
+ <!-- Content Goes Here -->
+
+ 
+
+<div class="row mt-3 p-2">
+  <div class="col-xl-4 col-lg-4 col-md-12 col-sm-12 col-xs-12 mb-2">
+    <div class="card mt-3">
+      <div class="card-header bg-secondary pt-2 pr-2 pb-0 pl-2">
+          <h4 class="text-light">Message Delivery</h4>
+      </div>
+      <div class="card-body">
+        <p class="p-3">Visit the Links below to see reports of the message delivery.</p>
+          <div class="row">
+              <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-xs-12">
+                  <a href="{% url 'delivery_status' message.id %}">
+                    <div class="d-grid gap-2">
+                      <button type="button" class="btn btn-success">
+                        Delivery Status
+                     </button>
+                    </div>
+                  </a>
+              </div>
+              <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-xs-12">
+                  <a href="{% url 'delivery_report' message.id %}">
+                    <div class="d-grid gap-2">
+                      <button type="button" class="btn btn-success">
+                          Delivery Report
+                      </button>
+                    </div>
+                  </a>
+              </div>
+          </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-8 col-lg-8 col-md-12 col-sm-12 col-xs-12 mb-2">
+    <div class="card p-3 mt-3">
+      <p>Category: <span class="badge bg-success">{{ message.category }}</span></p>
+      <h5>Subject: <span class="text-primary">{{ message.subject }}</span></h5>
+
+      <hr style="border: 1px solid #0cf;">
+      {{ message.content|safe }}
+      <hr style="border: 1px solid #0cf;">
+      {% if message.attachment_url %}
+      <p class="p-0 m-0">Attachment: <a href="{{ message.attachment_url }}" target="_blank" class="text-primary">{{ message.attachment_name }}</a></p>
+      <hr style="border: 1px solid #0cf;">
+      {% endif %}
+      <p>Sent by: {{ message.sender }}</p> 
+    </div>
+  </div>
+  
+</div>
+  <!-- Content Ends Here -->
+
+{% endblock %}

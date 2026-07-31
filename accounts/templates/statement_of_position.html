@@ -1,0 +1,140 @@
+{% extends "dashboard_base.html" %}
+{% load humanize %}
+
+{% block title %} Statement of Position {% endblock %}
+
+{% block breadcrumb %} <a href="{% url 'dashboard' %}">Dashboard</a>  /  <a href="{% url 'profile' %}">Profile</a> {% endblock %}
+{% block breadcrumb_active %} Statement of Position {% endblock %}
+{% block dashboard_title %} Statement of Position {% endblock %}
+
+{% block content %}
+
+  {% if statement_of_position %}
+  <div class="card p-0 mt-2 mb-2">
+    <div class="card-header bg-secondary pt-2 pr-1 pb-2 pl-1 text-center">
+      <h5 class="text-light p-0 m-0"><b>Statement of Position</b></h5>
+    </div>
+    <div class="card-body p-2">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card mb-3">
+            <div class="card-header bg-primary text-white">
+              <h6 class="mb-0">Assets</h6>
+            </div>
+            <div class="card-body">
+              <span class="mb-1 text-sm">House Property: <span class="text-dark font-weight-bold ms-sm-2">{{ statement_of_position.asset_house_property|yesno:"Yes,No" }}</span></span><br>
+              <span class="mb-1 text-sm">Property Value: <span class="text-dark font-weight-bold ms-sm-2">K {{ statement_of_position.asset_house_property_value|default:"0"|floatformat:2|intcomma }}</span></span><br>
+              <span class="mb-1 text-sm">Vehicle: <span class="text-dark font-weight-bold ms-sm-2">{{ statement_of_position.asset_vehicle_make|default:"Not specified" }} {{ statement_of_position.asset_vehicle_model|default:"" }}</span></span><br>
+              <span class="mb-1 text-sm">Vehicle Value: <span class="text-dark font-weight-bold ms-sm-2">K {{ statement_of_position.asset_vehicle_value|default:"0"|floatformat:2|intcomma }}</span></span><br>
+              <span class="mb-1 text-sm">White Goods: <span class="text-dark font-weight-bold ms-sm-2">K {{ statement_of_position.asset_white_goods_value|default:"0"|floatformat:2|intcomma }}</span></span><br>
+              <span class="mb-1 text-sm">Superannuation: <span class="text-dark font-weight-bold ms-sm-2">K {{ statement_of_position.asset_superanuation_value|default:"0"|floatformat:2|intcomma }}</span></span><br>
+              <span class="mb-1 text-sm">Bank Account: <span class="text-dark font-weight-bold ms-sm-2">K {{ statement_of_position.asset_bank_account_value|default:"0"|floatformat:2|intcomma }}</span></span><br>
+              <hr>
+              <span class="mb-1 text-sm"><strong>Total Assets: K {{ statement_of_position.total_assets|default:"0"|floatformat:2|intcomma }}</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="card mb-3">
+            <div class="card-header bg-secondary text-white">
+              <h6 class="mb-0">Liabilities</h6>
+            </div>
+            <div class="card-body">
+              <span class="mb-1 text-sm">Home Loan: <span class="text-dark font-weight-bold ms-sm-2">K {{ statement_of_position.liability_home_loan_value|default:"0"|floatformat:2|intcomma }}</span></span><br>
+              <span class="mb-1 text-sm">Vehicle Loan: <span class="text-dark font-weight-bold ms-sm-2">K {{ statement_of_position.liability_vehicle_loan_value|default:"0"|floatformat:2|intcomma }}</span></span><br>
+              <span class="mb-1 text-sm">Personal Loans: <span class="text-dark font-weight-bold ms-sm-2">K {{ statement_of_position.total_personal_loans|default:"0"|floatformat:2|intcomma }}</span></span><br>
+              <span class="mb-1 text-sm">Credit Card: <span class="text-dark font-weight-bold ms-sm-2">K {{ statement_of_position.liability_credit_card_value|default:"0"|floatformat:2|intcomma }}</span></span><br>
+              <span class="mb-1 text-sm">Other Debts: <span class="text-dark font-weight-bold ms-sm-2">K {{ statement_of_position.liability_other_debts_value|default:"0"|floatformat:2|intcomma }}</span></span><br>
+              <hr>
+              <span class="mb-1 text-sm"><strong>Total Liabilities: K {{ statement_of_position.total_liabilities|default:"0"|floatformat:2|intcomma }}</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card mb-3">
+            <div class="card-header bg-success text-white">
+              <h6 class="mb-0">Income</h6>
+            </div>
+            <div class="card-body">
+              <span class="mb-1 text-sm">Gross Salary: <span class="text-dark font-weight-bold ms-sm-2">K {{ statement_of_position.income_gross_salary|default:"0"|floatformat:2|intcomma }}</span></span><br>
+              <span class="mb-1 text-sm">SME Income: <span class="text-dark font-weight-bold ms-sm-2">K {{ statement_of_position.income_sme|default:"0"|floatformat:2|intcomma }}</span></span><br>
+              <span class="mb-1 text-sm">Other Income: <span class="text-dark font-weight-bold ms-sm-2">K {{ statement_of_position.total_other_income|default:"0"|floatformat:2|intcomma }}</span></span><br>
+              <hr>
+              <span class="mb-1 text-sm"><strong>Total Income: K {{ statement_of_position.total_income|default:"0"|floatformat:2|intcomma }}</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="card mb-3">
+            <div class="card-header bg-warning text-white">
+              <h6 class="mb-0">Expenses</h6>
+            </div>
+            <div class="card-body">
+              <span class="mb-1 text-sm">Loan Payments: <span class="text-dark font-weight-bold ms-sm-2">K {{ statement_of_position.total_loan_payments|default:"0"|floatformat:2|intcomma }}</span></span><br>
+              <span class="mb-1 text-sm">Rental: <span class="text-dark font-weight-bold ms-sm-2">K {{ statement_of_position.expense_rental|default:"0"|floatformat:2|intcomma }}</span></span><br>
+              <span class="mb-1 text-sm">Insurance: <span class="text-dark font-weight-bold ms-sm-2">K {{ statement_of_position.expense_insurance|default:"0"|floatformat:2|intcomma }}</span></span><br>
+              <span class="mb-1 text-sm">Utilities: <span class="text-dark font-weight-bold ms-sm-2">K {{ statement_of_position.expense_utilities|default:"0"|floatformat:2|intcomma }}</span></span><br>
+              <span class="mb-1 text-sm">Others: <span class="text-dark font-weight-bold ms-sm-2">K {{ statement_of_position.expense_others|default:"0"|floatformat:2|intcomma }}</span></span><br>
+              <hr>
+              <span class="mb-1 text-sm"><strong>Total Expenses: K {{ statement_of_position.total_expenses|default:"0"|floatformat:2|intcomma }}</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-12">
+          <div class="card mb-3">
+            <div class="card-header bg-info text-white">
+              <h6 class="mb-0">Net Position</h6>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-4">
+                  <span class="mb-1 text-sm"><strong>Total Assets:</strong> <span class="text-dark font-weight-bold ms-sm-2">K {{ statement_of_position.total_assets|default:"0"|floatformat:2|intcomma }}</span></span>
+                </div>
+                <div class="col-md-4">
+                  <span class="mb-1 text-sm"><strong>Total Liabilities:</strong> <span class="text-dark font-weight-bold ms-sm-2">K {{ statement_of_position.total_liabilities|default:"0"|floatformat:2|intcomma }}</span></span>
+                </div>
+                <div class="col-md-4">
+                  <span class="mb-1 text-sm"><strong>Net Position:</strong> <span class="text-dark font-weight-bold ms-sm-2">K {{ statement_of_position.net_position|default:"0"|floatformat:2|intcomma }}</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-12 text-center">
+          <a href="{% url 'edit_statement_of_position' %}" class="btn btn-primary">
+            <i class="fa fa-edit"></i> Edit Statement of Position
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% else %}
+  <div class="card p-0 mt-2 mb-2">
+    <div class="card-header bg-secondary pt-2 pr-1 pb-2 pl-1 text-center">
+      <h5 class="text-light p-0 m-0"><b>Statement of Position</b></h5>
+    </div>
+    <div class="card-body p-2 text-center">
+      <div class="alert alert-info">
+        <h5>No Statement of Position data available</h5>
+        <p>You haven't created your Statement of Position yet. Click the button below to get started.</p>
+        <a href="{% url 'edit_statement_of_position' %}" class="btn btn-primary">
+          <i class="fa fa-plus"></i> Create Statement of Position
+        </a>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+{% endblock %}

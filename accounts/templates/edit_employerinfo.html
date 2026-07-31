@@ -1,0 +1,83 @@
+{% extends "dashboard_base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %} My Profile {% endblock %}
+
+{% block breadcrumb %} <a href="{% url 'dashboard' %}">Dashboard</a>  /  <a href="{% url 'profile' %}">Profile</a> {% endblock %}
+{% block breadcrumb_active %} Employer Information {% endblock %}
+{% block dashboard_title %} Edit Employer Information {% endblock %}
+
+{% block content %}
+
+
+  <!-- Content Goes Here -->
+  <div class="row">
+    <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12 col-xs-12">
+      <div class="card mt-2 p-1">
+        <div class="card-header bg-secondary m-0 pt-2 pr-1 pb-0 pl-2">
+          <h5 class="text-light"> Employer Information </h5>
+        </div>
+        <div class="card-body m-0 p-2">
+          <form method="post">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <br>
+            <button type="submit" class="btn btn-primary">UPDATE</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Content Ends Here -->
+
+ 
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const sectorSelect = document.getElementById('id_sector');
+  const orgSelect = document.getElementById('id_organisation_type');
+  if (!sectorSelect || !orgSelect) return;
+
+  // Find wrapper div (Bootstrap 5 crispy forms typically uses mb-3)
+  let orgWrapper = orgSelect.closest('.mb-3') || orgSelect.closest('.form-group') || orgSelect.parentElement;
+
+  const allOptions = Array.from(orgSelect.querySelectorAll('option'));
+
+  function filterOrgOptions() {
+    const sector = sectorSelect.value;
+    let allowed = [];
+    if (sector === 'PUBLIC') {
+      allowed = ['', 'DEPARTMENT', 'SOE'];
+    } else if (sector === 'PRIVATE') {
+      allowed = ['', 'COMPANY', 'MSME'];
+    } else {
+      allowed = [''];
+    }
+
+    orgSelect.innerHTML = '';
+    allOptions.forEach(function (opt) {
+      if (allowed.includes(opt.value)) {
+        orgSelect.appendChild(opt.cloneNode(true));
+      }
+    });
+
+    // Show/hide wrapper
+    if (orgWrapper) {
+      orgWrapper.style.display = (sector === 'PUBLIC' || sector === 'PRIVATE') ? '' : 'none';
+    }
+
+    // Try to preserve previously selected value if still valid
+    if (sector === 'PUBLIC' && !['DEPARTMENT', 'SOE'].includes(orgSelect.value)) {
+      orgSelect.value = '';
+    } else if (sector === 'PRIVATE' && !['COMPANY', 'MSME'].includes(orgSelect.value)) {
+      orgSelect.value = '';
+    }
+  }
+
+  sectorSelect.addEventListener('change', filterOrgOptions);
+  filterOrgOptions();
+});
+</script>
+{% endblock %}

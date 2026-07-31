@@ -1,0 +1,58 @@
+{% extends "admin_base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Referral Settings{% endblock %}
+{% block breadcrumb %}<a href="{% url 'admin_dashboard' %}">Dashboard</a>{% endblock %}
+{% block breadcrumb_active %}Referral Settings{% endblock %}
+{% block dashboard_title %}Referral Settings{% endblock %}
+
+
+
+{% block content %}
+<div class="sx-wrap">
+  <div>
+
+    {% include "settings_nav.html" %}
+
+    <div class="card sx-card mb-4">
+      <div class="card-header sx-head">
+        <div class="sx-ico"><i class="fa fa-user-group"></i></div>
+        <div><h5>Referral Commission</h5><p>Fixed commission recorded against a referrer whenever a new client is linked to them.</p></div>
+      </div>
+      <div class="card-body pt-3 p-3">
+        <p class="text-muted mb-4" style="font-size:.88rem;">
+          Configure the fixed commission amount paid to referrers. The commission is automatically recorded
+          against the referrer whenever a new client is linked to them.
+          Payments are processed monthly via the
+          <a href="{% url 'commission_overview' %}">Commission Overview</a> page.
+        </p>
+        <form method="post">
+          {% csrf_token %}
+          {{ form|crispy }}
+          <br>
+          <button type="submit" class="btn btn-primary">Update Referral Settings</button>
+          <a href="{% url 'referrers_list' %}" class="btn btn-secondary ms-2">Manage Referrers</a>
+        </form>
+      </div>
+    </div>
+
+    <!-- Quick summary -->
+    <div class="card sx-card">
+      <div class="card-header sx-head">
+        <div class="sx-ico"><i class="fa fa-circle-question"></i></div>
+        <div><h5>How Referrals Work</h5><p>The end-to-end referral & commission flow.</p></div>
+      </div>
+      <div class="card-body">
+        <ol style="font-size:.88rem;color:#344767;line-height:1.9;">
+          <li>Register a referrer under <a href="{% url 'add_referrer' %}">Referrers → Add Referrer</a> with their name, contact, and bank details.</li>
+          <li>When a staff member creates a new client, they select the referrer from the <strong>Referred By</strong> dropdown on the client creation form.</li>
+          <li>The system automatically creates a referral record and assigns the commission amount (set above) to the referrer.</li>
+          <li>At the end of each month, go to <a href="{% url 'commission_overview' %}">Commission Overview</a>, select the month, and click <strong>Mark Paid</strong> for each referrer once payment has been made to their bank account.</li>
+          <li>All historical payment records are stored per referrer and can be viewed on their profile page.</li>
+        </ol>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

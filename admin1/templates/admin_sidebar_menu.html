@@ -1,0 +1,385 @@
+{% load site_filter %}
+
+                    <li class="nav-item">
+                      <a href="{% url 'admin_dashboard' %}" class="nav-link text-white {% if nav == 'admin_dashboard' %} active bg-primary {% endif %}">
+                        <div class="text-white text-center me-1 d-flex align-items-center justify-content-center">
+                          <i class="fa-solid fa-dashboard"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">DASHBOARD</span>
+                      </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                      <a class="nav-link text-white {% if nav == 'loans' or nav == 'all_loans'  or nav == 'pending_loans'  or nav == 'running_loans'  or nav == 'defaulted_loans' or nav == 'recovery_loans'  or nav == 'completed_loans' or nav == 'funding_list' %} active bg-primary {% endif %}" href="#submenu13" data-bs-toggle="collapse">
+                        <div class="text-white text-center me-1 d-flex align-items-center justify-content-center">
+                          <i class="fa-solid fa-briefcase"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">LOANS</span>
+                      </a>
+                      <ul class="collapse {% if nav == 'loans' or nav == 'all_loans'  or nav == 'pending_loans'  or nav == 'running_loans'  or nav == 'defaulted_loans' or nav == 'recovery_loans'  or nav == 'completed_loans' or nav == 'funding_list' %} show {% endif %} nav flex-column ms-1" id="submenu13" data-bs-parent="#menu">
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'loans' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'loans' %}">
+                            Overview</a>
+                        </li>
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'all_loans' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'all_loans' %}">
+                            All Loans</a>
+                        </li>
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'pending_loans' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'pending_loans' %}">
+                            Pending</a>
+                        </li>
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'running_loans' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'running_loans' %}">
+                            Running</a>
+                        </li>
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'defaulted_loans' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'defaulted_loans' %}">
+                            Defaulted</a>
+                        </li>
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'recovery_loans' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'recovery_loans' %}">
+                            In Recovery</a>
+                        </li>
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'completed_loans' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'completed_loans' %}">
+                            Completed</a>
+                        </li>
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'funding_list' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'funding_list' %}">
+                            <div class="text-white text-center me-1 d-flex align-items-center justify-content-center">
+                              <i class="fa-solid fa-coins"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">Funding List {% if funding_list_count %}<span class="badge-sm bg-info text-success">{{ funding_list_count }}</span>{% endif %}</span>
+                          </a>
+                        </li>
+                        
+                      </ul>
+                    </li>
+                    
+                    <li class="nav-item">
+                      <a class="nav-link text-white {% if nav == 'transactions' or nav == 'transactions_all'  or nav == 'transactions_payments'  or nav == 'transactions_defaults'  or nav == 'transactions_expected' or nav == 'payment_uploads' %} active bg-primary {% endif %}" href="#submenu1trans" data-bs-toggle="collapse">
+                        <div class="text-white text-center me-1 d-flex align-items-center justify-content-center">
+                          <i class="fa-solid fa-receipt"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">TRANSACTIONS</span>
+                      </a>
+                      <ul class="collapse {% if nav == 'transactions' or nav == 'transactions_all'  or nav == 'transactions_payments'  or nav == 'transactions_defaults'  or nav == 'transactions_expected' or nav == 'payment_uploads' %} show {% endif %} nav flex-column ms-1" id="submenu1trans" data-bs-parent="#menu">
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'transactions' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'transactions' %}">
+                            Overview</a>
+                        </li>
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'transactions_all' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'transactions_all' %}">
+                            All Transactions</a>
+                        </li>
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'transactions_payments' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'transactions_payments' %}">
+                            Payments</a>
+                        </li>
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'transactions_defaults' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'transactions_defaults' %}">
+                            Defaults</a>
+                        </li>
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'transactions_expected' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'transactions_expected' %}">
+                            <div class="text-white text-center me-1 d-flex align-items-center justify-content-center">
+                              <i class="fa-solid fa-clock"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">Payments Expected</span> 
+                          </a>
+                        </li>
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'payment_uploads' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'payment_uploads' %}">
+                            <div class="text-white text-center me-1 d-flex align-items-center justify-content-center">
+                              <i class="fa-solid fa-upload"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">Payment Uploads</span>
+                          </a>
+                        </li>
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'alesco_update' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'alesco_update' %}">
+                            <div class="text-white text-center me-1 d-flex align-items-center justify-content-center">
+                              <i class="fa-solid fa-file-invoice-dollar"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">Alesco Update</span>
+                          </a>
+                        </li>
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'client_credits' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'client_credits' %}">
+                            <div class="text-white text-center me-1 d-flex align-items-center justify-content-center">
+                              <i class="fa-solid fa-hand-holding-dollar"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">Client Credits</span>
+                          </a>
+                        </li>
+                      </ul>
+                    </li>
+
+                    <li class="nav-item">
+                      <a class="nav-link text-white {% if nav == 'clients' or nav == 'clients_all'  or nav == 'clients_withloan'  or nav == 'clients_pending' or nav == 'clients_pending_activation'  or nav == 'clients_flagged' or nav == 'clients_suspended' %} active bg-primary {% endif %}" href="#submenu1cust" data-bs-toggle="collapse">
+                        <div class="text-white text-center me-1 d-flex align-items-center justify-content-center">
+                          <i class="fa-solid fa-users"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">CLIENTS</span>
+                      </a>
+                      <ul class="collapse {% if nav == 'clients' or nav == 'clients_all'  or nav == 'clients_withloan'  or nav == 'clients_pending'  or nav == 'clients_pending_activation' or nav == 'clients_flagged' or nav == 'clients_suspended' %} show {% endif %} nav flex-column ms-1" id="submenu1cust" data-bs-parent="#menu">
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'clients' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'clients' %}">
+                            Overview</a>
+                        </li>
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'clients_all' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'clients_all' %}">
+                            All Clients</a>
+                        </li>
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'clients_withloan' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'clients_withloan' %}">
+                            With Loan</a>
+                        </li>
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'clients_pending' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'clients_pending' %}">
+                            Pending</a>
+                        </li>
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'clients_pending_activation' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'clients_pending_activation' %}">
+                            Pending Activation</a>
+                        </li>
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'clients_flagged' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'clients_flagged' %}">
+                            Flagged</a>
+                        </li>
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'clients_suspended' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'clients_suspended' %}">
+                            Suspended</a>
+                        </li>
+                        
+                      </ul>
+                    </li>
+
+
+                    <li class="nav-item">
+                      <a class="nav-link text-white {% if nav == 'locations' or nav == 'locations_clients'  or nav == 'locations_loans'  or nav == 'locations_transactions' %} active bg-primary {% endif %}" href="#submenu1loc" data-bs-toggle="collapse">
+                        <div class="text-white text-center me-1 d-flex align-items-center justify-content-center">
+                          <i class="fa-solid fa-map"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">LOCATIONS</span>
+                      </a>
+                      <ul class="collapse {% if nav == 'locations' or nav == 'locations_clients'  or nav == 'locations_loans'  or nav == 'locations_transactions' %} show {% endif %} nav flex-column ms-1" id="submenu1loc" data-bs-parent="#menu">
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'locations' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'locations' %}">
+                            Overview</a>
+                        </li>
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'locations_clients' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'locations_clients' %}">
+                            Clients by Location</a>
+                        </li>
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'locations_loans' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'locations_loans' %}">
+                            Loans by Location</a>
+                        </li>
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'locations_transactions' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'locations_transactions' %}">
+                            Tansactions by Location</a>
+                        </li>
+                      </ul>
+                    </li>
+
+                    <li class="nav-item">
+                      <a class="nav-link text-white {% if nav == 'employer_overview' or nav == 'loans_by_employer' or nav == 'payroll_contacts' %} active bg-primary {% endif %}" href="#submenu1employer" data-bs-toggle="collapse">
+                        <div class="text-white text-center me-1 d-flex align-items-center justify-content-center">
+                          <i class="fa-solid fa-landmark"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">EMPLOYERS</span>
+                      </a>
+                      <ul class="collapse {% if nav == 'employer_overview' or nav == 'loans_by_employer' or nav == 'payroll_contacts' %} show {% endif %} nav flex-column ms-1" id="submenu1employer" data-bs-parent="#menu">
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'employer_overview' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'employer_overview' %}">
+                            Overview</a>
+                        </li>
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'loans_by_employer' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'loans_by_employer' %}">
+                            Loans by Employer</a>
+                        </li>
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'payroll_contacts' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'payroll_contacts' %}">
+                            Payroll Contacts</a>
+                        </li>
+                      </ul>
+                    </li>
+
+                        <li class="nav-item">
+                          <a class="nav-link text-white {% if nav == 'messages_admin' or nav == 'create_message_admin'  or nav == 'message_drafts_admin'  or nav == 'delivery_reports_admin' or nav == 'delivery_statuses_admin' %} active bg-primary {% endif %}" href="#submenu1msg" data-bs-toggle="collapse">
+                            <div class="text-white text-center me-1 d-flex align-items-center justify-content-center">
+                              <i class="fa-solid fa-message"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">MESSAGES</span>
+                          </a>
+                          <ul class="collapse {% if nav == 'messages_admin' or nav == 'create_message_admin'  or nav == 'message_drafts_admin'  or nav == 'delivery_reports_admin' or nav == 'delivery_statuses_admin' %} show {% endif %} nav flex-column ms-1" id="submenu1msg" data-bs-parent="#menu">
+                            <li class="text-xs p-0">
+                              <a class="nav-link text-white {% if nav == 'messages_admin' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'messages_admin' %}">
+                                Overview</a>
+                            </li>
+
+                            <li class="text-xs p-0">
+                              <a class="nav-link text-white {% if nav == 'create_message_admin' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'create_message_admin' %}">
+                                Create Message</a>
+                            </li>
+
+                            <li class="text-xs p-0">
+                              <a class="nav-link text-white {% if nav == 'messages_admin' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'messages_admin' %}">
+                                All Messages</a>
+                            </li>
+                            
+                            <li class="text-xs p-0">
+                              <a class="nav-link text-white {% if nav == 'message_drafts_admin' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'message_drafts_admin' %}">
+                                Drafts</a>
+                            </li> 
+                            <li class="text-xs p-0">
+                              <a class="nav-link text-white {% if nav == 'delivery_statuses_admin' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'delivery_statuses_admin' %}">
+                                Delivery Statuses</a>
+                            </li>
+                            <li class="text-xs p-0">
+                              <a class="nav-link text-white {% if nav == 'delivery_reports_admin' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'delivery_reports_admin' %}">
+                                Delivery Reports</a>
+                            </li>
+                          </ul>
+                        </li>
+
+                          <li class="nav-item">
+                            <a class="nav-link text-white {% if nav == 'support_tickets_admin' or nav == 'pending_tickets_admin'  or nav == 'closed_tickets_admin'  or nav == 'open_tickets_admin' %} active bg-primary {% endif %}" href="#submenu1ss" data-bs-toggle="collapse">
+                              <div class="text-white text-center me-1 d-flex align-items-center justify-content-center">
+                                <i class="fa-solid fa-circle-info"></i>
+                              </div>
+                              <span class="nav-link-text ms-1">SUPPORT TICKETS</span>
+                            </a>
+                            <ul class="collapse {% if nav == 'support_tickets_admin' or nav == 'pending_tickets_admin'  or nav == 'closed_tickets_admin'  or nav == 'open_tickets_admin' %} show {% endif %} nav flex-column ms-1" id="submenu1ss" data-bs-parent="#menu">
+                              <li class="text-xs p-0">
+                                <a class="nav-link text-white {% if nav == 'support_tickets_admin' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'support_tickets_admin' %}">
+                                  Overview</a>
+                              </li>
+
+                              <li class="text-xs p-0">
+                                <a class="nav-link text-white {% if nav == 'pending_tickets_admin' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'pending_tickets_admin' %}">
+                                  Pending</a>
+                              </li>
+                              <li class="text-xs p-0">
+                                <a class="nav-link text-white {% if nav == 'open_tickets_admin' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'open_tickets_admin' %}">
+                                  Open Tickets</a> 
+                              </li>
+                              <li class="text-xs p-0">
+                                <a class="nav-link text-white {% if nav == 'closed_tickets_admin' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'closed_tickets_admin' %}">
+                                  Closed Tickets</a>
+                              </li>
+                              <li class="text-xs p-0">
+                                <a class="nav-link text-white {% if nav == 'support_tickets_admin' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'support_tickets_admin' %}">
+                                  All Tickets</a>
+                              </li>
+                            </ul>
+                          </li>
+                    
+                    
+                    {% if appearance.referral_enabled %}
+                    <li class="nav-item">
+                      <a class="nav-link text-white {% if nav == 'referrers' %} active bg-primary {% endif %}" href="#submenu1ref" data-bs-toggle="collapse">
+                        <div class="text-white text-center me-1 d-flex align-items-center justify-content-center">
+                          <i class="material-icons-round" style="font-size:1rem;">share</i>
+                        </div>
+                        <span class="nav-link-text ms-1">REFERRERS</span>
+                      </a>
+                      <ul class="collapse {% if nav == 'referrers' %} show {% endif %} nav flex-column ms-1" id="submenu1ref" data-bs-parent="#menu">
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white ms-1 p-1" href="{% url 'referrers_list' %}">All Referrers</a>
+                        </li>
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white ms-1 p-1" href="{% url 'add_referrer' %}">Add Referrer</a>
+                        </li>
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white ms-1 p-1" href="{% url 'commission_overview' %}">Commission Overview</a>
+                        </li>
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white ms-1 p-1" href="{% url 'payment_run' %}">
+                            <i class="material-icons-round" style="font-size:.8rem;vertical-align:middle;color:#4CAF50;">payments</i>
+                            Payment Run
+                          </a>
+                        </li>
+                      </ul>
+                    </li>
+                    {% endif %}
+
+                    <li class="nav-item mt-3">
+                      <h6 class="ps-4 ms-2 text-uppercase text-xs text-info font-weight-bolder opacity-8">Admin pages</h6>
+                    </li>
+                   
+                    <li class="nav-item">
+                      <a class="nav-link text-white {% if nav == 'reports' or nav == 'report_catalog' or nav == 'report_detail' or nav == 'report_overview' or nav == 'cash_flow'  %} active bg-primary {% endif %}" href="#submenu1rep" data-bs-toggle="collapse">
+                        <div class="text-white text-center me-1 d-flex align-items-center justify-content-center">
+                          <i class="fa-solid fa-print"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">REPORTS</span>
+                      </a>
+                      <ul class="collapse {% if nav == 'reports' or nav == 'report_catalog' or nav == 'report_detail' or nav == 'report_overview' or nav == 'cash_flow' %} show {% endif %} nav flex-column ms-1" id="submenu1rep" data-bs-parent="#menu">
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'report_overview' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'report_overview' %}">
+                            Overview</a>
+                        </li>
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'reports' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'reports' %}">
+                            Collections<span class="badge-sm bg-info text-success">0</span></a>
+                        </li>
+                        
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'cash_flow' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'cash_flow' %}">
+                            Cash Flow</a>
+                        </li>
+                      </ul>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link text-white {% if nav == 'admin_settings' or nav == 'admin_settings_general' or nav == 'admin_settings_form' or nav == 'admin_settings_date' or nav == 'admin_settings_loans' or nav == 'admin_settings_banks' or nav == 'admin_settings_employers' or nav == 'admin_settings_credit' or nav == 'referral_settings' %} active bg-primary {% endif %}" href="#submenu1settings" data-bs-toggle="collapse">
+                        <div class="text-white text-center me-1 d-flex align-items-center justify-content-center">
+                          <i class="fa-solid fa-gear"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">Settings</span>
+                      </a>
+                      <ul class="collapse {% if nav == 'admin_settings' or nav == 'admin_settings_general' or nav == 'admin_settings_form' or nav == 'admin_settings_date' or nav == 'admin_settings_loans' or nav == 'admin_settings_banks' or nav == 'admin_settings_employers' or nav == 'admin_settings_credit' or nav == 'referral_settings' %} show {% endif %} nav flex-column ms-1" id="submenu1settings" data-bs-parent="#menu">
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'admin_settings_general' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'admin_settings_general' %}">
+                            General Settings</a>
+                        </li>
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'admin_settings_form' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'admin_settings_form' %}">
+                            Form Settings</a>
+                        </li>
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'admin_settings_date' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'admin_settings_date' %}">
+                            Date Settings</a>
+                        </li>
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'admin_settings_loans' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'admin_settings_loans' %}">
+                            Loan Settings</a>
+                        </li>
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'admin_settings_banks' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'admin_settings_banks' %}">
+                            Bank Settings</a>
+                        </li>
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'admin_settings_employers' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'admin_settings_employers' %}">
+                            Employer Settings</a>
+                        </li>
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'admin_settings_credit' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'admin_settings_credit' %}">
+                            Credit Check Settings</a>
+                        </li>
+                        <li class="text-xs p-0">
+                          <a class="nav-link text-white {% if nav == 'referral_settings' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'referral_settings' %}">
+                            Referral Settings</a>
+                        </li>
+                      </ul>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link text-white" href="{{ dom|domain }}/appadmin/" target="_blank">
+                        <div class="text-white text-center me-1 d-flex align-items-center justify-content-center">
+                          <i class="fa-solid fa-user"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">Site Admin</span>
+                      </a>
+                    </li>

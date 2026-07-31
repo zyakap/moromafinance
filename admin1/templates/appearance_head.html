@@ -1,0 +1,31 @@
+{% if appearance %}
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family={{ appearance.font_family_url }}:wght@300;400;500;600;700&display=swap">
+{% if appearance.favicon_url %}<link rel="icon" href="{{ appearance.favicon_url }}">{% endif %}
+<style>
+  :root {
+    --wc-primary: {{ appearance.primary_color }};
+    --wc-sidebar: {{ appearance.sidebar_bg_color }};
+    --wc-topbar: {{ appearance.topbar_color }};
+  }
+  body, .navbar, .btn, .text-sm, h1, h2, h3, h4, h5, h6 { font-family: '{{ appearance.font_family }}', 'Roboto', sans-serif; }
+
+  /* Brand / primary accents */
+  .bg-primary, .bg-gradient-primary { background-color: var(--wc-primary) !important; background-image: none !important; }
+  .btn-primary, .btn.bg-gradient-primary, .bg-gradient-primary.btn { background-color: var(--wc-primary) !important; border-color: var(--wc-primary) !important; }
+  .btn-outline-primary { color: var(--wc-primary) !important; border-color: var(--wc-primary) !important; }
+  .btn-outline-primary:hover { background-color: var(--wc-primary) !important; color: #fff !important; }
+  .text-primary { color: var(--wc-primary) !important; }
+  .border-primary { border-color: var(--wc-primary) !important; }
+  .nav-link.active.bg-primary, .nav-pills .nav-link.active { background-color: var(--wc-primary) !important; }
+  a { color: var(--wc-primary); }
+
+  /* Left sidebar */
+  aside.sidenav, .sidenav.bg-gradient-dark { background-color: var(--wc-sidebar) !important; background-image: none !important; }
+  {% if not appearance.sidebar_light_text %}
+  .sidenav .nav-link.text-white, .sidenav .navbar-brand, .sidenav h6.text-white, .sidenav .nav-link-text { color: #344767 !important; }
+  {% endif %}
+
+  /* Report / dark header strips */
+  .report-header-strip { background: var(--wc-topbar) !important; }
+</style>
+{% endif %}

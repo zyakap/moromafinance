@@ -1,0 +1,673 @@
+{% extends "admin_base.html" %}
+{% load static %}
+{% load humanize %}
+{% load finance_formats %}
+
+{% block title %} Transactions {% endblock %}
+{% block breadcrumb %} 
+  <a href="{% url 'dashboard' %}">Dashboard</a> /  
+  <a href="{% url 'transactions' %}">Transactions</a>  
+{% endblock %}
+{% block breadcrumb_active %} All {% endblock %}
+{% block dashboard_title %} All Loan Transactions {% endblock %}
+
+{% block css %}
+
+<!-- DataTables LOCAL CSS -->
+<link rel="stylesheet" type="text/css" href="{% static 'DataTables/datatables.min.css' %}"/>   
+
+<style>
+  .flex-container {
+    display: flex;
+  }
+  
+  .flex-child {
+    flex: 1;
+  }  
+  
+  .flex-child:first-child {
+    margin-right: 5px;
+  } 
+  .flex-child:last-child {
+    margin-left: 5px;
+  } 
+</style>
+
+{% endblock %}
+
+{% block content %}
+
+  <!-- Content Goes Here -->
+
+  <!-- Content Goes Here -->
+  <div class="row mt-2">
+    <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-xs-12 mb-1">
+      <div>
+        <div class="card p-0 m-0 text-center btn-sm">
+          <a href="{% url 'transactions_all' %}">
+            <h6 class="p-0 m-0 text-primary text-sm">All Transactions &nbsp;</span></h6>
+          </a> 
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-xs-12 mb-1">
+      <div>
+        <div class="card p-0 m-0 text-center button button2 btn-sm">
+          <a href="{% url 'transactions_payments' %}">
+            <h6 class="p-1 m-0 text-light text-xs">Payments &nbsp;</h6>
+          </a> 
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-xs-12 mb-1">
+      <div>
+        <div class="card p-0 m-0 text-center button button2 btn-sm">
+          <a href="{% url 'transactions_defaults' %}">
+            <h6 class="p-1 m-0 text-light text-xs">Defaults &nbsp;</h6>
+          </a> 
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-xs-12 mb-1">
+      <div>
+        <div class="card p-0 m-0 text-center button button2 btn-sm">
+          <a href="{% url 'transactions_expected' %}">
+            <h6 class="p-1 m-0 text-light text-xs">Expected Payments &nbsp;</h6>
+          </a> 
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="row mt-1">
+    <div class="table-responsive p-2">
+      <table class="table table-dark table-striped table-sm p-0 m-0" style="border-radius: 10px;">
+        <thead>
+          <tr>
+            <th class="text-center">Payments</th>
+            <th class="text-center">Total Payments</th>
+            <th class="text-center">Defaults</th>
+            <th class="text-center">Total Defaults</th>
+            <th class="text-center">Credits</th>
+            <th class="text-center">Total Credits</th>
+            
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="text-center">{% if all_payments.count %}{{ all_payments.count }}{% else %}No Payments{% endif %}</td>
+            <td class="text-center">{% if payments_sum %}K{{ payments_sum|default_if_none:"0"|currency }}{% else %}0{% endif %}</td>
+            <td class="text-center">{% if all_defaults.count %}{{ all_defaults.count }}{% else %}No Defaults{% endif %}</td>
+            <td class="text-center">{% if defaults_sum %}K{{ defaults_sum|default_if_none:"0"|currency }}{% else %}0{% endif %}</td>
+            <td class="text-center">{% if all_credits.count %}{{all_credits.count }}{% else %}No Credits{% endif %}</td>
+            <td class="text-center">{% if credits_sum %}K{{ credits_sum|default_if_none:"0"|currency }}{% else %}0{% endif %}</td>
+            
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="accordion" id="accordionExample" style="background-color: #fdfdfd; border-radius: 10px; padding-left: 5px; padding-right: 5px; margin-bottom: 10px;">
+    <div class="accordion-item">
+      <h3 class="accordion-header" id="headingOne">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <span class="pl-3">&nbsp;&nbsp;Filter all Statements (click to show/hide filter) {% if filter == 'on' %}<span class="badge text-info" style="border: solid 1px #0cf">Filter ON</span> <a href="{{ referrer }}"><span class="badge bg-success">Reset Filter &nbsp;<i class="fa-solid fa-close"></i></span></a>{% endif %}</span>
+        </button>
+      </h3>
+      <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+        <div class="accordion-body p-2 m-0">
+          <div class="row">
+            <div class="col-12">
+              <div class="card p-0 mb-1">
+                <div class="card-header bg-secondary pt-2 pr-2 pb-0 pl-2">
+                  <h4 class="text-light">Filter all Statements</h4>
+                </div>
+                <div class="card-body pt-3 pr-1 pb-1 pl-2">
+                  <p class="text-secondary">Select Loan or Transaction Type or time interval to Filter</p>
+                  <form method="POST">
+                    {% csrf_token %}
+                    <div class="row">
+                      <div class="col-xl-2 col-lg-2 col-md-4 col-sm-6 col-xs-6">
+                        <div class="input-group mb-2">
+                          <select name="loantype" class="form-select" aria-label="Default select">
+                            <option value="">Select Loan Type</option>
+                            <option value="PERSONAL">PERSONAL</option>
+                            <option value="SME">SME</option>
+
+                          </select>
+                        </div>
+                      </div>
+                      
+                      <div class="col-xl-2 col-lg-2 col-md-4 col-sm-6 col-xs-6">
+                        <div class="input-group mb-2">
+                          <select name="transtype" class="form-select" aria-label="Default select">
+                            <option value="">Select Type</option>
+                            <option value="PAYMENT">PAYMENTS</option>
+                            <option value="DEFAULT">DEFAULTS</option>
+                            <option value="OTHER">OTHERS</option>
+                          </select>
+                        </div>
+                      </div>
+                      
+                      <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6 col-xs-6">
+                        <div class="input-group">
+                          <table class="p-0 m-0">
+                            <tr class="p-0 m-0">
+                              <td class="p-0 m-0">
+                                <p class="text-secondary">Start:&nbsp;</p>
+                              </td>
+                              <td class="p-0 m-0">
+                                <input id="startdate" type="text" name="startdate" class="form-control flatpickr-date" placeholder="Start dd/mm/yyyy" aria-label="startdate" aria-describedby="startdate">  
+                              </td>
+                            </tr>
+                          </table>  
+                        </div>
+                      </div>
+                      <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6 col-xs-6">
+                        <div class="input-group">
+                          <table class="p-0 m-0">
+                            <tr class="p-0 m-0">
+                              <td class="p-0 m-0">
+                                <p class="text-secondary">End:&nbsp;&nbsp;</p>
+                              </td>
+                              <td class="p-0 m-0">
+                                <input type="text" name="enddate" class="form-control flatpickr-date" placeholder="dd/mm/yyyy" aria-label="enddate" aria-describedby="enddate" style="width: 100%;"> 
+                              </td>
+                            </tr>
+                          </table> 
+                        </div>
+                      </div>
+                      <div class="col-xl-2 col-lg-2 col-md-4 col-sm-6 col-xs-6">
+                        <div class="p-0 mt-2">
+                          <button type="submit" class="btn btn-sm btn-primary m-0 text-center" style="width: 100%">Filter</button>
+                        </div>
+                      </div>
+                      
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div> 
+  </div>
+  
+
+
+  <div class="row mt-3">
+    <div class="col-12">
+      <div class="card my-3">
+        <div class="card-header bg-secondary p-0 position-relative mt-n2 mx-3 z-index-2">
+          <h6 class="text-white text-center pt-3 pb-1">
+            {% if transtype %}<span class="badge bg-primary text-md" style="color:yellow;">{{ transtype }}</span>{% endif %}
+            TRANSACTIONS {% if loantype %} for <span class="badge bg-primary text-md" style="color:yellow;">{{ loantype }} LOANS</span>{% endif %}
+          {% if startdate and enddate %}- Transacted from <span class="badge bg-primary text-md" style="color:yellow;">{{ startdate }}</span> to <span class="badge bg-primary text-md" style="color:yellow;">{{ enddate }}</span>{% endif %}
+          </h6>
+        </div>
+        <div class="card-body px-0 p-1">
+          <div class="table-responsive p-1">
+            <table id="collectionStatement" class="table table-striped table-hover align-items-center justify-content-center mb-0">
+              <thead>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Date</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">First Name</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Surname</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Type</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Statement</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Debit</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Credit</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Default</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">D. Interest</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">D. Int. Collected</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Loan Amount</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">App. Fee</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Interest</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Balance</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Arrears</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for transaction in all_trans_filtered %}
+                  <tr>
+                    <td>
+                      <div class="d-flex px-2">
+                        <div class="my-auto">
+                          
+                          <h6 class="mb-0 text-xs">{{ transaction.date|sdate }}</h6>
+                         
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <a href="{% url 'view_client' transaction.owner.id %}">
+                      <h6 class="text-xs">{{ transaction.owner.first_name}} 
+                        {% if transaction.owner.middle_name != None %}
+                          {{ transaction.owner.middle_name}} 
+                        {% endif %} 
+                      </h6>
+                      </a>
+                    </td>
+                    <td>
+                      <a href="{% url 'view_client' transaction.owner.id %}">
+                        <h6 class="text-xs">{{ transaction.owner.last_name }}</h6>
+                      </a>
+                    </td>
+                    <td>
+                        <h6 class="text-xs">{{ transaction.type }}</h6>
+                      </td>
+                    <td>
+                      <h6 class="text-xs">{{ transaction.statement }}</h6>
+                    </td>
+                    
+                    <td>
+                        <h6 class="text-xs">{{ transaction.debit|default_if_none:"0"|currency }}</h6>
+                    </td>
+                    <td>
+                        <h6 class="text-xs">{{ transaction.credit|default_if_none:"0"|currency }}</h6>
+                    </td>
+                    <td>
+                      <h6 class="text-xs">{{ transaction.default_amount|default_if_none:"0"|currency }}</h6>
+                    </td>
+                    <td>
+                        <h6 class="text-xs">{{ transaction.interest_on_default|default_if_none:"0"|currency }}</h6>
+                    </td>
+                    <td>
+                        <h6 class="text-xs">{{ transaction.default_interest_collected|default_if_none:"0"|currency }}</h6>
+                    </td>
+                    <td>
+                      <h6 class="text-xs">{{ transaction.loan_amount|default_if_none:"0"|currency }}</h6>
+                    </td>
+                    <td>
+                        <h6 class="text-xs">{{ transaction.application_fee|default_if_none:"0"|currency }}</h6>
+                    </td>
+                    <td>
+                        <h6 class="text-xs">{{ transaction.interest|default_if_none:"0"|currency }}</h6>
+                    </td>
+                    <td>
+                        <h6 class="text-xs">{{ transaction.balance|default_if_none:"0"|currency }}</h6>
+                    </td>
+                    <td>
+                        <h6 class="text-xs">{{ transaction.arrears|default_if_none:"0"|currency }}</h6>
+                    </td>
+                  </tr>
+
+                {% endfor %}
+                
+              </tbody>
+            </table>
+          </div>
+          
+        </div>
+        
+      </div>
+      
+    </div>
+
+  </div>
+
+
+  
+
+{% endblock %}
+
+{% block scripts %}
+<!-- DATATables LOCAL JS -->
+<script type="text/javascript" src="{% static 'DataTables/datatables.min.js' %}"></script>   
+<!--
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/v/bs5/jq-3.6.0/jszip-2.5.0/dt-1.12.1/b-2.2.3/b-colvis-2.2.3/b-html5-2.2.3/b-print-2.2.3/cr-1.5.6/kt-2.7.0/sp-2.0.2/datatables.min.js"></script>
+-->
+
+<!-- DATATABLE SCRIPT-->
+<script>
+    $("#collectionStatement").DataTable({
+        // DataTable configurations
+        paging: true,
+        pageLength: 10,
+        lengthChange: true,
+        autoWidth: true,
+        searching: true,
+        bInfo: true,
+        bSort: true,
+
+        dom: 'lBfrtip',
+        buttons: [
+            {
+                extend: 'copy',
+                text: '<i class="fa fa-solid fa-copy"></i>',
+                className: 'btn btn-secondary',
+                titleAttr: 'Copy Data',
+                // Choose Columns
+                exportOptions: {
+                  columns: [0,1,2,3,4,5,6,7,8,9,10,11]
+                }
+            },
+            {
+              extend: 'excel',
+              text: '<i class="fa fa-solid fa-file-excel"></i>',
+              className: 'btn btn-secondary',
+              titleAttr: 'Export to Excel',
+              // Choose Columns
+              exportOptions: {
+                columns: [0,1,2,3,4,5,6,7,8,9,10,11]
+              }
+            },
+            {
+              extend: 'print',
+              text: '<i class="fa fa-solid fa-print"></i>',
+              className: 'btn btn-secondary',
+              titleAttr: 'Print Table',
+              // Choose Columns
+              exportOptions: {
+                columns: [0,1,2,3,4,5,6,7,8,9,10,11]
+              },
+              // Font size when printing
+              customize: function ( win ) {
+                $(win.document.body).css('font-size', '10pt')
+                $(win.document.body).find('table')
+                  .addClass('compact')
+                  .css('font-size', 'inherit');
+              }
+            },
+            {
+              extend: 'pdf',
+              text: '<i class="fa fa-solid fa-file-pdf"></i>',
+              className: 'btn btn-secondary',
+              titleAttr: 'Export to PDF',
+              orientation: 'landscape',
+              pageSize: 'A4',
+              
+              // Choose Columns
+              exportOptions: {
+                columns: [0,1,2,3,4,5,6,7,8,9,10,11]
+              },
+              
+              // center the table
+              tableHeader: {
+                alignment: 'left'
+              },
+              // Font size & Customization
+              customize: function (doc) {
+              //      doc.style.tableHeader.alignment = 'center'; // Header position 
+                   // doc.style.tableBodyOdd.alignment = 'center';
+                  // doc.style.tableBodyEven.alignment = 'center';
+              //      doc.style.tableHeader.fontSize = 7;
+               //     doc.defaultStyle.fontSize = 6;
+              //      // TO GET 100% width on table
+                   doc.content[1].table.widths = Array(doc.content[1].table.body[1].length + 1).join('*').split('');
+              },
+              
+            },
+            {
+              extend: 'collection',
+              className: 'custom-html-collection',
+              buttons: [
+                  '<h6>Export</h6>',
+                  'csv',
+                  '<h6 class="not-top-heading">Hide/Show Columns</h6>',
+                  'colvis',
+              ]
+          }
+
+        ]
+    });
+</script>
+
+<!-- CHARTJS SCRIPT -->
+<script type="text/javascript" src="{% static 'scripts/chartjs.min.js' %}"></script>
+<script>
+  var ctx = document.getElementById("chartpie").getContext("2d");
+
+  new Chart(ctx, {
+    type: "pie",
+    data: {
+      labels: ["M", "T", "W", "T", "F", "S", "S"],
+      datasets: [{
+        label: "Sales",
+        tension: 0.4,
+        borderWidth: 0,
+        borderRadius: 4,
+        borderSkipped: false,
+        backgroundColor: "rgba(255, 255, 255, .8)",
+        data: [50, 20, 10, 22, 50, 10, 40],
+        maxBarThickness: 6
+      }, ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false,
+        }
+      },
+      interaction: {
+        intersect: false,
+        mode: 'index',
+      },
+      scales: {
+        y: {
+          grid: {
+            drawBorder: false,
+            display: true,
+            drawOnChartArea: true,
+            drawTicks: false,
+            borderDash: [5, 5],
+            color: 'rgba(255, 255, 255, .2)'
+          },
+          ticks: {
+            suggestedMin: 0,
+            suggestedMax: 500,
+            beginAtZero: true,
+            padding: 10,
+            font: {
+              size: 14,
+              weight: 300,
+              family: "Roboto",
+              style: 'normal',
+              lineHeight: 2
+            },
+            color: "#fff"
+          },
+        },
+        x: {
+          grid: {
+            drawBorder: false,
+            display: true,
+            drawOnChartArea: true,
+            drawTicks: false,
+            borderDash: [5, 5],
+            color: 'rgba(255, 255, 255, .2)'
+          },
+          ticks: {
+            display: true,
+            color: '#f8f9fa',
+            padding: 10,
+            font: {
+              size: 14,
+              weight: 300,
+              family: "Roboto",
+              style: 'normal',
+              lineHeight: 2
+            },
+          }
+        },
+      },
+    },
+  });
+
+
+  var ctx2 = document.getElementById("chart-line").getContext("2d");
+
+  new Chart(ctx2, {
+    type: "line",
+    data: {
+      labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+      datasets: [{
+        label: "Mobile apps",
+        tension: 0,
+        borderWidth: 0,
+        pointRadius: 5,
+        pointBackgroundColor: "rgba(255, 255, 255, .8)",
+        pointBorderColor: "transparent",
+        borderColor: "rgba(255, 255, 255, .8)",
+        borderColor: "rgba(255, 255, 255, .8)",
+        borderWidth: 4,
+        backgroundColor: "transparent",
+        fill: true,
+        data: [50, 40, 300, 320, 500, 350, 200, 230, 500],
+        maxBarThickness: 6
+
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false,
+        }
+      },
+      interaction: {
+        intersect: false,
+        mode: 'index',
+      },
+      scales: {
+        y: {
+          grid: {
+            drawBorder: false,
+            display: true,
+            drawOnChartArea: true,
+            drawTicks: false,
+            borderDash: [5, 5],
+            color: 'rgba(255, 255, 255, .2)'
+          },
+          ticks: {
+            display: true,
+            color: '#f8f9fa',
+            padding: 10,
+            font: {
+              size: 14,
+              weight: 300,
+              family: "Roboto",
+              style: 'normal',
+              lineHeight: 2
+            },
+          }
+        },
+        x: {
+          grid: {
+            drawBorder: false,
+            display: false,
+            drawOnChartArea: false,
+            drawTicks: false,
+            borderDash: [5, 5]
+          },
+          ticks: {
+            display: true,
+            color: '#f8f9fa',
+            padding: 10,
+            font: {
+              size: 14,
+              weight: 300,
+              family: "Roboto",
+              style: 'normal',
+              lineHeight: 2
+            },
+          }
+        },
+      },
+    },
+  });
+
+  var ctx3 = document.getElementById("chart-line-tasks").getContext("2d");
+
+  new Chart(ctx3, {
+    type: "line",
+    data: {
+      labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+      datasets: [{
+        label: "Mobile apps",
+        tension: 0,
+        borderWidth: 0,
+        pointRadius: 5,
+        pointBackgroundColor: "rgba(255, 255, 255, .8)",
+        pointBorderColor: "transparent",
+        borderColor: "rgba(255, 255, 255, .8)",
+        borderWidth: 4,
+        backgroundColor: "transparent",
+        fill: true,
+        data: [50, 40, 300, 220, 500, 250, 400, 230, 500],
+        maxBarThickness: 6
+
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false,
+        }
+      },
+      interaction: {
+        intersect: false,
+        mode: 'index',
+      },
+      scales: {
+        y: {
+          grid: {
+            drawBorder: false,
+            display: true,
+            drawOnChartArea: true,
+            drawTicks: false,
+            borderDash: [5, 5],
+            color: 'rgba(255, 255, 255, .2)'
+          },
+          ticks: {
+            display: true,
+            padding: 10,
+            color: '#f8f9fa',
+            font: {
+              size: 14,
+              weight: 300,
+              family: "Roboto",
+              style: 'normal',
+              lineHeight: 2
+            },
+          }
+        },
+        x: {
+          grid: {
+            drawBorder: false,
+            display: false,
+            drawOnChartArea: false,
+            drawTicks: false,
+            borderDash: [5, 5]
+          },
+          ticks: {
+            display: true,
+            color: '#f8f9fa',
+            padding: 10,
+            font: {
+              size: 14,
+              weight: 300,
+              family: "Roboto",
+              style: 'normal',
+              lineHeight: 2
+            },
+          }
+        },
+      },
+    },
+  });
+</script>
+
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends base_template %}
+{% load finance_formats %}
+
+{% block title %} Regenerate Repayment Dates — {{ loan.ref }} {% endblock %}
+{% block breadcrumb %} <a href="{% url back_url_name loan.ref %}">{{ loan.ref }}</a> {% endblock %}
+{% block breadcrumb_active %} Regenerate Dates {% endblock %}
+{% block dashboard_title %} Regenerate Repayment Dates — {{ loan.ref }} {% endblock %}
+
+{% block content %}
+<div class="row mt-3">
+  <div class="col-lg-6 col-md-8 col-12">
+    <div class="card">
+      <div class="card-header d-flex align-items-center" style="gap:12px;">
+        <div style="width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+                    background:color-mix(in srgb, var(--wc-primary,#6bb10d) 12%, #fff);color:var(--wc-primary,#6bb10d);">
+          <i class="fa fa-calendar-plus"></i>
+        </div>
+        <div>
+          <h5 class="mb-0" style="font-size:.95rem;font-weight:800;">Regenerate Repayment Dates</h5>
+          <p class="mb-0 text-secondary" style="font-size:.75rem;">
+            {{ loan.owner.first_name }} {{ loan.owner.last_name }} — {{ loan.ref }} ·
+            outstanding K{{ loan.total_outstanding|currency }}
+          </p>
+        </div>
+      </div>
+      <div class="card-body">
+        <p class="text-muted" style="font-size:.85rem;">
+          The {{ settled }} repayment(s) already settled stay as history. The remaining schedule is
+          rebuilt from the date you choose at the selected frequency, and the loan's
+          <strong>next repayment date</strong> becomes that date.
+        </p>
+        <form method="post">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label fw-bold">Next Repayment Date</label>
+            <input type="date" class="form-control" name="next_date" value="{{ initial_next }}" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Remaining Terms</label>
+            <input type="number" class="form-control" name="remaining" min="1" step="1"
+                   value="{{ initial_remaining }}" required>
+            <small class="text-muted">Number of repayments still to be collected.</small>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Frequency</label>
+            <select class="form-select" name="frequency">
+              {% for f in frequencies %}
+              <option value="{{ f }}" {% if f == 'FORTNIGHTLY' %}selected{% endif %}>{{ f|title }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary"
+                  onclick="return confirm('Regenerate the repayment dates for {{ loan.ref }}? The remaining schedule will be replaced.');">
+            <i class="fa fa-rotate me-1"></i> Regenerate
+          </button>
+          <a href="{% url back_url_name loan.ref %}" class="btn btn-outline-secondary ms-2">Cancel</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

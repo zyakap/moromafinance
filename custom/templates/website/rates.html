@@ -1,0 +1,210 @@
+{% extends 'website/website_base.html' %}
+{% load static %}
+
+{% block title %}Rates &amp; Fees — Our Repayment Schedule | Moroma Finance{% endblock %}
+{% block meta_desc %}Moroma Finance rates and fees: every loan is priced from our published repayment schedule. Use the calculator to see your exact fortnightly repayment and total repayable.{% endblock %}
+
+{% block hero %}
+<section class="page-hero">
+  <div class="container">
+    <span class="eyebrow"><i class="bi bi-percent"></i> Rates &amp; Fees</span>
+    <h1>No fine print. No surprises.</h1>
+    <p>We believe you should know exactly what a loan costs before you sign. Here's how our pricing works — in plain language.</p>
+  </div>
+</section>
+{% endblock %}
+
+{% block content %}
+
+<section class="section">
+  <div class="container">
+    <div class="rateband split reveal" style="margin-bottom:3rem;">
+      <div>
+        <span class="eyebrow on-orange">How our pricing works</span>
+        <h2 style="color:#fff; margin:1rem 0 .6rem; font-size:clamp(1.7rem,3.6vw,2.4rem);">Priced from our repayment schedule</h2>
+        <p style="opacity:.92; margin:0; max-width:48ch;">Moroma Finance does not use a single flat rate. Your interest is set by our published
+          <strong>Moroma Finance Repayment Schedule</strong>, based on how much you borrow and how many fortnights you
+          repay over. A shorter term carries less interest; a longer term carries more. Whatever you choose, the
+          fortnightly repayment and total repayable are agreed with you before you sign.</p>
+      </div>
+      <div style="text-align:center; position:relative;">
+        <i class="bi bi-table" style="font-size:3.4rem; color:var(--d-orange-300);"></i>
+        <div style="font-family:var(--font-head); font-weight:600; letter-spacing:.05em; opacity:.9; margin-top:.6rem;">SET BY SCHEDULE</div>
+        <a href="#calculator" class="btn-d btn-white" style="margin-top:1.4rem;">Check your repayment</a>
+      </div>
+    </div>
+
+    <div class="grid grid-3">
+      <div class="card reveal">
+        <div class="ic"><i class="bi bi-eye-fill"></i></div>
+        <h3>Shown up front</h3>
+        <p>Before you accept, you'll see your loan amount, your fortnightly repayment and your total repayable — in writing.</p>
+      </div>
+      <div class="card reveal">
+        <div class="ic"><i class="bi bi-calendar2-check"></i></div>
+        <h3>Fortnightly repayments</h3>
+        <p>Repayments are spread across fortnights and matched to your pay cycle, so they stay manageable.</p>
+      </div>
+      <div class="card accent reveal">
+        <div class="ic"><i class="bi bi-slash-circle"></i></div>
+        <h3>No hidden charges</h3>
+        <p>What we quote is what you repay. Any fee that ever applies to your loan is disclosed to you before you sign.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Repayment calculator -->
+<section class="section bg-soft" id="calculator">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow"><i class="bi bi-calculator"></i> Repayment Calculator</span>
+      <h2>Work out your repayment</h2>
+      <p>Slide to the amount you need and how many fortnights you'd like to repay over. Every figure comes straight from our published Moroma Finance repayment schedule.</p>
+    </div>
+
+    {{ repayment_table|json_script:"repayment-table" }}
+
+    <div class="calc reveal">
+      <div class="calc-controls">
+        <div class="calc-field">
+          <div class="calc-label">
+            <span><i class="bi bi-cash-coin text-green"></i> How much do you need?</span>
+            <output id="calcAmountOut" for="calcAmount">K1,000</output>
+          </div>
+          <input type="range" class="slider" id="calcAmount" min="500" max="5000" step="50" value="1000"
+                 aria-label="Loan amount in Kina">
+          <div class="calc-scale"><span>K500</span><span>K5,000</span></div>
+        </div>
+
+        <div class="calc-field">
+          <div class="calc-label">
+            <span><i class="bi bi-calendar2-week text-orange"></i> Over how many fortnights?</span>
+            <output id="calcTermOut" for="calcTerm">10 fortnights</output>
+          </div>
+          <input type="range" class="slider orange" id="calcTerm" min="0" max="0" step="1" value="0"
+                 aria-label="Repayment term in fortnights">
+          <div class="calc-scale"><span id="calcTermMin">5</span><span id="calcTermMax">30</span></div>
+        </div>
+      </div>
+
+      <div class="calc-result">
+        <div class="calc-pmt-label">Your fortnightly repayment</div>
+        <div class="calc-pmt" id="calcPmt">K140.00</div>
+        <div class="calc-pmt-sub" id="calcPmtSub">every fortnight for 10 fortnights</div>
+        <div class="calc-rows">
+          <div><span>Loan amount</span><b id="calcRowAmt">K1,000.00</b></div>
+          <div><span>Interest</span><b id="calcRowInt">K400.00</b></div>
+          <div class="total"><span>Total repayable</span><b id="calcRowTotal">K1,400.00</b></div>
+        </div>
+        <a href="{% url 'register' %}" class="btn-d btn-orange" style="position:relative;">Apply for this loan <i class="bi bi-arrow-right"></i></a>
+      </div>
+    </div>
+
+    <p class="calc-note">
+      Indicative only, based on the Moroma Finance Repayment Schedule 2026. Longer terms carry a higher
+      interest rate. Your final amount, term and fortnightly repayment are confirmed in your loan offer
+      and are subject to assessment, eligibility and T&amp;C.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="cta reveal">
+      <h2>See your real numbers</h2>
+      <p>Apply online and we'll show you your exact repayment schedule before you commit to anything.</p>
+      <div class="hero-actions">
+        <a href="{% url 'register' %}" class="btn-d btn-white btn-lg">Apply Now <i class="bi bi-arrow-right"></i></a>
+        <a href="{% url 'contact' %}" class="btn-d btn-lg" style="background:rgba(255,255,255,.15); color:#fff; border-color:rgba(255,255,255,.45);">Ask a question</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  var TABLE = JSON.parse(document.getElementById('repayment-table').textContent);
+
+  var amountEl = document.getElementById('calcAmount');
+  var termEl   = document.getElementById('calcTerm');
+  if (!amountEl || !termEl) return;
+
+  var amountOut = document.getElementById('calcAmountOut');
+  var termOut   = document.getElementById('calcTermOut');
+  var termMin   = document.getElementById('calcTermMin');
+  var termMax   = document.getElementById('calcTermMax');
+  var pmtEl     = document.getElementById('calcPmt');
+  var pmtSubEl  = document.getElementById('calcPmtSub');
+  var rowAmt    = document.getElementById('calcRowAmt');
+  var rowInt    = document.getElementById('calcRowInt');
+  var rowTotal  = document.getElementById('calcRowTotal');
+
+  function money(n) {
+    return 'K' + n.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  // Published terms for an amount. The minimum term varies by amount
+  // (14 F/N below K1,000, 9 below K2,000, otherwise 7; max 36), so the term
+  // slider indexes into this list rather than stepping raw fortnight numbers.
+  function termsFor(amount) {
+    var t = TABLE[String(amount)] || {};
+    return Object.keys(t).map(Number).sort(function (a, b) { return a - b; });
+  }
+
+  function paint(el, pct, colour, track) {
+    el.style.background = 'linear-gradient(90deg, ' + colour + ' 0%, ' + colour + ' ' + pct +
+                          '%, ' + track + ' ' + pct + '%, ' + track + ' 100%)';
+  }
+
+  var lastTerm = 10;
+
+  function render() {
+    var amount = parseInt(amountEl.value, 10);
+    var terms = termsFor(amount);
+    if (!terms.length) return;
+
+    // Re-scale the term slider to this amount's published terms, keeping the
+    // chosen term when it still exists (else snap to the nearest available).
+    termEl.max = String(terms.length - 1);
+    var idx = terms.indexOf(lastTerm);
+    if (idx === -1) {
+      idx = terms.reduce(function (best, t, i) {
+        return Math.abs(t - lastTerm) < Math.abs(terms[best] - lastTerm) ? i : best;
+      }, 0);
+    }
+    termEl.value = String(idx);
+
+    var fns = terms[idx];
+    var pmt = TABLE[String(amount)][String(fns)];
+    var total = pmt * fns;
+
+    amountOut.textContent = 'K' + amount.toLocaleString('en-AU');
+    termOut.textContent = fns + (fns === 1 ? ' fortnight' : ' fortnights');
+    termMin.textContent = terms[0];
+    termMax.textContent = terms[terms.length - 1];
+
+    pmtEl.textContent = money(pmt);
+    pmtSubEl.textContent = 'every fortnight for ' + fns + ' fortnights';
+    rowAmt.textContent = money(amount);
+    rowInt.textContent = money(total - amount);
+    rowTotal.textContent = money(total);
+
+    paint(amountEl, (amount - 500) / (5000 - 500) * 100, '#0f6e3a', '#d2ead9');
+    paint(termEl, terms.length > 1 ? idx / (terms.length - 1) * 100 : 0, '#f0a500', '#fff7e3');
+  }
+
+  amountEl.addEventListener('input', render);
+  termEl.addEventListener('input', function () {
+    var terms = termsFor(parseInt(amountEl.value, 10));
+    lastTerm = terms[parseInt(termEl.value, 10)];
+    render();
+  });
+
+  render();
+})();
+</script>
+{% endblock %}

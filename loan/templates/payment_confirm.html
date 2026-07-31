@@ -1,0 +1,77 @@
+{% extends "staff_base.html" %}
+{% load finance_formats %}
+
+{% block title %}Confirm Payment{% endblock %}
+{% block breadcrumb %}<a href="{% url 'staff_enter_payment' %}">Enter Payment</a>{% endblock %}
+{% block breadcrumb_active %}Confirm{% endblock %}
+{% block dashboard_title %}Confirm Payment Entry{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-3">
+  <div class="col-lg-8 col-md-10">
+    <div class="card">
+      <div class="card-header pb-0">
+        {% if conflict == 'duplicate' %}
+          <h6 class="text-danger mb-1"><i class="fa-solid fa-triangle-exclamation me-1"></i> Possible Duplicate Payment</h6>
+          <p class="text-sm text-secondary mb-0">A payment for the <strong>same loan, same date, and same amount</strong> already exists. Recording it again will pay this loan twice for {{ new_date|sdate }}. Please confirm this is intentional.</p>
+        {% else %}
+          <h6 class="text-warning mb-1"><i class="fa-solid fa-circle-info me-1"></i> Another Payment Exists on This Date</h6>
+          <p class="text-sm text-secondary mb-0">A payment already exists on <strong>{{ new_date|sdate }}</strong> for a <strong>different amount</strong>. If this is a genuine additional payment for the same day, confirm to proceed; otherwise cancel.</p>
+        {% endif %}
+      </div>
+
+      <div class="card-body">
+        <h6 class="text-uppercase text-xs text-secondary font-weight-bolder">Existing payment(s) on {{ new_date|sdate }}</h6>
+        <div class="table-responsive">
+          <table class="table align-items-center mb-3">
+            <thead>
+              <tr>
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder">Ref</th>
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder">Date</th>
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder">Amount</th>
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder">Type</th>
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder">Mode</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for p in existing_payments %}
+              <tr>
+                <td class="text-sm">{{ p.ref|default:"—" }}</td>
+                <td class="text-sm">{{ p.date|sdate }}</td>
+                <td class="text-sm">K {{ p.amount|default_if_none:"0"|currency }}</td>
+                <td class="text-sm">{{ p.type|default:"—" }}</td>
+                <td class="text-sm">{{ p.mode|default:"—" }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <h6 class="text-uppercase text-xs text-secondary font-weight-bolder">New payment you are entering</h6>
+        <div class="p-3 bg-light border-radius-lg mb-3">
+          <div class="row text-sm">
+            <div class="col-md-3"><strong>Date</strong><br>{{ new_date|sdate }}</div>
+            <div class="col-md-3"><strong>Amount</strong><br>K {{ new_amount|default_if_none:"0"|currency }}</div>
+            <div class="col-md-3"><strong>Mode</strong><br>{{ new_mode|default:"—" }}</div>
+            <div class="col-md-3"><strong>Description</strong><br>{{ new_statement|default:"—" }}</div>
+          </div>
+        </div>
+
+        <form method="POST" action="{% url 'payment' loan_ref %}" class="d-inline">
+          {% csrf_token %}
+          {% for key, value in post_items.items %}
+            <input type="hidden" name="{{ key }}" value="{{ value }}">
+          {% endfor %}
+          <input type="hidden" name="confirm" value="{{ confirm_value }}">
+          {% if conflict == 'duplicate' %}
+            <button type="submit" class="btn btn-danger mb-0"><i class="fa-solid fa-check me-1"></i> Yes, record it anyway</button>
+          {% else %}
+            <button type="submit" class="btn btn-success mb-0"><i class="fa-solid fa-check me-1"></i> Yes, it's an additional payment</button>
+          {% endif %}
+        </form>
+        <a href="{% url 'staff_enter_payment' %}" class="btn btn-outline-secondary mb-0 ms-2">Cancel</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

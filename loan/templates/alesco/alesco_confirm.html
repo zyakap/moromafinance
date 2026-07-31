@@ -1,0 +1,381 @@
+{% extends base_template %}
+
+{% block title %} Alesco Update — Confirm {% endblock %}
+{% block breadcrumb %} <a href="{% url urls.url_upload %}">Alesco Update</a> {% endblock %}
+{% block breadcrumb_active %} Confirm Payments {% endblock %}
+{% block dashboard_title %} Alesco Payroll Update — {{ run.ref }} {% endblock %}
+
+{% block css %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css"
+        href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css"/>
+  <style>
+    .var-pos { color:#198754; font-weight:600; }
+    .var-neg { color:#dc3545; font-weight:600; }
+    .var-zero { color:#6c757d; }
+    #alescoTable td, #alescoTable th { vertical-align: middle; font-size:.85rem; }
+    #alescoTable thead th { white-space: nowrap; }
+    div.dataTables_wrapper div.dataTables_length select { width:auto; display:inline-block; }
+    div.dataTables_wrapper div.dataTables_filter input { width:auto; display:inline-block; margin-left:.4rem; }
+  </style>
+{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+<div class="row mt-3">
+  <div class="col-12">
+
+    <div class="card mb-3">
+      <div class="card-body p-3">
+        <div class="row g-3 align-items-center">
+          <div class="col-md-3">
+            <label class="text-secondary fw-bold mb-1" style="font-size:.8rem;">Payment Date (Period End)</label>
+            <input type="date" id="universalDate" class="form-control form-control-sm"
+                   value="{{ run.period_end|date:'Y-m-d' }}">
+            <small class="text-muted">Applied to every confirmed payment in this run.</small>
+          </div>
+          <div class="col-md-3">
+            <div class="text-secondary" style="font-size:.8rem;">Employer / Paycode</div>
+            <div class="fw-bold">{{ run.employer_name|default:"—" }} <span class="text-muted">({{ run.paycode }})</span></div>
+          </div>
+          <div class="col-md-2">
+            <div class="text-secondary" style="font-size:.8rem;">Pay Period</div>
+            <div class="fw-bold">{{ run.pay_period }}/{{ run.pay_year }}</div>
+          </div>
+          <div class="col-md-2">
+            <div class="text-secondary" style="font-size:.8rem;">Employees</div>
+            <div class="fw-bold">{{ run.employee_count }} <small class="text-muted">({{ unmatched }} unmatched)</small></div>
+          </div>
+          <div class="col-md-2">
+            <div class="text-secondary" style="font-size:.8rem;">Total This Period</div>
+            <div class="fw-bold">K{{ run.total_this_period|floatformat:2 }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header bg-secondary pt-2 pb-0 pl-2 d-flex justify-content-between align-items-center">
+        <h4 class="text-light mb-0 pt-1 pb-1">Confirm Payments</h4>
+        <span id="runStatusBadge" class="badge bg-light text-dark">{{ run.status }}</span>
+      </div>
+      <div class="card-body p-3">
+        <div class="table-responsive">
+          <table id="alescoTable" class="table table-sm table-hover align-middle w-100">
+            <thead class="table-light">
+              <tr>
+                <th>Employee</th>
+                <th>Client Name</th>
+                <th>LoanRef</th>
+                <th class="text-end">This Period</th>
+                <th class="text-end">Expected Repayment</th>
+                <th class="text-end">Variance</th>
+                <th class="text-center">Status</th>
+                <th class="text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div id="confirmProgress" class="d-none mt-3">
+          <div class="progress" style="height:24px;border-radius:8px;">
+            <div id="confirmProgressBar"
+                 class="progress-bar progress-bar-striped progress-bar-animated bg-success"
+                 role="progressbar" style="width:0%;font-weight:700;">0%</div>
+          </div>
+          <small id="confirmProgressText" class="text-secondary d-block mt-1"></small>
+        </div>
+
+        <div class="d-flex justify-content-between mt-3">
+          <form id="cancelForm" method="post" action="{% url urls.url_cancel run_id=run.pk %}">
+            {% csrf_token %}
+            <button type="submit" id="cancelBtn" class="btn btn-outline-danger">
+              <i class="fa-solid fa-ban"></i> Cancel Update
+            </button>
+          </form>
+          <button id="confirmAllBtn" class="btn btn-success" title="Confirms every pending line in this upload — regardless of table search or page">
+            <i class="fa-solid fa-check-double"></i> Confirm All
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+  <script>
+  (function () {
+    var DATA_URL = "{% url urls.url_data run_id=run.pk %}";
+    var CONFIRM_ALL_URL = "{% url urls.url_confirm_all run_id=run.pk %}";
+    var CONFIRM_LINE_TMPL = "{% url urls.url_confirm_line line_id=0 %}";    // .../line/0/confirm/
+    var ROLLBACK_LINE_TMPL = "{% url urls.url_rollback_line line_id=0 %}";  // .../line/0/rollback/
+
+    function csrfToken() {
+      var el = document.querySelector('input[name=csrfmiddlewaretoken]');
+      return el ? el.value : '';
+    }
+    function lineUrl(tmpl, id) { return tmpl.replace(/\/0\//, '/' + id + '/'); }
+    function money(v) { return 'K' + v; }
+    function varClass(v) { return v > 0 ? 'var-pos' : (v < 0 ? 'var-neg' : 'var-zero'); }
+
+    function statusBadge(row) {
+      if (row.status === 'CONFIRMED') return '<span class="badge bg-success">Confirmed</span>';
+      if (row.status === 'UNMATCHED') return '<span class="badge bg-secondary" title="No client matched this file number">Unmatched</span>';
+      if (row.status === 'SKIPPED') return '<span class="badge bg-light text-dark">Skipped</span>';
+      return '<span class="badge bg-warning text-dark">Pending</span>';
+    }
+
+    function actionCell(row) {
+      if (row.status === 'CONFIRMED') {
+        return '<button class="btn btn-sm btn-outline-danger py-0 px-2 rollback-one" data-id="' + row.id + '">'
+             + '<i class="fa-solid fa-rotate-left"></i> Rollback</button>';
+      }
+      if (row.status === 'UNMATCHED' || row.status === 'SKIPPED') return '—';
+      return '<button class="btn btn-sm btn-outline-primary py-0 px-2 confirm-one" data-id="' + row.id + '">Confirm</button>';
+    }
+
+    function buildRow(row) {
+      return [
+        row.employee,
+        row.client,
+        row.loanref || '—',
+        '<span class="text-end d-block">' + money(row.this_period) + '</span>',
+        '<span class="text-end d-block">' + money(row.expected) + '</span>',
+        '<span class="text-end d-block ' + varClass(row.variance_val) + '">' + money(row.variance) + '</span>',
+        '<span class="text-center d-block stat-cell" data-id="' + row.id + '">' + statusBadge(row) + '</span>',
+        '<span class="text-center d-block act-cell" data-id="' + row.id + '">' + actionCell(row) + '</span>'
+      ];
+    }
+
+    function loadTable() {
+      fetch(DATA_URL, {credentials: 'same-origin'})
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          var ud = document.getElementById('universalDate');
+          if (data.period_end && ud && !ud.value) ud.value = data.period_end;
+          document.getElementById('runStatusBadge').textContent = data.status;
+          pendingTotal = data.rows.filter(function (r) { return r.status === 'PENDING'; }).length;
+
+          if (window.jQuery && jQuery.fn.dataTable && jQuery.fn.dataTable.isDataTable('#alescoTable')) {
+            jQuery('#alescoTable').DataTable().clear().destroy();
+          }
+          var tbody = document.querySelector('#alescoTable tbody');
+          tbody.innerHTML = '';
+          data.rows.forEach(function (row) {
+            var tr = document.createElement('tr');
+            tr.setAttribute('data-line', row.id);
+            buildRow(row).forEach(function (cell) {
+              var td = document.createElement('td');
+              td.innerHTML = cell;
+              tr.appendChild(td);
+            });
+            tbody.appendChild(tr);
+          });
+          initDataTable();
+          bindRowButtons();
+        });
+    }
+
+    function initDataTable() {
+      if (window.jQuery && jQuery.fn.dataTable) {
+        jQuery('#alescoTable').DataTable({
+          pageLength: 25,
+          lengthMenu: [10, 25, 50, 100],
+          order: [[1, 'asc']],
+          columnDefs: [{ orderable: false, targets: [6, 7] }],
+          autoWidth: false
+        });
+      }
+    }
+
+    function setCells(id, status) {
+      var stat = document.querySelector('.stat-cell[data-id="' + id + '"]');
+      var act = document.querySelector('.act-cell[data-id="' + id + '"]');
+      var row = { id: id, status: status };
+      if (stat) stat.innerHTML = statusBadge(row);
+      if (act) act.innerHTML = actionCell(row);
+      bindRowButtons();
+    }
+
+    function payDateForm() {
+      var fd = new FormData();
+      var ud = document.getElementById('universalDate');
+      if (ud && ud.value) fd.append('date', ud.value);
+      return fd;
+    }
+
+    function post(url, body) {
+      return fetch(url, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {'X-CSRFToken': csrfToken(), 'X-Requested-With': 'XMLHttpRequest'},
+        body: body || new FormData()
+      }).then(function (r) {
+        if (!r.ok) throw new Error('Server responded ' + r.status);
+        return r.json();
+      });
+    }
+
+    function confirmOne(id, act) {
+      act.innerHTML = '<span class="spinner-border spinner-border-sm text-primary"></span>';
+      post(lineUrl(CONFIRM_LINE_TMPL, id), payDateForm()).then(function (res) {
+        setCells(id, res.ok ? 'CONFIRMED' : 'PENDING');
+        if (res.ok) pendingTotal = Math.max(0, pendingTotal - 1);
+        if (!res.ok && res.message) alert(res.message);
+        document.getElementById('runStatusBadge').textContent = res.run_status || '';
+      }).catch(function (err) {
+        setCells(id, 'PENDING');
+        alert('Could not confirm this line (' + err.message + '). Please retry.');
+      });
+    }
+
+    function rollbackOne(id, act) {
+      if (!confirm('Roll back this confirmed payment? The payment and statement entries will be removed and the loan balance restored.')) return;
+      act.innerHTML = '<span class="spinner-border spinner-border-sm text-danger"></span>';
+      post(lineUrl(ROLLBACK_LINE_TMPL, id)).then(function (res) {
+        setCells(id, res.ok ? 'PENDING' : 'CONFIRMED');
+        if (res.ok) pendingTotal += 1;
+        if (!res.ok && res.message) alert(res.message);
+        document.getElementById('runStatusBadge').textContent = res.run_status || '';
+      }).catch(function (err) {
+        setCells(id, 'CONFIRMED');
+        alert('Could not roll back this line (' + err.message + '). Please retry.');
+      });
+    }
+
+    function bindRowButtons() {
+      document.querySelectorAll('.confirm-one').forEach(function (btn) {
+        if (btn.dataset.bound) return; btn.dataset.bound = '1';
+        btn.addEventListener('click', function () {
+          confirmOne(this.getAttribute('data-id'),
+                     document.querySelector('.act-cell[data-id="' + this.getAttribute('data-id') + '"]'));
+        });
+      });
+      document.querySelectorAll('.rollback-one').forEach(function (btn) {
+        if (btn.dataset.bound) return; btn.dataset.bound = '1';
+        btn.addEventListener('click', function () {
+          rollbackOne(this.getAttribute('data-id'),
+                      document.querySelector('.act-cell[data-id="' + this.getAttribute('data-id') + '"]'));
+        });
+      });
+    }
+
+    // ── Confirm All: batched so no proxy/worker timeout can kill it, with a
+    // live progress bar. Server-side it walks EVERY pending line in the run —
+    // table search/filter/pagination never limit what gets confirmed. Progress
+    // is committed per line, so an interrupted run resumes where it stopped.
+    var BATCH_SIZE = 8;
+    var pendingTotal = 0;   // set by loadTable()
+
+    function setProgress(done, total, text) {
+      var wrap = document.getElementById('confirmProgress');
+      var bar = document.getElementById('confirmProgressBar');
+      var pct = total ? Math.round(done / total * 100) : 100;
+      wrap.classList.remove('d-none');
+      bar.style.width = pct + '%';
+      bar.textContent = pct + '%';
+      document.getElementById('confirmProgressText').textContent = text || '';
+    }
+
+    document.getElementById('confirmAllBtn').addEventListener('click', function () {
+      var total = pendingTotal;
+      if (!total) { alert('No pending payments to confirm.'); return; }
+      if (!confirm('Confirm ALL ' + total + ' pending payment(s) in this upload (the entire list, not just this page)?\n\n'
+                 + 'Balances will be updated, statements created and clients notified.')) return;
+      var btn = this;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processing…';
+      var okTotal = 0, failTotal = 0, failures = [], after = 0;
+      setProgress(0, total, 'Starting…');
+
+      function step() {
+        fetch(CONFIRM_ALL_URL + '?ajax=1&batch=' + BATCH_SIZE + '&after=' + after, {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {'X-CSRFToken': csrfToken(), 'X-Requested-With': 'XMLHttpRequest'},
+          body: payDateForm()
+        }).then(function (r) {
+          if (!r.ok) throw new Error('Server responded ' + r.status);
+          return r.json();
+        }).then(function (res) {
+          okTotal += res.confirmed || 0;
+          failTotal += res.failed || 0;
+          (res.failures || []).forEach(function (f) { failures.push(f); });
+          after = res.last || after;
+          var done = okTotal + failTotal;
+          setProgress(done, total, 'Confirmed ' + okTotal + ' of ' + total
+                      + (failTotal ? ' · ' + failTotal + ' could not be processed' : '') + '…');
+          if (res.done || done >= total) { finish(); } else { step(); }
+        }).catch(function (err) {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-check-double"></i> Confirm All';
+          setProgress(okTotal + failTotal, total,
+                      'Interrupted (' + err.message + ') — progress up to here is SAVED. Click Confirm All to resume.');
+          loadTable();
+        });
+      }
+
+      function finish() {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-check-double"></i> Confirm All';
+        setProgress(total, total, 'Done — ' + okTotal + ' payment(s) confirmed'
+                    + (failTotal ? ', ' + failTotal + ' could not be processed' : '') + '.');
+        var msg = 'Confirmed ' + okTotal + ' payment(s).';
+        if (failTotal) msg += '\n\n' + failTotal + ' could not be processed:\n' + failures.slice(0, 10).join('\n')
+                            + (failures.length > 10 ? '\n…' : '');
+        alert(msg);
+        loadTable();
+      }
+
+      step();
+    });
+
+    document.getElementById('cancelForm').addEventListener('submit', function (e) {
+      var status = document.getElementById('runStatusBadge').textContent || '';
+      var msg = 'Cancel this entire upload?';
+      if (status === 'PARTIAL' || status === 'COMPLETED') {
+        msg = 'Cancel this entire upload?\n\nAll CONFIRMED payments will be ROLLED BACK (payments and statements removed, loan balances restored) and the remaining pending lines discarded. You can then re-upload the file.';
+      } else {
+        msg = 'Cancel this upload? All pending lines will be discarded and you can re-upload the file.';
+      }
+      if (!confirm(msg)) e.preventDefault();
+    });
+
+    // The admin base loads a DataTables bundle and THEN a second jQuery, which
+    // clobbers the plugin off window.jQuery; the staff base ships no DataTables
+    // at all. Load the Bootstrap-5 build against whichever jQuery survived.
+    function ensureDataTablesThen(cb) {
+      function addScript(src, onload) {
+        var s = document.createElement('script');
+        s.src = src; s.onload = onload; s.onerror = onload;
+        document.head.appendChild(s);
+      }
+      function loadDT() {
+        if (jQuery.fn.dataTable) {
+          // Core present — make sure the Bootstrap-5 renderer is too (idempotent).
+          addScript('https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js', cb);
+          return;
+        }
+        addScript('https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js', function () {
+          addScript('https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js', cb);
+        });
+      }
+      if (window.jQuery) { loadDT(); return; }
+      addScript('https://code.jquery.com/jquery-3.6.0.min.js', loadDT);
+    }
+
+    function start() { ensureDataTablesThen(loadTable); }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', start);
+    } else {
+      // Deferred base scripts may still be pending; wait for full load.
+      window.addEventListener('load', start);
+      if (document.readyState === 'complete') start();
+    }
+  })();
+  </script>
+{% endblock %}

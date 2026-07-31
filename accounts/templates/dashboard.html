@@ -1,0 +1,481 @@
+{% extends "dashboard_base.html" %}
+{% load static %}
+{% load humanize %}
+{% load finance_formats %}
+{% load site_filter %}
+{% block title %} Dashboard {% endblock %}
+
+{% block css %}
+
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800&display=swap");
+
+
+    body{
+      background-color: #eee;
+      font-family: "Poppins", sans-serif;
+      font-weight: 300;
+    }
+  .container{
+      height:10vh;
+  }
+
+  .progresses{
+      display: flex;
+          align-items: center;
+    }
+
+    .line{
+
+      width: 2rem;
+      height: 1rem;
+      background: #63d19e;
+    }
+    .steps{
+
+      display: flex;
+      background-color: #63d19e;
+      color: #fff;
+      font-size: 14px;
+      width: 6rem;
+      height: 3rem;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+
+    }
+</style>
+
+{% endblock %}
+
+{% block breadcrumb %} Dashboard {% endblock %}
+{% block breadcrumb_active %} Overview {% endblock %}
+{% block dashboard_title %} My Dashboard {% endblock %}
+
+{% block content %}
+
+  <!-- Content Goes Here -->
+{% if user.account_requirements_check != 'COMPLETED' %}
+<div class="row mt-3">
+  <div class="card mb-0 pb-0">
+    <p class="m-0 p-2">
+      <span class="text-danger">Basic required profile information is NOT supplied for account activation.</span>
+      <a href="{% url 'loan_requirements' %}"><button type="button" class="btn btn-lg btn-success m-1 p-1">Go to REQUIREMENTS Page</button></a>
+    </p>
+  </div>
+</div>
+{% endif %}
+
+<div class="row mt-3">
+  <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-xs-12 mb-2">
+   <div class="card p-3 text-light" style="background-image: url({{ domain }}/static/img/cardbg.png); min-height:270px;">
+      <h3 class="text-light">Credit Rating:</h3>
+      <!-- conditional text color for credit score -->
+      <p class="display-5 pb-0 mb-0 text-light" style="font-size: 3rem; font-weight: 900">{{ user.credit_rating }}</p>
+      <h4 class="text-light">Fn Deduction Limit:</h4>
+      <!-- conditional text color for credit score -->
+      <p class="display-5 pb-0 mb-0" style="font-size: 2rem; font-weight: 900">K{{ user.repayment_limit|default_if_none:"0"|currency }}</p>
+      
+        <p class="pb-1 pt-1" style="font-weight: 400"><a href="{% url 'credit_rating' %}" target="_blank"><span class="text-primary">Why are these important?</span></a></p>
+      
+   </div>
+  </div>
+  <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-xs-12 mb-2">
+    <div class="card p-3 text-light" style="background-image: url({{ domain }}/static/img/cardbg3.png); min-height:270px;">
+      {% if next_payment != 'no_loan' %}
+      <h3 class="text-light">Loan Balance:</h3>
+      <p class="display-5" style="font-size: 2.5rem;">K{{ outstanding|default_if_none:"0"|currency }}</p>
+      <p class="pb-1" style="font-weight: 400">In Arrears: <span class="text-warning">K{{ arrears|default_if_none:"0"|currency }}</span></p>
+      <p class="pb-1" style="font-weight: 400">Payment Surplus: <span class="text-warning">K{{ surplus|default_if_none:"0"|currency }}</span></p>
+      <p class="pb-1" style="font-weight: 400">Next Repayment: <span class="text-info">{{ next_payment }}</span></p>
+      {% else %}
+      <h3 class="text-light">Loan Balance:</h3>
+      <p class="display-5" style="font-size: 2.5rem;">K0</p>
+      <p class="pb-1" style="font-weight: 400">In Arrears: <span class="text-warning">K0</span></p>
+      <p class="pb-1" style="font-weight: 400">Payment Surplus: <span class="text-warning">K0</span></p>
+      <p class="pb-1" style="font-weight: 400">Next Repayment: <span class="text-info">NA</span></p>
+      {% endif %}
+   </div>
+  </div>
+  <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-xs-12 mb-2">
+    <div class="card z-index-2 text-center" style="background-image: url({{ domain }}/static/clientfiles/imgs/dashboard_bg.png); min-height:200px;">
+      {% if next_payment != 0 %}
+          <div class="chart">
+            <canvas id="paidamount" class="chart-canvas" height="30"></canvas>
+          </div>
+      {% else %}
+      <div class="p-1 mt-3">
+        <p class="pb-1" style="font-weight: 400">You currently do not have a loan with us:</p>
+          <a href="{% url 'loan_application' %}">
+            <button class="btn btn-xl btn-primary m-0 pt-1 pb-1 pr-3 pl-3"><i class="fa-solid fa-add text-success"></i> APPLY</button>
+          </a>
+        <hr style="border: 1px solid #0cf;">
+        <p class="mt-1">Make sure to visit our <a href="{% url 'loan_requirements' %}" target="_blank"><u>Requirements Page</u></a> and then <a href="{% url 'profile' %}" target="_blank"><u>update your profile</u></a> with the requirements before applying.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-xs-12 mb-2">
+    <div class="card p-0 m-0 text-light" style="background-image: url({{ domain }}/static/img/cardbg.png); min-height:270px;">
+      <div class="card-header bg-secondary pt-1 pr-2 pb-0 pl-2">
+        <h4 class="text-light">Status Updates</h4>
+      </div>
+      <div class="card-body m-0 p-0">
+        <div class="card m-1 p-1 text-light">       
+          <div class="card-body m-0 p-1">
+            <div class="p-1 bg-light">
+              <h6><i>Pending Loan Application</i>:</h6>
+              {% if status_updates == 'no_loan' %}
+                <h5 class="text-warning">No Pending Loans</h5>
+              {% else %}
+                {% for key,value in status_updates.items %}
+                  <h6 class="text-sm"><a href="{% url 'viewmyloan' key %}" class="text-primary"><u>{{ key }}</u></a>: <span class="text-dark">{{ value }}</span></h6>
+                {% endfor %}
+              {% endif %} 
+            </div>
+          </div>
+        </div>
+        <div class="card m-1 p-1 text-light">       
+          <div class="card-body m-0 p-1">
+            <div class="p-1 bg-light">
+              <h6><u>Current Loan:</u></h6>
+              {% if next_payment %}
+                <h6 class="text-primary">{{active_loan_ref}}: Running</h6>
+              {% elif next_payment == 0 %}
+              <h5 class="text-info">No Current Loans</h5>
+              {% else %}
+              <h6 class="text-danger">You have defaulted on your loan.</h6>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>  
+
+<div class="card mt-4 mb-2">
+  <div style="padding-left: 10px; padding-top: 10px;">
+    <h6>Functions</h6>
+    <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+  </div>
+  <div class="row mt-1 pb-1">
+  
+    <div class="col-lg-3 col-md-4">
+      <div class="card-body mt-0 pt-2 mb-0 pb-0">
+        <h1>
+          
+        
+          {% if loan_check == 'YES' %}
+          <a href="{% url 'upload_payment' active_loan_ref %}">
+            <button type="button" class="btn btn-primary btn-lg">+ Upload Payment</button>
+          </a>
+          
+          {% else %}
+          <a href="#">
+            <button type="button" class="btn btn-primary btn-lg">+ Upload Payment</button>
+          </a>
+          
+          {% endif %}
+        </h1>
+      </div>
+    </div>
+    <div class="col-lg-3 col-md-4">
+      <div class="card-body mt-0 pt-2 mb-0 pb-0">
+        <h1>
+          <a href="{% url 'loan_application' %}">
+          <button type="button" class="btn btn-success btn-lg">+ Apply for Loan</button>
+          </a>
+        </h1>
+      </div>
+    </div>
+    
+    
+    <div class="col-lg-3 col-md-4">
+      <div class="card-body mt-0 pt-2 mb-0 pb-0">
+        <h1>
+          {% if loan_check == 'YES' %}
+          <a href="{% url 'download_loan_statement' active_loan_ref %}">
+          <button type="button" class="btn btn-secondary btn-lg">+ Download Loan Statement</button>
+          </a>
+          {% else %}
+          <a href="#">
+            <button type="button" class="btn btn-secondary btn-lg">+ Download Loan Statement</button>
+          </a>
+          {% endif %}
+        </h1>
+      </div>
+    </div>
+
+    <div class="col-lg-3 col-md-4">
+      <div class="card-body mt-0 pt-2 mb-0 pb-0">
+        <h1>
+          {% if loan_check == 'YES' %}
+          <a href="{% url 'download_las_user' active_loan_ref %}">
+          <button type="button" class="btn btn-info btn-lg">+ Download Loan Amortization Schedule</button>
+          </a>
+          {% else %}
+          <a href="#">
+            <button type="button" class="btn btn-info btn-lg disabled">+ Download Loan Amortization Schedule</button>
+          </a>
+          {% endif %}
+        </h1>
+      </div>
+    </div>
+    
+  </div>
+</div>
+
+
+<div class="row mt-3">
+  <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-xs-12 mb-2">
+    <div class="card">
+      <div class="card-header bg-secondary pt-2 pr-2 pb-0 pl-2">
+        <h4 class="text-light">My Loans</h4>
+      </div>
+      <div class="card-body mt-0 pt-0">
+        <div class="table-responsive p-2">
+          <table id="allLoansTable" class="table table-striped table-hover align-items-center justify-content-center mb-0">
+            <thead>
+              <tr>
+                <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Loan Ref</th>
+                <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Status</th>
+                
+                <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Amount</th>
+                <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">FNs</th>
+                <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Repayment</th>
+                
+                
+                <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">TOTAL LOAN</th>
+                
+                <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Download</th>
+
+              </tr>
+            </thead>
+            <tbody>
+              {% for loan in all_loans %}
+              <tr>
+                <TD>
+                    <div class="d-flex px-1">
+                        <div>
+                      {% if user.propic_url %}<img src="{{ user.propic_url }}" class="avatar avatar-xs rounded-circle me-1" alt="invision">{% else %}<img src="{% static 'img/profilepicture.png' %}" class="avatar avatar-xs rounded-circle me-1" alt="invision">{% endif %}
+                        </div>
+                        <div class="my-auto">
+                        <h6 class="mb-0 text-xs"><a href="{{ domain }}/loan/myloan/{{ loan.ref }}/">{{ loan.ref }}</a></h6>
+                        </div>
+                    </div>
+                </TD>
+                <TD class="align-middle text-md m-0 p-0">
+                  {% if loan.category == 'PENDING' or loan.status == 'AWAITING T&C' %}
+                    <span class="badge badge-sm bg-gradient-warning">{{ loan.status }}</span>
+                    {% elif loan.category == 'PENDING' and loan.status == 'UNDER REVIEW' %}
+                    <span class="badge badge-sm bg-gradient-primary">{{ loan.status }}</span>
+                    {% elif loan.category == 'PENDING' and loan.status == 'APPROVED' %}
+                    <span class="badge badge-sm bg-gradient-info">{{ loan.status }}</span>
+                    {% elif loan.category == 'FUNDED' and loan.funded_category == 'ACTIVE' and loan.status == 'RUNNING' %}
+                    <span class="badge badge-sm bg-gradient-success">{{ loan.status }}</span>
+                    {% elif loan.category == 'FUNDED' and loan.funded_category == 'ACTIVE' and loan.status == 'DEFAULTED' %}
+                    <span class="badge badge-sm bg-gradient-danger">{{ loan.status }}</span>
+                  {% endif %}
+                </TD>
+                <TD>
+                  <p class="text-xs font-weight-bold mb-0">{{ loan.amount|default_if_none:"0"|currency }}</p>
+                </TD>
+                <TD>
+                  <span class="text-xs font-weight-bold">{{ loan.number_of_fortnights }}</span>
+                </TD>
+                <TD>
+                  <span class="text-xs font-weight-bold">{{ loan.repayment_amount|default_if_none:"0"|currency }}</span>
+                </TD>
+                <TD>
+                  <span class="text-xs font-weight-bold">{{ loan.total_outstanding|default_if_none:"0"|currency }}</span>
+                </TD>
+                
+                <TD class="align-middle">
+                  {% if loan.category == 'PENDING' %}
+                   
+                      {% if loan.files.application_form_url %}
+                      <a href="{{domain}}{{loan.files.application_form_url}}">
+                        
+                      {% else %}
+                      <a href="{{domain}}/loan/dla/{{ loan.ref }}/">
+                        
+                      {% endif %}
+                    {% else %}
+                      <a href="{{domain}}/loan/dls/{{ loan.ref }}/">
+                    {% endif %}
+                  <button class="btn btn-lg bg-primary text-light m-0 pt-0 pb-0 pl-2 pr-2">
+                    <i class="fa-solid fa-download"></i>
+                  </button>
+                  </a>
+                </TD>
+              
+              </tr>
+              {% endfor %}
+              
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-xs-12 mb-2">
+    <div class="card">
+      <div class="card-header bg-secondary pt-2 pr-2 pb-0 pl-2">
+        <h4 class="text-light">Recent Activities</h4>
+      </div>
+      <div class="card-body mt-0 pt-0">
+      <div class="table-responsive p-2">
+        <table id="allLoansTable" class="table table-striped table-hover align-items-center justify-content-center mb-0">
+          <thead>
+            <tr>
+              <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Ref</th>
+              <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Date</th>
+              <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Type</th>
+              <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Debit</th>
+              <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Default</th>
+              <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Arrears</th>
+              <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Statement</th>
+
+            </tr>
+          </thead>
+          <tbody>
+            {% for statement in statements %}
+            <tr>
+              <TD>
+                  <div class="d-flex px-1">
+                      <div>
+                    {% if user.propic_url %}<img src="{{ user.propic_url }}" class="avatar avatar-xs rounded-circle me-1" alt="invision">{% else %}<img src="{% static 'img/profilepicture.png' %}" class="avatar avatar-xs rounded-circle me-1" alt="invision">{% endif %}
+                      </div>
+                      <div class="my-auto">
+                      <h6 class="mb-0 text-xs"><a href="{{ domain }}/loan/mystatements/">{{ statement.ref }}</a></h6>
+                      </div>
+                  </div>
+              </TD>
+              <TD>
+                <p class="text-xs font-weight-bold mb-0">{{ statement.date|sdate }}</p>
+              </TD>
+              <TD>
+                <span class="text-xs font-weight-bold">{{ statement.type }}</span>
+              </TD>
+              <TD>
+                <span class="text-xs font-weight-bold">{{ statement.debit|default_if_none:"0"|currency }}</span>
+              </TD>
+              <TD>
+                <span class="text-xs font-weight-bold">{{ statement.default_amount|default_if_none:"0"|currency }}</span>
+              </TD>
+              <TD>
+                <span class="text-xs font-weight-bold">{{ statement.arrears }}</span>
+              </TD>
+              <TD>
+                <span class="text-xs font-weight-bold">{{ statement.statement }}</span>
+              </TD>
+            </tr>
+            {% endfor %}
+            
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="conatiner">
+  <div class="row mt-3 p-2">
+    <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-xs-12 mb-2">
+      <div class="card">
+        <div class="card-header bg-secondary pt-2 pr-2 pb-0 pl-2">
+          <h4 class="text-light">Unread Messages</h4>
+        </div>
+        <div class="card-body mt-2 p-2">
+          {% if message_count != 0 %}
+          <ul class="">
+            {% for msg in recent_messages %}
+            <a href="{% url 'user_view_message' msg.id %}" target="_blank">
+              <li><h6 class="text-primary">{{ msg.subject }}</h6></li>
+            </a>
+            {% endfor %}
+            </ul>
+          {% else %}
+              <p class="p-2 pb-0">There are no unread messages.</p>
+              <a href="{% url 'messages_user' %}">
+                <p class="p-2 pt-0 text-primary"><u>View Recent Messages</u></p>
+              </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-xs-12 mb-2">
+      <div class="card">
+        <div class="card-header bg-secondary pt-2 pr-2 pb-0 pl-2">
+          <h4 class="text-light">Support Ticket Update</h4>
+        </div>
+        <div class="card-body mt-0 pt-0 mt-3">
+          {% if tickets != 0 %}
+              {% if 'U' in ticketthread.thread %}
+              On {{ ticketthread.date }},<br>
+              <span class="badge bg-dark">You</span> updated ticket {{ ticket.ref }} with the following:<br>
+                  <div class="p-2 mt-2" style="border-radius: 10px; background-image: url({{domain}}/static/img/supportticket_bg_blue.png);">
+                  <p class="p-2 pb-0 text-dark">{{ ticketthread.thread_content|striptags }}</p>
+                  </div>
+              {% else %}
+
+                  On {{ ticketthread.date }},<br>
+                  <span class="badge bg-dark">Staff ({{ ticketthread.responder }})</span> updated ticket {{ ticket.ref }} with the following:<br>
+                      <div class="p-2 mt-2" style="border-radius: 10px; background-image: url({{domain}}/static/img/supportticket_bg_green.png);">
+                      <p class="p-2 pb-0 text-dark">{{ ticketthread.thread_content }}</p>
+                      </div>
+
+              {% endif %}
+            {% else %}
+
+            <p class="p-2">You have no support ticket. If you have any issues, please <a href="{% url 'create_ticket' %}" class="text-primary"><u>submit a support ticket</u></a> and we will be happy to assist you.</p>
+
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  <!-- Content Ends Here -->
+
+{% endblock %}
+
+{% block scripts %}
+
+<script src="{% static 'assets/js/plugins/chartjs.min.js' %}"></script>
+
+<!-- Chart JS  paidamount -->
+<script>
+
+  const pa_data = {
+    labels: [
+      'Paid',
+      'Outstanding'
+    ],
+    datasets: [{
+      label: 'Loan Payment',
+      data: [ {{ repaid }}, {{ outstanding }}],
+      backgroundColor: [
+        'rgb(10, 255, 10)',
+        'rgb(255, 10, 10)',
+      ],
+      hoverOffset: 4
+    }]
+  };
+
+  const pa_config = {
+    type: 'doughnut',
+    data: pa_data,
+  };
+
+  const paidamount = new Chart(
+    document.getElementById('paidamount'),
+    pa_config
+  );
+
+</script>
+
+{% endblock %}

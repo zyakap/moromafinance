@@ -1,0 +1,425 @@
+{% extends "report_base.html" %}
+{% load humanize %}
+{% load static %}
+{% load finance_formats %}
+
+{% block title %}{{ report.title }}{% endblock %}
+{% block breadcrumb %}<a href="{% url 'admin_dashboard' %}">Admin Dashboard</a> / <a href="{% url 'reports' %}">Reports</a>{% endblock %}
+{% block breadcrumb_active %}{{ report.title }}{% endblock %}
+{% block dashboard_title %}{{ report.title }}{% endblock %}
+
+{% block css %}
+{{ block.super }}
+<style>
+  /* ── Report header strip ── */
+  .report-header-strip {
+    background: linear-gradient(135deg, #344767 0%, #21315c 100%);
+    border-radius: 12px;
+    padding: 18px 24px;
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .rh-meta { flex: 1; min-width: 200px; }
+  .rh-category {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: rgba(255,255,255,.6);
+    margin-bottom: 4px;
+  }
+  .rh-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 6px;
+  }
+  .rh-desc { font-size: 0.8rem; color: rgba(255,255,255,.7); line-height: 1.5; }
+
+  /* ── Date filter ── */
+  .date-filter-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .date-filter-row input[type=date] {
+    background: rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.25);
+    border-radius: 6px;
+    color: #fff;
+    padding: 6px 10px;
+    font-size: 0.82rem;
+    width: 140px;
+  }
+  .date-filter-row input[type=date]:focus { outline: none; border-color: #4CAF50; }
+  .date-filter-row input[type=date]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.7; }
+  .btn-filter {
+    background: #4CAF50;
+    border: none;
+    color: #fff;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn-filter:hover { background: #43a047; }
+  .date-range-label {
+    font-size: 0.75rem;
+    color: rgba(255,255,255,.6);
+    white-space: nowrap;
+  }
+  .btn-download {
+    background: rgba(255,255,255,.15);
+    border: 1px solid rgba(255,255,255,.3);
+    color: #fff;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background .15s;
+  }
+  .btn-download:hover { background: rgba(255,255,255,.25); color: #fff; }
+
+  /* ── Summary cards ── */
+  .summary-strip {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 1.2rem;
+  }
+  .summary-card {
+    flex: 1;
+    min-width: 120px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.07);
+    padding: 12px 16px;
+  }
+  .summary-card .sc-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #aaa;
+    margin-bottom: 3px;
+  }
+  .summary-card .sc-value {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #344767;
+  }
+
+  /* ── Results table ── */
+  .results-card {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.07);
+    overflow: hidden;
+  }
+  .results-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    border-bottom: 1px solid #f0f2f5;
+  }
+  .results-card-header h6 { margin: 0; font-weight: 700; color: #344767; font-size: 0.9rem; }
+  .row-badge {
+    background: #e3f2fd;
+    color: #1565c0;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+  .report-table th { white-space: nowrap; font-size: 0.72rem; }
+  .report-table td { vertical-align: middle; font-size: 0.84rem; }
+
+  .empty-state {
+    text-align: center;
+    padding: 50px 20px;
+    color: #aaa;
+  }
+  .empty-state i { font-size: 2.5rem; display: block; margin-bottom: 8px; }
+  .empty-state p { font-size: 0.88rem; }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.8rem;
+    color: #6c757d;
+    text-decoration: none;
+    margin-bottom: 1rem;
+    margin-top: 0.5rem;
+  }
+  .back-link:hover { color: #344767; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Back link -->
+<a href="{% url 'reports' %}" class="back-link">
+  <i class="material-icons-round" style="font-size:1rem;">arrow_back</i>
+  Back to Report Catalogue
+</a>
+
+<!-- Header strip -->
+<div class="report-header-strip">
+  <div class="rh-meta">
+    <div class="rh-category">{{ report.category }}</div>
+    <div class="rh-title">{{ report.title }}</div>
+    <div class="rh-desc">{{ description }}</div>
+  </div>
+  <div>
+    <form method="get" class="date-filter-row">
+      <span class="date-range-label">From</span>
+      <input type="date" name="startdate" value="{{ start_date|date:'Y-m-d' }}">
+      <span class="date-range-label">To</span>
+      <input type="date" name="enddate" value="{{ end_date|date:'Y-m-d' }}">
+      {% if deduction_categories %}
+      <span class="date-range-label">Payroll</span>
+      <select name="deduction" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);border-radius:6px;color:#fff;padding:6px 8px;font-size:.82rem;">
+        <option value="" {% if not deduction %}selected{% endif %} style="color:#222;">All</option>
+        {% for value, label in deduction_categories %}
+        <option value="{{ value }}" {% if deduction == value %}selected{% endif %} style="color:#222;">{{ label }}</option>
+        {% endfor %}
+      </select>
+      {% endif %}
+      <button type="submit" class="btn-filter">
+        <i class="material-icons-round align-middle" style="font-size:.85rem;">filter_alt</i>
+        Apply
+      </button>
+    </form>
+    <div class="mt-2 d-flex gap-2 flex-wrap">
+      <a class="btn-download" href="?startdate={{ start_date|date:'Y-m-d' }}&enddate={{ end_date|date:'Y-m-d' }}{% if drill_employer %}&employer={{ drill_employer|urlencode }}{% endif %}{% if drill_period %}&period={{ drill_period|urlencode }}{% endif %}{% if drill_group %}&group={{ drill_group|urlencode }}{% endif %}{% if deduction %}&deduction={{ deduction|urlencode }}{% endif %}&download=csv">
+        <i class="material-icons-round" style="font-size:.9rem;">download</i> CSV
+      </a>
+      <a class="btn-download" href="?startdate={{ start_date|date:'Y-m-d' }}&enddate={{ end_date|date:'Y-m-d' }}{% if drill_employer %}&employer={{ drill_employer|urlencode }}{% endif %}{% if drill_period %}&period={{ drill_period|urlencode }}{% endif %}{% if drill_group %}&group={{ drill_group|urlencode }}{% endif %}{% if deduction %}&deduction={{ deduction|urlencode }}{% endif %}&download=xlsx">
+        <i class="material-icons-round" style="font-size:.9rem;">grid_on</i> Excel
+      </a>
+      <a class="btn-download" href="?startdate={{ start_date|date:'Y-m-d' }}&enddate={{ end_date|date:'Y-m-d' }}{% if drill_employer %}&employer={{ drill_employer|urlencode }}{% endif %}{% if drill_period %}&period={{ drill_period|urlencode }}{% endif %}{% if drill_group %}&group={{ drill_group|urlencode }}{% endif %}{% if deduction %}&deduction={{ deduction|urlencode }}{% endif %}&download=pdf">
+        <i class="material-icons-round" style="font-size:.9rem;">picture_as_pdf</i> PDF
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Portfolio summary cards -->
+{% if summary %}
+<div class="summary-strip">
+  {% for label, value in summary %}
+  <div class="summary-card">
+    <div class="sc-label">{{ label }}</div>
+    <div class="sc-value">{{ value }}</div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- Results table -->
+<div class="results-card">
+  <div class="results-card-header">
+    <h6>
+      <i class="material-icons-round align-middle me-1" style="font-size:1rem;">table_view</i>
+      Results
+      <span style="font-weight:400;font-size:.8rem;color:#aaa;margin-left:6px;">
+        {{ start_date|sdate }} – {{ end_date|sdate }}
+      </span>
+    </h6>
+    <span class="row-badge">{{ row_count }} row{{ row_count|pluralize }}</span>
+  </div>
+
+  {% if drill_employer %}
+  <div class="px-3 pt-2">
+    <a href="?startdate={{ start_date|date:'Y-m-d' }}&enddate={{ end_date|date:'Y-m-d' }}" class="back-link mb-0">
+      <i class="material-icons-round" style="font-size:1rem;">arrow_back</i> Back to all employers
+    </a>
+  </div>
+  {% endif %}
+
+  {% if drill_period %}
+  <div class="px-3 pt-2">
+    <a href="?startdate={{ start_date|date:'Y-m-d' }}&enddate={{ end_date|date:'Y-m-d' }}" class="back-link mb-0">
+      <i class="material-icons-round" style="font-size:1rem;">arrow_back</i> Back to period summary
+    </a>
+  </div>
+  {% endif %}
+
+  {% if drill_group %}
+  <div class="px-3 pt-2">
+    <a href="?startdate={{ start_date|date:'Y-m-d' }}&enddate={{ end_date|date:'Y-m-d' }}" class="back-link mb-0">
+      <i class="material-icons-round" style="font-size:1rem;">arrow_back</i> Back to summary
+    </a>
+  </div>
+  {% endif %}
+
+  {% if allocate_rows %}
+  <div class="table-responsive">
+    {% csrf_token %}
+    <table class="table table-striped table-hover align-items-center report-table mb-0">
+      <thead>
+        <tr>
+          <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-3">Ref</th>
+          <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Client</th>
+          <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Employer</th>
+          <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Disbursed</th>
+          <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Outstanding</th>
+          <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7" style="min-width:280px;">Allocate Referrer</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in allocate_rows %}
+        <tr id="alloc-{{ a.loan.owner_id }}">
+          <td class="ps-3"><a href="{% url 'view_loan' a.loan.ref %}" class="text-primary font-weight-bold">{{ a.loan.ref }}</a></td>
+          <td>{{ a.client }}</td>
+          <td>{{ a.loan.owner.employer|default:"—" }}</td>
+          <td>K{{ a.loan.amount|floatformat:2 }}</td>
+          <td>K{{ a.loan.total_outstanding|floatformat:2 }}</td>
+          <td>
+            <div class="d-flex gap-1 align-items-center alloc-cell" data-profile="{{ a.loan.owner_id }}">
+              <select class="form-select form-select-sm alloc-select" style="max-width:190px;">
+                <option value="">— Select referrer —</option>
+                {% for r in referrers_for_allocate %}<option value="{{ r.pk }}">{{ r.name }}</option>{% endfor %}
+              </select>
+              <button type="button" class="btn btn-sm btn-success py-0 px-2 mb-0 alloc-btn">Assign</button>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="text-center text-muted p-3">Every client has a referrer allocated.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <script>
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest('.alloc-btn');
+    if (!btn) return;
+    var cell = btn.closest('.alloc-cell');
+    var sel = cell.querySelector('.alloc-select');
+    if (!sel.value) { alert('Choose a referrer first.'); return; }
+    btn.disabled = true;
+    btn.textContent = '…';
+    var fd = new FormData();
+    fd.append('profile_id', cell.dataset.profile);
+    fd.append('referrer_id', sel.value);
+    fetch("{% url 'assign_referrer' %}", {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {'X-CSRFToken': document.querySelector('input[name=csrfmiddlewaretoken]').value},
+      body: fd
+    }).then(function (r) { return r.json(); }).then(function (res) {
+      if (res.ok) {
+        cell.innerHTML = '<span class="badge bg-success">' + res.referrer + '</span>';
+      } else {
+        btn.disabled = false; btn.textContent = 'Assign';
+        alert(res.message || 'Could not allocate.');
+      }
+    }).catch(function () {
+      btn.disabled = false; btn.textContent = 'Assign';
+      alert('Network error — please retry.');
+    });
+  });
+  </script>
+  {% elif rows %}
+  <div class="table-responsive">
+    <table id="report-table" class="table table-striped table-hover align-items-center report-table mb-0">
+      <thead>
+        <tr>
+          {% for column in columns %}
+          <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-3 sortable" style="cursor:pointer;">{{ column }} <span class="sort-ind" style="opacity:.4;">&#8597;</span></th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        <tr>
+          {% for cell in row %}
+          <td class="ps-3">
+            {% if ref_col is not None and forloop.counter0 == ref_col %}{% if cell and cell != '—' %}<a href="{% url 'view_loan' cell %}" class="text-primary font-weight-bold">{{ cell }}</a>{% else %}{{ cell }}{% endif %}
+            {% elif employer_col is not None and forloop.counter0 == employer_col %}{% if cell and cell != '—' %}<a href="?employer={{ cell|urlencode }}&startdate={{ start_date|date:'Y-m-d' }}&enddate={{ end_date|date:'Y-m-d' }}{% if deduction %}&deduction={{ deduction|urlencode }}{% endif %}">{{ cell }}</a>{% else %}{{ cell }}{% endif %}
+            {% elif period_col is not None and forloop.counter0 == period_col %}{% if cell and cell != '—' %}<a href="?period={{ cell|urlencode }}&startdate={{ start_date|date:'Y-m-d' }}&enddate={{ end_date|date:'Y-m-d' }}{% if deduction %}&deduction={{ deduction|urlencode }}{% endif %}" class="text-primary font-weight-bold">{{ cell }}</a>{% else %}{{ cell }}{% endif %}
+            {% elif group_col is not None and forloop.counter0 == group_col %}{% if cell and cell != '—' %}<a href="?group={{ cell|urlencode }}&startdate={{ start_date|date:'Y-m-d' }}&enddate={{ end_date|date:'Y-m-d' }}{% if deduction %}&deduction={{ deduction|urlencode }}{% endif %}" class="text-primary font-weight-bold">{{ cell }}</a>{% else %}{{ cell }}{% endif %}
+            {% else %}{{ cell }}{% endif %}
+          </td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+      {% if totals %}
+      <tfoot>
+        <tr class="font-weight-bold" style="background:#eef1f6;border-top:2px solid #d7dce5;">
+          {% for t in totals %}<td class="ps-3 font-weight-bold">{{ t }}</td>{% endfor %}
+        </tr>
+      </tfoot>
+      {% endif %}
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <i class="material-icons-round">search_off</i>
+    <p>No records found for <strong>{{ start_date|sdate }} – {{ end_date|sdate }}</strong>.<br>
+    Try adjusting the date range.</p>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script>
+  // Lightweight, dependency-free click-to-sort for the report table.
+  document.addEventListener('DOMContentLoaded', function () {
+    var table = document.getElementById('report-table');
+    if (!table) return;
+    var tbody = table.tBodies[0];
+    if (!tbody) return;
+
+    function cellValue(row, i) {
+      var td = row.children[i];
+      return td ? td.textContent.trim() : '';
+    }
+    function asNumber(v) {
+      var n = parseFloat(v.replace(/[K,%\s]/g, ''));
+      return isNaN(n) ? null : n;
+    }
+
+    table.querySelectorAll('th.sortable').forEach(function (th, idx) {
+      th.addEventListener('click', function () {
+        var rows = Array.prototype.slice.call(tbody.querySelectorAll('tr'));
+        var asc = th.getAttribute('data-asc') !== 'true';
+        rows.sort(function (a, b) {
+          var x = cellValue(a, idx), y = cellValue(b, idx);
+          var nx = asNumber(x), ny = asNumber(y);
+          if (nx !== null && ny !== null) return asc ? nx - ny : ny - nx;
+          return asc ? x.localeCompare(y) : y.localeCompare(x);
+        });
+        rows.forEach(function (r) { tbody.appendChild(r); });
+        table.querySelectorAll('th.sortable').forEach(function (o) {
+          o.removeAttribute('data-asc');
+          var ind = o.querySelector('.sort-ind'); if (ind) { ind.innerHTML = '&#8597;'; ind.style.opacity = '.4'; }
+        });
+        th.setAttribute('data-asc', asc ? 'true' : 'false');
+        var ind = th.querySelector('.sort-ind');
+        if (ind) { ind.innerHTML = asc ? '&#9650;' : '&#9660;'; ind.style.opacity = '1'; }
+      });
+    });
+  });
+</script>
+{% endblock %}

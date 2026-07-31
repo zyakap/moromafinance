@@ -1,0 +1,457 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>
+    LOAN APPLICATION FORM
+  </title>
+
+  <style>
+    #div1 {
+        
+        background-color: #0cf; 
+        width:640px; 
+        height:1280px;
+    }
+    /********   APPLICATION FORM PDF STYLES ********/
+
+        .print_page {
+            width: 100%;
+            margin: 5px 5px;
+            height: 100%;
+            padding: 20px 20px 0 20px;
+            box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        background-image: -moz-linear-gradient(top,  rgba(0, 98, 207, 0.29) 0%, rgba(252, 252, 252, 0.29) 100%);
+        background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(0, 98, 207, 0.29)), color-stop(100%,rgba(252, 252, 252, 0.29)));
+        background-image: -webkit-linear-gradient(top,  rgba(0, 98, 207, 0.29) 0%,rgba(252, 252, 252, 0.29) 100%);
+        background-image: -o-linear-gradient(top,  rgba(0, 98, 207, 0.29) 0%,rgba(252, 252, 252, 0.29) 100%);
+        background-image: -ms-linear-gradient(top,  rgba(0, 98, 207, 0.29) 0%,rgba(252, 252, 252, 0.29) 100%);
+        background-image: linear-gradient(to bottom,  rgba(0, 98, 207, 0.29) 0%,rgba(252, 252, 252, 0.29) 100%);
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00CF62', endColorstr='#FCFCFC',GradientType=0 );
+        
+        opacity: 1;
+        border-radius: 20px 20px 0 0;
+        -webkit-border-radius: 20px 20px 0 0;
+        -moz-border-radius: 20px 20px 0 0;
+        -ms-border-radius: 20px 20px 0 0;
+        -o-border-radius: 20px 20px 0 0;
+        
+        }
+
+        
+        /* 3508 x 2480 px  = A4   ***/
+
+        .container_f {
+        display: block;
+        margin:20px 0;
+        
+        }
+
+        .float-child {
+        width: 25%;
+        float: left;
+        font-family: sans-serif;
+        } 
+
+        .float-child > p {
+        line-height: 16px;
+        margin-top: 7px;
+        margin-bottom: 7px;
+        } 
+
+        .container_g {
+        display: block;
+        margin:20px 0;
+        font-family: sans-serif;
+        }
+
+        .float-child3 {
+        width: 33.3%;
+        float: left;
+        font-family: sans-serif;
+        } 
+
+        .float-child3 > p {
+        line-height: 16px;
+        margin-top: 7px;
+        margin-bottom: 7px;
+        }
+
+        .headdin {
+        line-height: 20px;
+        margin-bottom: 10px;
+        color:#000;
+        font-weight: bold;
+        }
+
+        .container_tc {
+        font-family: sans-serif;
+        display: block;
+        margin: 20px 0;
+
+        }
+        ol.tcol > li {
+        line-height: 16px;
+        margin-top: 7px;
+        margin-bottom: 7px;
+        
+        }
+        .container_ba {
+        display: block;
+        margin:10px 0;
+        }
+
+        .float-childhh {
+        width: 50%;
+        float: left;
+        font-family: sans-serif;
+        } 
+
+        .rule {
+        height: 30px;
+        background-color: blue;
+        }
+
+        .ibxuse {
+        padding: 0 80px;
+        background-color: #5e5d5d;
+        }
+
+        .uservariable {
+        color: #2296F3;
+        font-weight: bold;
+        }
+
+        .tch2 {
+        line-height: 20px;
+        }
+  </style>
+</head>
+<body>
+    <section id="page_header" class="text-center" style="text-align: center;"">
+        <img src="{{domain}}/static/clientimgs/logo.png" width="200px" />
+        <br />
+    </section>
+    <div class="print_page">
+        <h1 class="text-center" style="text-align: center;">TERMS AND CONDITIONS</h1>
+        <h1 class="text-center" style="text-align: center;">LOAN DETAIL FORM</h1>
+
+      <hr style="width: 98%" />
+
+      <div class="container_f">
+        <div class="float-child">
+          <p>Loan Ref: <span class="uservariable">{{ loan.loan_ref }}</span></p>
+          <p>
+            Loan Amount: <span class="uservariable">K {{ loan.amount }}</span>
+          </p>
+          <p>
+            Loan Term:
+            <span class="uservariable">{{ loan.number_of_fortnights }} days</span>
+          </p>
+        </div>
+        <div class="float-child">
+          <p>
+            Application Date:
+            <span class="uservariable"
+              >{{ loan.application_date }}</span
+            >
+          </p>
+          {% if loan.category == 'FUNDED' %}
+          <p>
+            Funding Date:
+            <span class="uservariable"
+              >{{ loan.funded_date }}</span
+            >
+          </p>
+          {% elif loan.category == 'PENDING' %}
+          <p>Funding Date: <span class="uservariable">Pending</span></p>
+          {% endif %}
+        </div>
+        <div class="float-child">
+          {% if loan.funded_category == 'ACTIVE' %}
+          <p>
+            Due Date:
+            <span class="uservariable"
+              >{{ loan.expected_end_date }}</span
+            >
+          </p>
+          <p>
+            Total Due:
+            <span class="uservariable">K{{ loan.total_loan_amount }}</span>
+          </p>
+          {% elif loan.category == 'PENDING' %}
+          <p>Due Date: <span class="uservariable">Decision Pending</span></p>
+          <p>
+            Total Expected:
+            <span class="uservariable">K{{ loan.total_loan_amount }}</span>
+          </p>
+          {% endif %}
+        </div>
+        <div class="float-child">
+          <p>
+            Bank: <span class="uservariable">{{ user.bank }}</span>
+          </p>
+          <p>
+            Bank Acc.Name:
+            <span class="uservariable">{{ user.bank_account_name }}</span>
+          </p>
+          <p>
+            Bank Acc.#:
+            <span class="uservariable">{{ user.bank_account_number }}</span>
+          </p>
+        </div>
+      </div>
+
+      <hr style="width: 98%" />
+
+      <div class="container_g">
+        <div class="float-child3">
+          <h3 class="headdin">Personal Information</h3>
+
+          <p>
+            Full Name:
+            <span class="uservariable"
+              >{{ user.first_name }} {{ user.last_name }}</span
+            >
+          </p>
+          {% if user.date_of_birth != None %}
+          <p>
+            Date of Birth:
+            <span class="uservariable"
+              >{{ user.date_of_birth }}</span
+            >
+          </p>
+          {% else %}
+          <p>Date of Birth: <span class="uservariable">N/A</span></p>
+          {% endif %}
+          <p>Gender: <span class="uservariable">{{ user.gender }}</span></p>
+          <p>
+            Marital Status:
+            <span class="uservariable">{{ user.marital_status }}</span>
+          </p>
+          <p>
+            Place of Origin:
+            <span class="uservariable">{{ user.place_of_origin }}</span>
+          </p>
+          <p>
+            Residential Address:
+            <span class="uservariable">{{ user.residential_address }}</span>
+          </p>
+        </div>
+        <div class="float-child3">
+          <h3 class="headdin">Work Information</h3>
+
+          <p>
+            Job Title: <span class="uservariable">{{ user.job_title }}</span>
+          </p>
+          <p>
+            Organisation:
+            <span class="uservariable">{{ user.organisation }}</span>
+          </p>
+          {% if user.date_of_commencement != None %}
+          <p>
+            Date of Commencement:
+            <span class="uservariable"
+              >{{ user.date_of_commencement }}</span
+            >
+          </p>
+          {% else %}
+          <p>Date of Commencement: <span class="uservariable">N/A</span></p>
+          {% endif %}
+          <p>
+            Office Address:
+            <span class="uservariable">{{ user.office_address }}</span>
+          </p>
+        </div>
+        <div class="float-child3">
+          <h3 class="headdin">Contact Information</h3>
+
+          <p>
+            Email Address: <span class="uservariable">{{ user.email }}</span>
+          </p>
+          <p>
+            Mobile Phone:
+            <span class="uservariable">{{ user.mobile_phone_number }}</span>
+          </p>
+          <p>
+            Work Email Address:
+            <span class="uservariable">{{ user.work_email_address }}</span>
+          </p>
+          <p>
+            Work Phone Number:
+            <span class="uservariable">{{ user.work_phone_number }}</span>
+          </p>
+          <p>
+            Postal Address:
+            <span class="uservariable">{{ user.postal_address }}</span>
+          </p>
+        </div>
+      </div>
+
+      <hr style="width: 98%" />
+
+      <div class="container_tc">
+        <h2 style="text-align: center" class="tch2">Terms and Conditions</h2>
+        <hr style="width: 98%" />
+
+        <ol class="tcol">
+          <li>
+            I, <b>{{user.first_name}} {{user.last_name}}</b> of
+            <b>{{user.place_of_origin}}</b> totally agree to the following terms
+            and conditions along with the extended ones listed here at
+            <a href="https://www.instabuxx.com/terms_and_conditions/"
+              >https://www.instabuxx.com/terms_and_conditions/</a
+            >
+            in order to get this loan referenced as <b>{{loan.loan_ref}}</b>.
+          </li>
+          <li>
+            I agree under contract to borrow the principle amount of
+            <b>K{{loan.amount}}</b> which is to be paid in full (principle,
+            interests, defaults and any fee(s)) within
+            <b>{{loan.days_selected}}</b> days.
+          </li>
+          <li>
+            I am certain to make payments by cash or deposit or electronic
+            transfer to Instabuxx’s main account provided below:
+            <div class="container_ba">
+              <div class="float-childhh">
+                <p style="color: #fbb428">
+                  <b>By CASH:</b>:<br />
+                  Contact Us: <b>loans@instabuxx.com</b><br />
+                  Phone: <b>78222774</b><br />
+                  Provide Location for Pickup
+                </p>
+              </div>
+              <div class="float-childhh">
+                <p style="color: #7dbd41">
+                  <b>Bank of South Pacific (BSP)</b>:<br />
+                  Acc. Name: <b>Zacq Industries Network</b><br />
+                  Acc.#: <b>7008128493</b><br />
+                  Branch: Port Moresby
+                </p>
+              </div>
+            </div>
+          </li>
+          <br />
+          <br />
+          <br />
+          <br />
+          <br />
+
+          <li>
+            I am aware that Interest will be calculated at 10% fixed interest +
+            variable interest of: <b> 2.75% per day</b>.
+          </li>
+          <li>
+            If I fail to pay within <b>{{loan.days_selected}}</b> days, the loan
+            will be automatically classified as default.
+          </li>
+          <li>
+            Once default, 10% of <b>K{{loan.amount}}</b> will be added as
+            interest and the new
+            <span style="color: red"
+              >DEFAULT INTEREST will be <b>4% PER DAY</b></span
+            >.
+          </li>
+          <li>
+            If I pay in part, the remaining amount will become a new loan bound
+            by these terms and conditions.
+          </li>
+          <li>
+            I understand that, Instabuxx will INITIATE DEBT RECOVERY MEASURES
+            for default loans at any time which may include enforcement at any
+            cost.
+          </li>
+          <li>
+            I acknowledge that such expenses and costs incurred by INSTABUXX
+            when exercising its right of enforcement and/or all other expenses
+            and damages incurred by INSTABUXX as a direct or indirect result of
+            me breaching these terms and conditions WILL BE ADDED to my existing
+            loan balance.
+          </li>
+          <li>
+            I give all authority to INSTABUXX to retrieve all necessary
+            information from Credit & Data Bureau (CDB) and enter my personal
+            information into CDB if I fail to repay this loan.
+          </li>
+          <li>
+            By clicking on the button labelled ‘DIGITALLY SIGN LOAN AGREEMENT’,
+            I acknowledge that:
+            <ol class="tcol" type="a">
+              <li>
+                I fully understand the specified (and extended) terms and
+                conditions and its implications.
+              </li>
+              <li>
+                I am digitally printing my initials
+                {{user.first_name.0}}.{{user.last_name.0}} as my signature on
+                the application form and by doing so, I sign this contract and
+                accept that I am legally bound by it.
+              </li>
+
+              <li>
+                the date and time of the very moment I click the button is the
+                Contract Date and Time.
+              </li>
+              <hr style="width: 98%; height: 4px; color: #0cf" />
+              <div class="container_ba">
+                <div class="float-childhh">
+                  <b
+                    >Agreed & Digitally Signed:
+                    <a href="#"
+                      >{{ user.first_name.0 }}.{{ user.last_name.0 }}</a
+                    ></b
+                  >
+                </div>
+                <div class="float-childhh">
+                  {% if loan.terms_and_conditions_agreement_timestamp != None %}
+                  <b
+                    >Agreement Date & Time:
+                    <a href="#"
+                      >{{
+                      loan.terms_and_conditions_agreement_timestamp.strftime("%d/%m/%Y,
+                      %H:%M:%S") }}</a
+                    ></b
+                  >
+                  {% else %}
+                  <b>Agreement Date & Time: <a href="#">N/A</a></b>
+                  {% endif %}
+                </div>
+              </div>
+              <hr style="width: 98%; height: 4px; color: #0cf" />
+            </ol>
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="ibxuse">
+      <div class="float-child3">
+        <h3>Approved By:</h3>
+        <img src="{{domain}}/static/clientimgs/boss_signature.png" height="50px" />
+        <p>Melody LEKE</p>
+        <p>
+          <b
+            >General Manager<br />
+            INSTABUXX</b
+          >
+        </p>
+      </div>
+      <div class="float-child3">
+        <img
+          src="{{domain}}/static/clientimgs/stamp.png"
+          height="150px"
+        />
+      </div>
+      <div class="float-child3">
+        <img
+          src="{{domain}}/static/clientimgs/legalstamp.png"
+          height="105px"
+        />
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Payroll Contacts</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, Helvetica, sans-serif; font-size: 9pt; color: #222; }
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 0 0 10px 0;
+    border-bottom: 2px solid #344767;
+    margin-bottom: 14px;
+  }
+  .page-header h1 { font-size: 15pt; color: #344767; font-weight: bold; }
+  .page-header p  { font-size: 8pt; color: #666; margin-top: 3px; }
+  .page-header .meta { text-align: right; font-size: 8pt; color: #666; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 8.5pt;
+  }
+  thead tr {
+    background: #344767;
+    color: #fff;
+  }
+  thead th {
+    padding: 6px 7px;
+    text-align: left;
+    font-weight: bold;
+    white-space: nowrap;
+  }
+  tbody tr:nth-child(even) { background: #eef2ff; }
+  tbody tr:nth-child(odd)  { background: #fff; }
+  tbody td {
+    padding: 5px 7px;
+    vertical-align: top;
+    border-bottom: 1px solid #e0e0e0;
+    word-break: break-word;
+  }
+  .badge {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 10px;
+    font-size: 7.5pt;
+    font-weight: bold;
+  }
+  .badge-PUBLIC  { background: #dbeafe; color: #1e40af; }
+  .badge-PRIVATE { background: #dcfce7; color: #166534; }
+  .badge-SOE     { background: #fef3c7; color: #92400e; }
+  .badge-SME     { background: #f3e8ff; color: #6b21a8; }
+  .badge-active  { background: #dcfce7; color: #166534; }
+  .badge-inactive{ background: #e5e7eb; color: #4b5563; }
+  .count-cell    { text-align: center; font-weight: bold; color: #344767; }
+  .no-data       { text-align: center; padding: 20px; color: #888; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div>
+    <h1>Payroll Officer Contacts</h1>
+    <p>Registered Employer Payroll Contact Directory</p>
+  </div>
+  <div class="meta">
+    Generated: {{ generated }}<br>
+    Total: {{ employer_data|length }} employer(s)
+  </div>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width:3%">#</th>
+      <th style="width:18%">Company / Organisation</th>
+      <th style="width:8%">Sector</th>
+      <th style="width:10%">Type</th>
+      <th style="width:14%">Payroll Officer</th>
+      <th style="width:10%">Phone</th>
+      <th style="width:17%">Email</th>
+      <th style="width:14%">Office Address</th>
+      <th style="width:4%">Clients</th>
+      <th style="width:6%">Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in employer_data %}
+    {% with e=item.employer %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td><strong>{{ e.name }}</strong></td>
+      <td>
+        {% if e.sector %}
+        <span class="badge badge-{{ e.sector }}">{{ e.sector }}</span>
+        {% else %}—{% endif %}
+      </td>
+      <td>{{ e.organisation_type|default:"—" }}</td>
+      <td>{{ e.payroll_officer_name|default:"—" }}</td>
+      <td>{{ e.work_phone|default:"—" }}</td>
+      <td style="font-size:7.8pt;">{{ e.work_email|default:"—" }}</td>
+      <td style="font-size:7.8pt;">{{ e.office_address|default:"—" }}</td>
+      <td class="count-cell">{{ item.client_count }}</td>
+      <td>
+        {% if e.active %}
+        <span class="badge badge-active">Active</span>
+        {% else %}
+        <span class="badge badge-inactive">Inactive</span>
+        {% endif %}
+      </td>
+    </tr>
+    {% endwith %}
+    {% empty %}
+    <tr><td colspan="10" class="no-data">No employers registered.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+</body>
+</html>

@@ -1,0 +1,219 @@
+{% extends "report_base.html" %}
+{% load static %}
+
+{% block title %}Report Catalogue{% endblock %}
+{% block breadcrumb %}<a href="{% url 'admin_dashboard' %}">Admin Dashboard</a>{% endblock %}
+{% block breadcrumb_active %}Reports{% endblock %}
+{% block dashboard_title %}Report Catalogue{% endblock %}
+
+{% block css %}
+{{ block.super }}
+<style>
+  .catalog-search {
+    position: relative;
+    max-width: 400px;
+    margin-bottom: 1.5rem;
+  }
+  .catalog-search input {
+    padding-left: 2.5rem;
+    border-radius: 8px;
+    font-size: 0.88rem;
+  }
+  .catalog-search .search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #aaa;
+    font-size: 1rem;
+  }
+
+  .cat-card {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.07);
+    overflow: hidden;
+    height: 100%;
+    transition: box-shadow .15s;
+  }
+  .cat-card:hover { box-shadow: 0 4px 18px rgba(0,0,0,.12); }
+  .cat-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #344767 0%, #21315c 100%);
+  }
+  .cat-card-header h6 {
+    margin: 0;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+  .cat-count {
+    margin-left: auto;
+    background: rgba(255,255,255,.2);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .cat-icon { color: rgba(255,255,255,.8); font-size: 1rem; flex-shrink: 0; }
+  .report-list { padding: 8px 0; }
+  .report-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 16px;
+    font-size: 0.82rem;
+    color: #344767;
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    transition: all .1s;
+  }
+  .report-link:hover {
+    background: #f0f4ff;
+    border-left-color: #4CAF50;
+    color: #344767;
+  }
+  .report-link i { font-size: 0.75rem; color: #aaa; flex-shrink: 0; }
+  .report-link:hover i { color: #4CAF50; }
+  .report-link.hidden { display: none; }
+
+  .no-results {
+    text-align: center;
+    padding: 50px 20px;
+    color: #aaa;
+    display: none;
+  }
+  .no-results i { font-size: 2.5rem; display: block; margin-bottom: 8px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mt-4">
+  <div class="col-12">
+
+    <!-- Header + search -->
+    <div class="d-flex align-items-start justify-content-between flex-wrap gap-3 mb-3">
+      <div>
+        <h5 class="mb-1">Report Catalogue</h5>
+        <p class="text-sm text-secondary mb-0">
+          {{ categories|length }} categories &middot;
+          {% with total=0 %}
+            {% for cat in categories %}{% with n=cat.reports|length %}{% endwith %}{% endfor %}
+          {% endwith %}
+          Click any report to open it with date filters.
+        </p>
+      </div>
+      <div class="catalog-search">
+        <i class="material-icons-round search-icon">search</i>
+        <input type="text" id="reportSearch" class="form-control" placeholder="Search reports…" autocomplete="off">
+      </div>
+    </div>
+
+    <!-- No-results message -->
+    <div class="no-results" id="noResults">
+      <i class="material-icons-round">search_off</i>
+      No reports match your search.
+    </div>
+
+    <!-- Category cards -->
+    <div class="row g-3" id="catalogGrid">
+      {% for category in categories %}
+      {% with icon_map="dashboard,upload,payments,warning,trending_up,person,recycling,account_balance,bar_chart" %}
+      <div class="col-xl-4 col-md-6 cat-col">
+        <div class="cat-card">
+          <div class="cat-card-header">
+            <i class="material-icons-round cat-icon">
+              {% if forloop.counter == 1 %}pie_chart
+              {% elif forloop.counter == 2 %}upload
+              {% elif forloop.counter == 3 %}payments
+              {% elif forloop.counter == 4 %}warning
+              {% elif forloop.counter == 5 %}trending_up
+              {% elif forloop.counter == 6 %}person
+              {% elif forloop.counter == 7 %}recycling
+              {% elif forloop.counter == 8 %}account_balance
+              {% else %}bar_chart{% endif %}
+            </i>
+            <h6>{{ category.title }}</h6>
+            <span class="cat-count">{{ category.reports|length }}</span>
+          </div>
+          <div class="report-list">
+            {% for slug, title in category.reports %}
+            {% if slug == 'alesco-unmatched-categorized' %}
+            <a href="{% url 'alesco_unmatched' %}" class="report-link" data-title="{{ title|lower }}">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              {{ title }}
+            </a>
+            {% else %}
+            <a href="{% url 'report_detail' slug %}" class="report-link" data-title="{{ title|lower }}">
+              <i class="fa-solid fa-file-lines"></i>
+              {{ title }}
+            </a>
+            {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      {% endwith %}
+      {% endfor %}
+
+      {% if dcc_enabled %}
+      <div class="col-xl-4 col-md-6 cat-col">
+        <div class="cat-card">
+          <div class="cat-card-header">
+            <i class="material-icons-round cat-icon">account_balance</i>
+            <h6>DCC Credit Bureau</h6>
+            <span class="cat-count">1</span>
+          </div>
+          <div class="report-list">
+            <a href="{% url 'dcc_report' %}" class="report-link" data-title="dcc credit bureau pay per view billing">
+              <i class="fa-solid fa-building-columns"></i>
+              DCC Report — running cost &amp; pay-per-view log
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script>
+  var searchInput = document.getElementById('reportSearch');
+  var noResults = document.getElementById('noResults');
+
+  searchInput.addEventListener('input', function() {
+    var q = this.value.toLowerCase().trim();
+    var anyVisible = false;
+
+    document.querySelectorAll('.report-link').forEach(function(link) {
+      var title = link.dataset.title || '';
+      if (!q || title.includes(q)) {
+        link.classList.remove('hidden');
+        anyVisible = true;
+      } else {
+        link.classList.add('hidden');
+      }
+    });
+
+    // Hide empty category cards
+    document.querySelectorAll('.cat-col').forEach(function(col) {
+      var visibleLinks = col.querySelectorAll('.report-link:not(.hidden)');
+      col.style.display = visibleLinks.length > 0 ? '' : 'none';
+      if (visibleLinks.length > 0) anyVisible = true;
+    });
+
+    noResults.style.display = anyVisible ? 'none' : 'block';
+  });
+</script>
+{% endblock %}

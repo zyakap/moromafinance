@@ -1,0 +1,63 @@
+{% extends "staff_base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %} {{ user_profile.first_name }} {% if user_profile.middle_name %}{{user_profile.middle_name}}{% endif %} {{ user_profile.last_name }}  {% endblock %}
+
+{% block breadcrumb %} <a href="{% url 'dashboard' %}">Dashboard</a>  /  <a href="{% url 'profile' %}">Profile</a> {% endblock %}
+{% block breadcrumb_active %} Employer Information {% endblock %}
+{% block dashboard_title %} Edit Employer Information for {{ user_profile.first_name }} {% if user_profile.middle_name %}{{user_profile.middle_name}}{% endif %} {{ user_profile.last_name }}  {% endblock %}
+
+{% block content %}
+
+
+  <!-- Content Goes Here -->
+  <div class="row">
+    <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12 col-xs-12">
+      <div class="card mt-2 p-1">
+        <div class="card-header bg-secondary m-0 pt-2 pr-1 pb-0 pl-2">
+          <h5 class="text-light"> Employer Information </h5>
+        </div>
+        <div class="card-body m-0 p-2">
+          <form method="post">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <br>
+            <button type="submit" class="btn btn-primary">UPDATE</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Content Ends Here -->
+
+ 
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  /* Sector → Organisation Type filter (preregistration OFF only — fields not present otherwise) */
+  var sectorSelect = document.getElementById('id_sector');
+  var orgSelect = document.getElementById('id_organisation_type');
+  if (!sectorSelect || !orgSelect) return;
+
+  var orgWrapper = orgSelect.closest('.mb-3') || orgSelect.closest('.form-group') || orgSelect.parentElement;
+  var allOptions = Array.from(orgSelect.querySelectorAll('option'));
+
+  function filterOrgOptions() {
+    var sector = sectorSelect.value;
+    var allowed = sector === 'PUBLIC' ? ['', 'DEPARTMENT', 'SOE'] : sector === 'PRIVATE' ? ['', 'COMPANY', 'MSME'] : [''];
+    orgSelect.innerHTML = '';
+    allOptions.forEach(function (opt) {
+      if (allowed.includes(opt.value)) orgSelect.appendChild(opt.cloneNode(true));
+    });
+    if (orgWrapper) orgWrapper.style.display = (sector === 'PUBLIC' || sector === 'PRIVATE') ? '' : 'none';
+    if (sector === 'PUBLIC' && !['DEPARTMENT', 'SOE'].includes(orgSelect.value)) orgSelect.value = '';
+    else if (sector === 'PRIVATE' && !['COMPANY', 'MSME'].includes(orgSelect.value)) orgSelect.value = '';
+  }
+
+  sectorSelect.addEventListener('change', filterOrgOptions);
+  filterOrgOptions();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends "loan_base.html" %}
+
+{% load static %}
+
+{% load crispy_forms_tags %}
+
+{% block title %} Loan Application Confirmation {% endblock %}
+
+{% block breadcrumb %} <a href="{% url 'dashboard' %}">Dashboard</a>  /  <a href="{% url 'profile' %}">Loans</a> {% endblock %}
+{% block breadcrumb_active %} Loan Application {% endblock %}
+{% block dashboard_title %} Confirmation {% endblock %}
+
+{% block css %}
+
+<!-- Range Slider -->
+<link rel="stylesheet" href="{% static 'thirdparty/css/rangeslider.css' %}" />
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="row mt-3"><!-- ROW-1 -->
+
+    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12">
+        <div class="card p-0 m-0">
+            <div class="card-header pt-3 pb-3 bg-primary m-1">
+            <h6 style="color: white" class="mb-0">NEW ARRANGEMENT DETAILS</h6>
+            <p class="text-light">Your Repayment Limit: K800.00</p>
+            </div>
+            <div class="card-body pt-4 p-3">
+                <table class="table table-striped">
+                    <tr>
+                        <td></td>
+                        <td>Existing Loan</td>
+                        <td>New Loan</td>
+                    </tr>
+                    <tr>
+                        <td>Total to be Paid</td>
+                        <td>K2,200.00</td>
+                        <td>K6,000.00</td>
+                    </tr>
+                    <tr>
+                        <td>Repayment Amount:</td>
+                        <td>K450.00 per FN</td>
+                        <td>K775.00 per FN</td>
+                    </tr>
+                </table>
+                <p>Make sure the New Repayment is below your repayment limit before you submit application. If its over the limit, please reduce amount.</p>
+
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-6">
+                            <button type="submit" name="decision" value="CANCEL" class="btn btn-secondary w-100">CANCEL APPLICATION</button>
+                        </div>
+                        <div class="col-6">
+                            <button type="submit" name="decision" value="ACCEPT" class="btn btn-success w-100">ACCEPT & SUBMIT APPLICATION</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+    </div><!-- END COL-2 -->
+
+  
+</div><!-- END ROW-1 -->
+ 
+{% endblock %}
+
+{% block scripts %}
+
+<!-- Range Slider 
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>       
+<script src="https://cdnjs.cloudflare.com/ajax/libs/rangeslider.js/2.3.0/rangeslider.min.js"></script> -->
+<script type="text/javascript" src="{% static 'thirdparty/js/rangeslider.js' %}"></script>
+{% include 'custom/js/loan_calculator.js' %}
+
+<script>
+    document.getElementById('flexSwitchCheckDefault').addEventListener('change', function() {
+        var repaymentTable = document.getElementById('repaymentTable');
+        if (this.checked) {
+            repaymentTable.style.display = 'block';
+        } else {
+            repaymentTable.style.display = 'none';
+        }
+    });
+</script>
+
+<script>
+    document.getElementById('id_amount').addEventListener('change', function() {
+        
+    });
+</script>
+
+
+{% endblock %}

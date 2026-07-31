@@ -1,0 +1,319 @@
+{% extends "admin_base.html" %}
+{% load static %}
+{% load finance_formats %}
+
+{% block title %}Admin Dashboard{% endblock %}
+{% block breadcrumb %}<a href="{% url 'admin_dashboard' %}">Admin</a>{% endblock %}
+{% block breadcrumb_active %}Dashboard{% endblock %}
+{% block dashboard_title %}{{ appearance.brand_name|default:"Admin" }} — Overview{% endblock %}
+
+{% block css %}
+<style>
+  .kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+  .kpi-grid.g5 { grid-template-columns:repeat(5,1fr); }
+  @media (max-width:1200px){ .kpi-grid, .kpi-grid.g5 { grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:600px){ .kpi-grid, .kpi-grid.g5 { grid-template-columns:1fr;} }
+  .kpi { background:#fff; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,.06); padding:14px 16px; position:relative; overflow:hidden; text-decoration:none; display:block; }
+  .kpi:hover { box-shadow:0 4px 16px rgba(0,0,0,.12); transform:translateY(-1px); transition:.15s; }
+  .kpi .k-label { font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#8a94a6; }
+  .kpi .k-value { font-size:1.35rem; font-weight:800; color:#28324a; line-height:1.2; margin-top:2px; }
+  .kpi .k-sub { font-size:.72rem; color:#9aa3b2; margin-top:2px; }
+  .kpi .k-ico { position:absolute; right:12px; top:12px; font-size:1.1rem; opacity:.25; color:var(--wc-primary,#6bb10d); }
+  .kpi.k-accent { border-left:4px solid var(--wc-primary,#6bb10d); }
+  .kpi.k-warn { border-left:4px solid #f5a623; }
+  .kpi.k-danger { border-left:4px solid #e2536a; }
+  .sec-h { font-size:.78rem; font-weight:800; text-transform:uppercase; letter-spacing:.6px; color:#28324a; margin:1.4rem 0 .7rem; }
+  .panel { background:#fff; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,.06); padding:16px; height:100%; }
+  .panel h6 { font-size:.85rem; font-weight:700; color:#28324a; margin-bottom:.6rem; }
+  .attn { display:flex; align-items:center; justify-content:space-between; padding:9px 12px; border-radius:9px; background:#f7f8fb; margin-bottom:7px; text-decoration:none; }
+  .attn:hover { background:#eef1f7; }
+  .attn .a-lbl { font-size:.82rem; color:#48526a; font-weight:600; }
+  .attn .a-num { font-size:1rem; font-weight:800; color:var(--wc-primary,#6bb10d); }
+  .attn.warn .a-num { color:#f5a623; }
+  .attn.danger .a-num { color:#e2536a; }
+  .mini-tbl { width:100%; font-size:.8rem; }
+  .mini-tbl td { padding:6px 4px; border-bottom:1px solid #f0f2f5; }
+  .quick-link { display:inline-flex; align-items:center; gap:6px; background:var(--wc-primary,#6bb10d); color:#fff; border-radius:8px; padding:7px 13px; font-size:.8rem; font-weight:600; text-decoration:none; margin:0 6px 6px 0; }
+  .quick-link.ghost { background:#eef1f7; color:#48526a; }
+  .quick-link:hover { opacity:.92; color:#fff; }
+  .quick-link.ghost:hover { color:#28324a; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Quick links into reports -->
+<div class="mb-3 mt-2">
+  <a class="quick-link" href="{% url 'report_detail' 'business-performance' %}"><i class="fa fa-chart-line"></i> Business Performance</a>
+  <a class="quick-link ghost" href="{% url 'report_detail' 'expected-vs-actual-repayments' %}"><i class="fa fa-scale-balanced"></i> Expected vs Actual</a>
+  <a class="quick-link ghost" href="{% url 'report_detail' 'collections-weekly' %}"><i class="fa fa-hand-holding-dollar"></i> Collections</a>
+  <a class="quick-link ghost" href="{% url 'loans_by_employer' %}"><i class="fa fa-building"></i> Loans by Employer</a>
+  <a class="quick-link ghost" href="{% url 'reports' %}"><i class="fa fa-folder-open"></i> All Reports</a>
+</div>
+
+<!-- ACTION ITEMS (things needing a decision) -->
+<div class="sec-h">Action Items</div>
+<div class="kpi-grid">
+  <a class="kpi k-warn" href="{% url 'pending_loans' %}">
+    <div class="k-ico"><i class="fa fa-file-signature"></i></div>
+    <div class="k-label">Pending Loan Applications</div>
+    <div class="k-value">{{ pending_total }}</div>
+    <div class="k-sub">{{ apps_to_review }} under review</div>
+  </a>
+  <a class="kpi k-accent" href="{% url 'clients_pending_activation' %}">
+    <div class="k-ico"><i class="fa fa-user-clock"></i></div>
+    <div class="k-label">Client Registration Pending</div>
+    <div class="k-value">{{ ops.pending_activation_count }}</div>
+    <div class="k-sub">awaiting activation</div>
+  </a>
+  <a class="kpi" href="{% url 'payment_uploads' %}">
+    <div class="k-ico"><i class="fa fa-file-arrow-up"></i></div>
+    <div class="k-label">Payment Uploads</div>
+    <div class="k-value">{{ ops.uploads_to_reconcile }}</div>
+    <div class="k-sub">to reconcile</div>
+  </a>
+  <a class="kpi k-danger" href="{% url 'support_tickets_admin' %}">
+    <div class="k-ico"><i class="fa fa-headset"></i></div>
+    <div class="k-label">Open Support Tickets</div>
+    <div class="k-value">{{ ops.open_tickets }}</div>
+    <div class="k-sub">{{ ops.awaiting_reply_tickets }} awaiting reply</div>
+  </a>
+  <a class="kpi" href="{% url 'funding_list' %}">
+    <div class="k-ico"><i class="fa fa-money-bill-transfer"></i></div>
+    <div class="k-label">Approved — Awaiting Funding</div>
+    <div class="k-value">{{ ops.awaiting_funding_count }}</div>
+    <div class="k-sub">ready to disburse</div>
+  </a>
+  <a class="kpi k-warn" href="{% url 'loans' %}">
+    <div class="k-ico"><i class="fa fa-gears"></i></div>
+    <div class="k-label">Overdue — Needs Default Run</div>
+    <div class="k-value">{{ ops.overdue_needing_default }}</div>
+    <div class="k-sub">past due, not yet defaulted</div>
+  </a>
+</div>
+
+{% if dcc_enabled %}
+<!-- DCC CREDIT BUREAU (pay-per-view running cost) -->
+<div class="sec-h">DCC Credit Bureau <span style="font-weight:500;color:#9aa3b2;text-transform:none;">— this month</span></div>
+<div class="kpi-grid">
+  <a class="kpi k-accent" href="{% url 'dcc_report' %}">
+    <div class="k-ico"><i class="fa fa-building-columns"></i></div>
+    <div class="k-label">DCC Running Cost</div>
+    {% if dcc_billing %}
+    <div class="k-value">{{ dcc_billing.currency }} {{ dcc_billing.total|floatformat:2 }}</div>
+    <div class="k-sub">incl. base fee {{ dcc_billing.currency }} {{ dcc_billing.base_fee|floatformat:2 }}</div>
+    {% else %}
+    <div class="k-value">—</div>
+    <div class="k-sub">bureau unreachable — see DCC Report</div>
+    {% endif %}
+  </a>
+  <a class="kpi" href="{% url 'dcc_report' %}">
+    <div class="k-ico"><i class="fa fa-eye"></i></div>
+    <div class="k-label">Paid Credit Views</div>
+    <div class="k-value">{% if dcc_billing %}{{ dcc_billing.paid_views }}{% else %}{{ dcc_views_month }}{% endif %}</div>
+    <div class="k-sub">billed per view — full log in DCC Report</div>
+  </a>
+</div>
+{% endif %}
+
+<!-- PORTFOLIO HEALTH -->
+<div class="sec-h">Portfolio Health <span style="font-weight:500;color:#9aa3b2;text-transform:none;">— as of today</span></div>
+<div class="kpi-grid">
+  <a class="kpi k-accent" href="{% url 'report_detail' 'outstanding-loan-report' %}">
+    <div class="k-ico"><i class="fa fa-wallet"></i></div>
+    <div class="k-label">Gross Loan Portfolio</div>
+    <div class="k-value">K {{ portfolio.gross|currency }}</div>
+    <div class="k-sub">{{ portfolio.active_loans }} active loans</div>
+  </a>
+  <a class="kpi" href="{% url 'report_detail' 'outstanding-principal-interest' %}">
+    <div class="k-ico"><i class="fa fa-coins"></i></div>
+    <div class="k-label">Principal Outstanding</div>
+    <div class="k-value">K {{ portfolio.principal_out|currency }}</div>
+    <div class="k-sub">+ K {{ portfolio.interest_out|currency }} interest</div>
+  </a>
+  <a class="kpi k-danger" href="{% url 'report_detail' 'defaulted-loans-report' %}">
+    <div class="k-ico"><i class="fa fa-triangle-exclamation"></i></div>
+    <div class="k-label">Total Arrears</div>
+    <div class="k-value">K {{ portfolio.arrears|currency }}</div>
+    <div class="k-sub">{{ portfolio.loans_in_arrears }} loans in arrears</div>
+  </a>
+  <a class="kpi k-warn" href="{% url 'report_detail' 'non-performing-loans' %}">
+    <div class="k-ico"><i class="fa fa-heart-pulse"></i></div>
+    <div class="k-label">PAR&gt;30 &middot; NPL Rate</div>
+    <div class="k-value">{{ portfolio.par30 }}% &middot; {{ portfolio.npl_rate }}%</div>
+    <div class="k-sub">{{ portfolio.defaulted }} defaulted &middot; {{ portfolio.recovery }} recovery</div>
+  </a>
+</div>
+
+<!-- CASH PERFORMANCE -->
+<div class="sec-h">Cash Performance</div>
+<div class="kpi-grid">
+  <a class="kpi k-accent" href="{% url 'report_detail' 'collections-weekly' %}">
+    <div class="k-ico"><i class="fa fa-calendar-day"></i></div>
+    <div class="k-label">Collected This Month</div>
+    <div class="k-value">K {{ month.collected|currency }}</div>
+    <div class="k-sub">of K {{ month.expected|currency }} due &middot; {{ month.collection_rate }}% rate</div>
+  </a>
+  <a class="kpi" href="{% url 'report_detail' 'total-loan-disbursement' %}">
+    <div class="k-ico"><i class="fa fa-money-bill-transfer"></i></div>
+    <div class="k-label">Disbursed This Month</div>
+    <div class="k-value">K {{ month.disbursed_value|currency }}</div>
+    <div class="k-sub">{{ month.disbursed_count }} loans &middot; {{ new_clients_month }} new clients</div>
+  </a>
+  <a class="kpi" href="{% url 'report_detail' 'interest-collected' %}">
+    <div class="k-ico"><i class="fa fa-percent"></i></div>
+    <div class="k-label">Income This Month</div>
+    <div class="k-value">K {{ month.interest_col|currency }}</div>
+    <div class="k-sub">interest + K {{ month.fee_income|currency }} fees</div>
+  </a>
+  <a class="kpi" href="{% url 'report_detail' 'expected-this-pay' %}">
+    <div class="k-ico"><i class="fa fa-clock"></i></div>
+    <div class="k-label">Due Today</div>
+    <div class="k-value">K {{ today_fig.due_value|currency }}</div>
+    <div class="k-sub">{{ today_fig.due_count }} repayments &middot; K {{ today_fig.collected|currency }} collected</div>
+  </a>
+</div>
+
+<!-- EXPECTED PAYMENTS (forward-looking, from the schedule) -->
+<div class="sec-h">Expected Payments <span style="font-weight:500;color:#9aa3b2;text-transform:none;">— scheduled from today</span></div>
+<div class="kpi-grid g5">
+  <a class="kpi k-accent" href="{% url 'report_detail' 'expected-this-pay' %}">
+    <div class="k-ico"><i class="fa fa-calendar-day"></i></div>
+    <div class="k-label">Today</div>
+    <div class="k-value">K {{ expected_up.today.value|currency }}</div>
+    <div class="k-sub">{{ expected_up.today.count }} repayments</div>
+  </a>
+  <a class="kpi" href="{% url 'report_detail' 'expected-this-pay' %}">
+    <div class="k-ico"><i class="fa fa-calendar-week"></i></div>
+    <div class="k-label">This Week</div>
+    <div class="k-value">K {{ expected_up.this_week.value|currency }}</div>
+    <div class="k-sub">{{ expected_up.this_week.count }} repayments</div>
+  </a>
+  <a class="kpi" href="{% url 'report_detail' 'expected-this-pay' %}">
+    <div class="k-ico"><i class="fa fa-calendar-days"></i></div>
+    <div class="k-label">Next 7 Days</div>
+    <div class="k-value">K {{ expected_up.next_7.value|currency }}</div>
+    <div class="k-sub">{{ expected_up.next_7.count }} repayments</div>
+  </a>
+  <a class="kpi" href="{% url 'report_detail' 'expected-this-pay' %}">
+    <div class="k-ico"><i class="fa fa-calendar-days"></i></div>
+    <div class="k-label">Next 14 Days</div>
+    <div class="k-value">K {{ expected_up.next_14.value|currency }}</div>
+    <div class="k-sub">{{ expected_up.next_14.count }} repayments</div>
+  </a>
+  <a class="kpi" href="{% url 'report_detail' 'expected-this-pay' %}">
+    <div class="k-ico"><i class="fa fa-calendar"></i></div>
+    <div class="k-label">Rest of This Month</div>
+    <div class="k-value">K {{ expected_up.this_month.value|currency }}</div>
+    <div class="k-sub">{{ expected_up.this_month.count }} repayments</div>
+  </a>
+</div>
+
+<!-- CHARTS -->
+<div class="row mt-2">
+  <div class="col-lg-7 mb-3">
+    <div class="panel">
+      <h6>Disbursements vs Collections — last 6 months</h6>
+      <canvas id="trendChart" height="120"></canvas>
+    </div>
+  </div>
+  <div class="col-lg-5 mb-3">
+    <div class="panel">
+      <h6>Collection Rate — last 6 months</h6>
+      <canvas id="rateChart" height="120"></canvas>
+    </div>
+  </div>
+  <div class="col-lg-5 mb-3">
+    <div class="panel">
+      <h6>Loan Status Mix</h6>
+      <canvas id="statusChart" height="150"></canvas>
+    </div>
+  </div>
+  <div class="col-lg-7 mb-3">
+    <div class="panel">
+      <h6>Arrears Aging (loans in arrears)</h6>
+      <canvas id="agingChart" height="150"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- NEEDS ATTENTION + RECENT -->
+<div class="row">
+  <div class="col-lg-4 mb-3">
+    <div class="panel">
+      <h6><i class="fa fa-bell me-1"></i> Needs Attention</h6>
+      <a class="attn" href="{% url 'funding_list' %}"><span class="a-lbl">Approved awaiting funding</span><span class="a-num">{{ ops.awaiting_funding_count }}</span></a>
+      <a class="attn danger" href="{% url 'report_detail' 'defaulted-loans-report' %}"><span class="a-lbl">Loans in arrears</span><span class="a-num">{{ ops.in_arrears }}</span></a>
+      <a class="attn warn" href="{% url 'loans' %}"><span class="a-lbl">Overdue — needs default run</span><span class="a-num">{{ ops.overdue_needing_default }}</span></a>
+      <a class="attn" href="{% url 'payment_uploads' %}"><span class="a-lbl">Payments to reconcile</span><span class="a-num">{{ ops.uploads_to_reconcile }}</span></a>
+      <a class="attn" href="{% url 'clients_pending_activation' %}"><span class="a-lbl">Clients pending activation</span><span class="a-num">{{ ops.pending_activation_count }}</span></a>
+      <a class="attn" href="{% url 'support_tickets_admin' %}"><span class="a-lbl">Open support tickets</span><span class="a-num">{{ ops.open_tickets }}</span></a>
+    </div>
+  </div>
+  <div class="col-lg-4 mb-3">
+    <div class="panel">
+      <h6><i class="fa fa-hourglass-half me-1"></i> Pending Applications</h6>
+      {% for label, count in pending_break.items %}
+      <div class="attn"><span class="a-lbl">{{ label }}</span><span class="a-num">{{ count }}</span></div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="col-lg-4 mb-3">
+    <div class="panel">
+      <h6><i class="fa fa-clock-rotate-left me-1"></i> Recent Payments</h6>
+      <table class="mini-tbl">
+        {% for p in recent.recent_payments %}
+        <tr>
+          <td>{{ p.date|sdate }}</td>
+          <td>{% if p.loanref %}<a href="{% url 'view_loan' p.loanref.ref %}" class="text-primary">{{ p.loanref.ref }}</a>{% endif %}</td>
+          <td class="text-end fw-bold">K {{ p.amount|default_if_none:"0"|currency }}</td>
+        </tr>
+        {% empty %}<tr><td class="text-secondary">No recent payments.</td></tr>
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+</div>
+
+{{ trend|json_script:"js-trend" }}
+{{ chart_status|json_script:"js-status" }}
+{{ chart_aging|json_script:"js-aging" }}
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+  (function () {
+    if (!window.Chart) return;
+    var brand = getComputedStyle(document.documentElement).getPropertyValue('--wc-primary').trim() || '#6bb10d';
+    var trend = JSON.parse(document.getElementById('js-trend').textContent);
+    var status = JSON.parse(document.getElementById('js-status').textContent);
+    var aging = JSON.parse(document.getElementById('js-aging').textContent);
+    var money = { ticks: { callback: function (v) { return 'K' + (v/1000).toFixed(0) + 'k'; } }, grid: { color: '#eef0f4' } };
+
+    new Chart(document.getElementById('trendChart'), {
+      type: 'bar',
+      data: { labels: trend.labels, datasets: [
+        { label: 'Disbursed', data: trend.disbursed, backgroundColor: brand },
+        { label: 'Collected', data: trend.collected, backgroundColor: '#9aa3b2' } ] },
+      options: { responsive: true, plugins: { legend: { position: 'bottom' } }, scales: { y: money } }
+    });
+    new Chart(document.getElementById('rateChart'), {
+      type: 'line',
+      data: { labels: trend.labels, datasets: [
+        { label: 'Collection rate %', data: trend.rate, borderColor: brand, backgroundColor: brand + '22', fill: true, tension: .3 } ] },
+      options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#eef0f4' }, ticks: { callback: function (v) { return v + '%'; } } } } }
+    });
+    new Chart(document.getElementById('statusChart'), {
+      type: 'doughnut',
+      data: { labels: status.labels, datasets: [ { data: status.counts, backgroundColor: [brand, '#e2536a', '#f5a623', '#8a94a6', '#4b9fd6'] } ] },
+      options: { responsive: true, plugins: { legend: { position: 'right' } } }
+    });
+    new Chart(document.getElementById('agingChart'), {
+      type: 'bar',
+      data: { labels: aging.labels, datasets: [ { label: 'Loans', data: aging.counts, backgroundColor: ['#7ac943', '#f5a623', '#f57f17', '#e2536a'] } ] },
+      options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#eef0f4' }, ticks: { precision: 0 } } } }
+    });
+  })();
+</script>
+{% endblock %}

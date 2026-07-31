@@ -1,0 +1,39 @@
+{% extends "staff_base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %} Profile {% endblock %}
+
+{% block breadcrumb %} <a href="{% url 'dashboard' %}">Dashboard</a>  /  <a href="{% url 'profile' %}">Profile</a> {% endblock %}
+{% block breadcrumb_active %} Edit Profile {% endblock %}
+{% block dashboard_title %} Name's Profile {% endblock %}
+
+ 
+
+{% block content %}
+
+
+
+  <!-- Content Goes Here -->
+
+  <h1> {{ ca_user_id }} </h1>
+
+  
+  <form method="post">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <br>
+    <button type="submit" class="btn btn-primary">UPDATE</button>
+  </form>
+ 
+  
+
+
+
+
+  <!-- Content Ends Here -->
+  
+
+ 
+{% endblock %}
+
+

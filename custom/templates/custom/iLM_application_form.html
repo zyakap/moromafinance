@@ -1,0 +1,119 @@
+{% load crispy_forms_tags %}
+{% load static %}
+<style>
+    
+    .rangeslider__handle {
+        border-radius: 22px;
+        min-width: 62px;
+        line-height: 42px;
+        text-align: center;
+      }
+      
+</style>
+
+<div class="row mt-3">
+    {% if user.in_recovery %}
+    <h3 class="text-warning">You can not apply for a loan because you have a loan in <u>Recovery</u>.</h3>
+    {% endif %}
+    {% if user.activation == 0 %}
+    <h3 class="text-warning">You can not apply for a loan because your account is <u>Not Activated</u>.</h3>
+    {% endif %}
+    {% if user.repayment_limit == 0 %}
+    <h3 class="text-warning">You can not apply for a loan because your <u>Repayment Limit</u> is <u>Zero</u>.</h3>
+    {% endif %}
+
+
+
+</div>
+  
+<div class="row mt-3"><!-- ROW-1 -->
+
+    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12">
+        <div class="card mb-3 mt-0 mr-0 ml-0">
+            <div class="card-header pt-3 pb-3 bg-secondary m-1 text-light">
+                <b>Loan Repayment Calculator</b>
+            </div>
+            <div class="card-body">
+
+                <h5>Your fortnight repayment limit is: K<span id="loanlimit">{{ repayment_limit }}</span>.</h5>
+                <p>The fortnight repyament must be below this limit for your loan application to go through.</p>
+                {% if user.max_loan_amount %}
+                <div class="alert alert-info py-2 px-3" style="font-size:.85rem;">
+                  <strong>Custom loan limit:</strong> Your maximum loan amount has been set to <strong>K{{ user.max_loan_amount }}</strong>.
+                  Enter your desired amount and number of fortnights, then specify your repayment amount per fortnight.
+                </div>
+                {% endif %}
+
+                <div class="container mt-0 pt-0">
+
+                    <h5>Amount Slider:</h5>
+                    <input id="amt" class="rangeslider" type="range" min="{{ loan_config.loan_min_amount|floatformat:0 }}" max="{{ effective_max_amount|floatformat:0 }}" step="{{ loan_config.increment_amount }}">
+                    <br>
+                    <h5>Fortnights Slider:</h5>
+                    <input id="dys" class="rangeslider" type="range" min="{{ loan_config.min_fn }}" max="{{ loan_config.max_fn }}" step="{{ loan_config.increment_fn }}">
+                    <br>
+                    <h6 style="color:rgb(83, 153, 115)">Amount: <span style="color: #000000" id="amountinfo"></span></h6>
+                    <h6 style="color:rgb(83, 153, 115)">Term: <span style="color: #000000" id="daysinfo"></span></h6>
+                    <!-- <h6 style="color:rgb(83, 153, 115)">Interest: <span style="color: #000000" id="interestcalc"></span></h6> -->
+                    <h5>Repayment per Fortnight:</h5>
+                    <h2><span id="totalcalc" class="badge bg-primary text-light"></span></h2>
+                    <div id="fee-info" style="display:none; margin-top:8px;">
+                      <span class="badge bg-warning text-dark" style="font-size:13px;">
+                        Processing Fee: K<span id="feecalc">0.00</span>
+                      </span>
+                    </div>
+                    <p id="totwarn"></p>
+                </div>
+
+            </div>  
+        </div>
+    </div><!-- END COL-1 -->
+    <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-xs-12">
+        <div class="card p-0 m-0">
+            <div class="card-header pt-3 pb-3 bg-primary m-1">
+            <h6 style="color: white" class="mb-0">Loan Application Form</h6>
+            </div>
+            <div class="card-body pt-4 p-3">
+            <form method="post">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <br>
+                <button type="submit" class="btn btn-primary {% if user.in_recovery %} disabled {% elif user.activation == 0 %} disabled {% elif user.repayment_limit == 0 %} disabled {% endif %}">APPLY</button>
+            </form>
+            </div>
+        </div>
+        <p>Loan Amount Limit:<br> K{{ loan_config.loan_min_amount|floatformat:0 }} - K{{ effective_max_amount|floatformat:0 }}</p>
+    </div><!-- END COL-2 -->
+
+    
+    {% if user.activation == 1 and user.repayment_limit > 0 %}
+    <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-xs-12">
+        <div class="card p-3">
+            <h5 class="text-primary">NOTE:</h5>
+            <h6 class="text-secondary">The application process is easy. Fill in the form with the amount, 
+                select the number of fortnights, select the repayment start date (must always be your next fortnight) 
+                and click apply. All forms will be automatically sent to your email address for signing only. Expect 4 attachments. Always check your spam folder if you do not find it in your inbox.</h6>
+        </div>
+    </div>
+    {% endif %}
+    
+
+  
+</div><!-- END ROW-1 -->
+
+
+<div class="form-check form-switch">
+    <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+    <label class="form-check-label" for="flexSwitchCheckDefault"><h5>Show Repayment Table</h5></label>
+</div>
+
+<div class="row mt-3" id="repaymentTable" style="display:none;"><!-- ROW-2 -->
+    <h3>Repayment Table</h3>
+    <iframe src="{% static 'clientfiles/RepaymentTable.pdf' %}" width="600" height="500" allow="autoplay"></iframe>
+</div>
+
+  
+  <!-- INTEREST RATE INPUT -->
+  <p style="display: none;" id="interestrate">{{ interest_rate }}</p>
+  <!-- PROCESSING FEE TIERS (JSON) -->
+  <script id="fee-tiers-data" type="application/json">{{ fee_tiers_json|default:"[]" }}</script>

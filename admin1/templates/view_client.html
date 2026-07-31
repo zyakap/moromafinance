@@ -1,0 +1,1762 @@
+{% extends "admin_base.html" %}
+{% load static %}
+{% load humanize %}
+{% load finance_formats %}
+
+{% block title %} 
+Profile | 
+{{ user.first_name}} 
+                          {% if user.middle_name != None %}
+                            {{ user.middle_name}} 
+                          {% endif %} 
+                          {{ user.last_name}}
+
+{% endblock %}
+{% block breadcrumb %} 
+  <a href="{% url 'admin_dashboard' %}">Admin Dashboard</a>  /  
+  <a href="{% url 'clients' %}">Clients</a> 
+{% endblock %}
+{% block breadcrumb_active %} 
+
+{{ user.first_name}} 
+{% if user.middle_name != None %}
+  {{ user.middle_name}} 
+{% endif %} 
+{{ user.last_name}} 
+
+{% endblock %}
+{% block dashboard_title %} Profile of 
+
+{{ user.first_name}} 
+                          {% if user.middle_name != None %}
+                            {{ user.middle_name}} 
+                          {% endif %} 
+                          {{ user.last_name}}
+
+{% endblock %}
+
+{% block css %}
+
+<!-- DataTables LOCAL CSS -->
+<link rel="stylesheet" type="text/css" href="{% static 'DataTables/datatables.min.css' %}"/>   
+<!-- link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs5/jq-3.6.0/jszip-2.5.0/dt-1.12.1/b-2.2.3/b-colvis-2.2.3/b-html5-2.2.3/b-print-2.2.3/cr-1.5.6/kt-2.7.0/sp-2.0.2/datatables.min.css"/ -->
+<!-- Font Awesome Icons -->
+<script src="{% static 'fontawesomefree/js/all.min.js' %}"></script> 
+
+{% endblock %}
+{% block cssx %}
+  <!-- FLEX BOX Styles -->
+  <style>
+    .flex-container {
+      display: flex;
+    }
+    .flex-child {
+      flex: 1;
+    }  
+    .flex-child:first-child {
+      margin-right: 5px;
+    } 
+    .flex-child:last-child {
+      margin-left: 5px;
+    } 
+  
+    a:link {
+      color: blue;
+    }
+
+    
+
+  </style>
+
+  
+{% endblock cssx%}
+
+{% block content %}
+
+
+
+<div class="container-fluid p-2">
+  <!-- Content Goes Here -->
+  
+  <!-- Repayment Limit Modal -->
+  <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="staticBackdropLabel">Set Repayment Limit for {{ user.first_name }}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form method="POST">
+            {% csrf_token %}
+            <input type="text" name="limit" class="form-control">
+            <button type="submit" class="btn btn-sm btn-success">Set</button>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Max Loan Amount Modal -->
+  <div class="modal fade" id="maxLoanModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="maxLoanModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="maxLoanModalLabel">Set Max Loan Amount for {{ user.first_name }}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-muted" style="font-size:.85rem;">Sets this client's own maximum loan amount. It <strong>overrides the system-wide maximum</strong> — whether it is lower or higher — everywhere the client applies (client portal, staff creation, and existing-loan entry). Leave blank or set 0 to revert to the global limit.</p>
+          <form method="POST">
+            {% csrf_token %}
+            <label class="form-label">Max Loan Amount (K)</label>
+            <input type="number" step="0.01" min="0" name="max_loan_amount" class="form-control" value="{{ user.max_loan_amount|default_if_none:'' }}" placeholder="e.g. 10000.00">
+            <button type="submit" class="btn btn-sm btn-success mt-2">Set</button>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Button trigger modal -->
+
+
+<!-- Modal -->
+<div class="modal fade" id="imgstaticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="staticBackdropLabel">Profile Photo</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        
+        {% if user.propic_url %}
+        <img src="{{ user.propic_url }}"  width="100%">
+        {% else %}
+        <img src="{% static 'img/profilepicture.png' %}"  width="100%">
+        {% endif %}
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  <div class="row">
+    
+    <!-- Nav tabs -->
+    <div class="card p-1" style="background-color: rgba(2,2,2,0.05);">
+      <ul class="nav nav-tabs nav-fill nav-justified">
+        <li class="nav-item" style="background-color: rgba(10, 248, 202, 0.874);border-radius: 5px;">
+          <a class="nav-link active" data-bs-toggle="tab" href="#overview"><span style="font-weight: 900; color:blue;">Overview</span></a>
+        </li>
+        <li class="nav-item" style="background-color: rgba(244, 248, 202, 0.874);border-radius: 5px;">
+          <a class="nav-link" data-bs-toggle="tab" href="#loan"><span style="font-weight: 900; color:blue;">Loan Information</span></a>
+        </li>
+        <li class="nav-item" style="background-color: rgba(205, 237, 255, 0.877);">
+          <a class="nav-link" data-bs-toggle="tab" href="#pro"><span style="font-weight: 900;color:blue;">Profile Information</span></a>
+        </li>
+
+        {% if user.has_sme == 1 %}
+          <li class="nav-item" style="background-color: rgba(205, 237, 55, 0.877);">
+            <a class="nav-link" data-bs-toggle="tab" href="#sme"><span style="font-weight: 900;color:blue;">SME Information </span></a>
+          </li>
+        {% endif %}
+
+        <li class="nav-item" style="background-color: rgba(255, 203, 238, 0.879);">
+          <a class="nav-link" data-bs-toggle="tab" href="#credit"><span style="font-weight: 900;color:blue;">Credit Information</span></a>
+        </li>
+        <li class="nav-item" style="background-color: rgba(213, 255, 198, 0.856);border-radius: 5px;">
+          <a class="nav-link" data-bs-toggle="tab" href="#action"><span style="font-weight: 900;color:blue;">Profile Action</span></a>
+        </li>
+      </ul>
+    
+      <div class="container-fluid">
+        <!-- Tab panes -->
+        <div class="tab-content">
+          <div class="tab-pane active" id="overview">
+              <div class="row pt-2">
+                {% if user.activation == 0 %}
+                <h4 class="p-0 m-0 text-danger">Account Not activated</h4>
+                {% endif %}
+                {% if user.repayment_limit == 0 %}
+                <h4 class="p-0 m-0 text-warning">Deduction Limit not set</h4>
+                {% endif %}
+              </div>
+
+              {% if user.activation == 0 %}
+              <div class="row pt-2">
+
+                <div class="card-body m-0 p-3">
+                  <div class="table-responsive">
+                    <p id="width_notice2" style="display: none; color: blue;">You can scroll or swipe table below --></p>
+                    <h3>Activation Status Checklist</h3>
+                    <table class="table table-dark table-striped table-center text-xs">
+                      <thead>
+                          <tr>
+                            <th scope="col">STATUS</th>
+                            <th scope="col">REQUIREMENT</th>
+                            <th scope="col">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          
+                          <tr>
+                            {% if yef > 0.9 %}
+                            <td><span class="text-md text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;YES</td>
+                            {% else %}
+                            <td><span class="text-md text-danger"><b><i class="fa-solid fa-cancel"></i></b></span> &nbsp;NO</td>
+                            {% endif %}
+        
+                            <td>&nbsp;Employed for over 1 Year</td>
+        
+                            {% if yef > 0.9 %}
+                            <td><span class="text-md text-success"><b><i class="fa-solid fa-check"></i></b></span>{{yef}} years</td>
+                            {% else %}
+                            <td><a href="{% url 'inform_account_activation' user.id %}" target="_blank"><button class="btn btn-sm btn-info pr-1 pl-1 pt-1 pb-0 m-0 text-xs"><i class="fa-solid fa-edit"></i>&nbsp; INFORM</button></a></td>
+                            {% endif %}
+        
+                          </tr>
+                          <tr>
+                            {% if user.terms_consent == 'YES' %}
+                            <td><span class="text-md text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;YES</td>
+                            {% else %}
+                            <td><span class="text-md text-danger"><b><i class="fa-solid fa-cancel"></i></b></span> &nbsp;NO</td>
+                            {% endif %}
+                            <td>&nbsp;Consented to Terms & Conditions</td>
+        
+                            {% if user.terms_consent == 'YES' %}
+                            <td><span class="text-md text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;Consented</td>
+                            {% else %}
+                            <td><a href="{% url 'inform_account_activation' user.id %}" target="_blank"><button class="btn btn-sm btn-info pr-1 pl-1 pt-1 pb-0 m-0 text-xs"><i class="fa-solid fa-edit"></i>&nbsp; INFORM</button></a></td>
+                            {% endif %}
+                          </tr>
+                          <tr>
+                            {% if user.credit_consent == 'YES' %}
+                            <td><span class="text-md text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;YES</td>
+                            {% else %}
+                            <td><span class="text-md text-danger"><b><i class="fa-solid fa-cancel"></i></b></span> &nbsp;NO</td>
+                            {% endif %}
+                            <td>&nbsp;Consented to Credit Data Policy</td>
+                            {% if user.credit_consent == 'YES' %}
+                            <td><span class="text-md text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;Consented</td>
+                            {% else %}
+                            <td><a href="{% url 'inform_account_activation' user.id %}" target="_blank"><button class="btn btn-sm btn-info pr-1 pl-1 pt-1 pb-0 m-0 text-xs"><i class="fa-solid fa-edit"></i>&nbsp; INFORM</button></a></td>
+                            {% endif %}
+                          </tr>
+                          <tr>
+                            {% if user.passport_url or user.nid_url %}
+                            <td><span class="text-md text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;YES</td>
+                            {% else %}
+                            <td><span class="text-md text-danger"><b><i class="fa-solid fa-cancel"></i></b></span> &nbsp;NO</td>
+                            {% endif %}
+                            <td>&nbsp;NID or Passport uploaded</td>
+                            {% if user.passport_url or user.nid_url %}
+                            <td><span class="text-md text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;Uploaded</td>
+                            {% else %}
+                            <td><a href="{% url 'inform_account_activation' user.id %}" target="_blank"><button class="btn btn-sm btn-info pr-1 pl-1 pt-1 pb-0 m-0 text-xs"><i class="fa-solid fa-edit"></i>&nbsp; INFORM</button></a></td>
+                            {% endif %}
+                          </tr>
+                          
+                          <tr>
+                            {% if user.job_title %}
+                            <td><span class="text-md text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;YES</td>
+                            {% else %}
+                            <td><span class="text-md text-danger"><b><i class="fa-solid fa-cancel"></i></b></span> &nbsp;NO</td>
+                            {% endif %}
+                            <td>&nbsp;Employed (Working)</td>
+        
+                            {% if user.job_title %}
+                            <td><span class="text-md text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;Employed</td>
+                            {% else %}
+                            <td><a href="{% url 'inform_account_activation' user.id %}" target="_blank"><button class="btn btn-sm btn-info pr-1 pl-1 pt-1 pb-0 m-0 text-xs"><i class="fa-solid fa-edit"></i>&nbsp; INFORM</button></a></td>
+                            {% endif %}
+        
+                          </tr>
+                          <tr>
+                            {% if user.gross_pay > 0 %}
+                            <td><span class="text-md text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;YES</td>
+                            {% else %}
+                            <td><span class="text-md text-danger"><b><i class="fa-solid fa-cancel"></i></b></span> &nbsp;NO</td>
+                            {% endif %}
+                            <td>&nbsp;Gross Pay is specified</td>
+                            {% if user.gross_pay > 0 %}
+                            <td><span class="text-md text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;K {{ user.gross_pay|default_if_none:"0"|currency }}</td>
+                            {% else %}
+                            <td><a href="{% url 'inform_account_activation' user.id %}" target="_blank"><button class="btn btn-sm btn-info pr-1 pl-1 pt-1 pb-0 m-0 text-xs"><i class="fa-solid fa-edit"></i>&nbsp; INFORM</button></a></td>
+                            {% endif %}
+                          </tr>
+                          <tr>
+                            {% if age != 0 and age < 60 %}
+                            <td><span class="text-md text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;YES</td>
+                            {% else %}
+                            <td><span class="text-md text-danger"><b><i class="fa-solid fa-cancel"></i></b></span> &nbsp;NO</td>
+                            {% endif %}
+                            <td>&nbsp;Less than 60 years Old</td>
+                            {% if age > 0 and age < 60 %}
+                            <td><span class="text-md text-success"><b><i class="fa-solid fa-check"></i></b></span> &nbsp;{{ age }} years</td>
+                            {% else %}
+                            <td><a href="{% url 'inform_account_activation' user.id %}" target="_blank"><button class="btn btn-sm btn-info pr-1 pl-1 pt-1 pb-0 m-0 text-xs"><i class="fa-solid fa-edit"></i>&nbsp; INFORM</button></a></td>
+                            {% endif %}
+        
+                          </tr>
+      
+                        </tbody>
+                      </table>
+                  </div>
+                </div>
+
+
+
+
+
+
+
+
+
+              </div>
+              {% endif %}
+                
+                
+           
+
+
+
+                <div class="row mt-3">
+                  <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12 mb-1">
+                   
+                        <ul class="list-group">
+
+                          <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-0 pb-3 mb-2 bg-gray-100 border-radius-lg">
+                            
+                            <div class="d-flex flex-column">
+                              <h6 class="mt-2 mb-0 text-md text-primary">Personal Info<span></span></h6>
+                              <hr class="p-0 mt-1 mb-3" style="border: solid 1px green">
+                              <p class="pt-0 pb-1 m-0 text-xs text-info" style="opacity:0.01;">These are here now just for an example, it will change according to data from DCC.</p>
+                              <div class="row">
+                                <div class="col-3">
+                                  {% if user.propic_url %}
+                                  <a href="#" data-bs-toggle="modal" data-bs-target="#imgstaticBackdrop"><img src="{{ user.propic_url }}"  width="100%"></a>
+                                  {% else %}
+                                  <a href="#" data-bs-toggle="modal" data-bs-target="#imgstaticBackdrop"><img src="{% static 'img/profilepicture.png' %}"  width="100%"></a>
+                                  {% endif %}
+                                 <!--button type="button" class="btn btn-primary btn-sm p-0" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                                    View Photo
+                                  </button-->
+                                </div>
+                                <div class="col-9">
+                                  <span class="mb-1 text-sm">UID: <span class="text-dark font-weight-bold ms-sm-2">{{ user.uid }}</span></span>
+                                  <br>
+                                  <span class="mb-1 text-sm">Name: <span class="text-dark font-weight-bold ms-sm-2">{{ user.first_name}} 
+                                    {% if user.middle_name != None %}
+                                      {{ user.middle_name}} 
+                                    {% endif %} 
+                                    {{ user.last_name}}</span></span><br>
+                                    <span class="mb-1 text-sm">Gender: <span class="text-dark font-weight-bold ms-sm-2">{{ user.gender }}</span></span><br>
+                                    <span class="mb-1 text-sm">Date of Birth: <span class="text-dark font-weight-bold ms-sm-2">{{ user.date_of_birth|sdate }}</span>{% if user.age != None %} <span class="badge bg-light text-dark ms-1">Age {{ user.age }}</span>{% endif %}</span><br>
+                                    <span class="mb-1 text-sm">Email: <span class="text-dark font-weight-bold ms-sm-2">{{ suser.email }}</span></span><br>
+                                    <span class="mb-1 text-sm">Mobile 1: <span class="text-dark ms-sm-2 font-weight-bold">{{ user.mobile1 }}</span></span><br>
+                                    <span class="mb-1 text-sm">Location: <span class="text-dark ms-sm-2 font-weight-bold">{{ user.location.name }}</span></span><br>
+                                    <span class="mb-1 text-sm">Assigned Staff: <span class="text-dark ms-sm-2 font-weight-bold">{{ officer_fullname }}</span></span><br>
+                                </div>
+                              </div>
+                              
+                             
+                                
+                            </div>
+                          </li>
+                           
+                        
+
+                          {% if user.has_sme %}
+                          <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-0 pb-3 mb-2 bg-gray-100 border-radius-lg">
+                            <div class="d-flex flex-column">
+                              <h6 class="mt-2 mb-0 text-md text-primary">SME Info<span></span></h6>
+                              <hr class="p-0 mt-1 mb-3" style="border: solid 1px green">
+                              <span class="mb-2 text-sm">Trading Name: <span class="text-dark font-weight-bold ms-sm-2">
+                                {{ smeprofile.trading_name }}
+                                </span></span>
+                              <span class="mb-2 text-sm">Registered Name: <span class="text-dark font-weight-bold ms-sm-2">{{ smeprofile.registered_name }}</span></span>
+                              
+                              <span class="mb-2 text-sm">Email: <span class="text-dark font-weight-bold ms-sm-2">{{ smeprofile.email }}</span></span>
+                              <span class="mb-2 text-sm">Phone: <span class="text-dark ms-sm-2 font-weight-bold">{{ smeprofile.phone }}</span></span>
+                              <span class="text-sm">Website: <span class="text-dark ms-sm-2 font-weight-bold">{{ smeprofile.website }}</span></span>
+                              
+                            </div>
+                          </li>
+                          {% else %}
+                          <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-0 pb-2 mb-2 bg-gray-100 border-radius-lg">
+                            <div class="d-flex flex-column">
+                             <p class="pt-3">{{ user.first_name }} has no SME profile.</p>
+                            </div>
+                          </li>
+                          {% endif %}
+                        </ul>
+                     
+                  </div>
+            
+                  <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12 mb-2">
+                  
+                    <ul class="list-group">
+            
+                      <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-0 pb-3 mb-2 bg-gray-100 border-radius-lg">
+                        
+                        <div class="d-flex flex-column">
+                          <h6 class="mt-2 mb-0 text-md text-primary">Credit Info<span></span></h6>
+                              <hr class="p-0 mt-1 mb-3" style="border: solid 1px green">
+                              <p class="text-dark">Credit Rating: <span class="text-xl text-primary"><b>{{ user.credit_rating }}</b></span></p>
+
+                                  <p class="p-0 m-0 text-dark">Credit Status:</p>
+                                  {% if user.dcc_flagged %}
+                                  <p class="text-lg p-0 m-0">Client is <span class="text-danger"><b>Flagged in DCC</b></span></p>
+                                  {% endif %}
+                                  {% if user.dcc_flagged == 0 and user.default_flagged == 0 %}
+                                  <p class="text-lg p-0 m-0">Client has <span class="text-success"><b>Good Credit Rating</b></span></p>
+                                  {% endif %}
+                                  {% if user.default_flagged %}
+                                  <p class="text-lg p-0 m-0">Client in <span class="text-warning"><b>Default</b></span></p>
+                                  {% endif %}
+                                  {% if user.has_arrears %}
+                                  <p class="text-lg p-0 m-0">Client has <span class="text-warning"><u style="color:maroon;"><b>Arrears</b></u></span></p>
+                                  {% endif %}
+
+                                  {% if user.has_loan %}
+                                  <p class="text-lg p-0 m-0">Client has <span class="text-warning"><u style="color:maroon;"><b>a running Loan</b></u></span></p>
+                                  {% endif %}
+
+                                  {% if dcc_enabled %}
+                                  <hr class="p-0 mt-2 mb-2">
+                                  {% if dcc_report and not dcc_locked and dcc_report.summary %}
+                                  <p class="p-0 m-0 text-dark">DCC Benchmark Score:
+                                    <span class="text-lg text-primary"><b>{{ dcc_report.summary.score }}</b></span>/1000
+                                    <span class="badge bg-gradient-info">{{ dcc_report.summary.grade }}</span>
+                                  </p>
+                                  {% elif dcc_locked %}
+                                  <p class="p-0 m-0 text-sm text-muted">
+                                    <i class="fa-solid fa-lock"></i> DCC credit data available —
+                                    unlock it in the <a href="#credit" onclick="var t=document.querySelector('a.nav-link[href=\'#credit\']'); if(t){t.click();} return false;">Credit Information</a> tab (billed per view).
+                                  </p>
+                                  {% endif %}
+                                  {% endif %}
+
+
+                        </div>
+                      </li>
+            
+                      <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-0 pb-3 mb-2 bg-gray-100 border-radius-lg">
+                        
+                        <div class="d-flex flex-column">
+                          <h6 class="mt-2 mb-0 text-md text-primary">Loan Info<span></span></h6>
+                              <hr class="p-0 mt-1 mb-3" style="border: solid 1px green">
+                          
+                              <div class="table-responsive p-1">
+                                <table id="allLoansTablex" class="table table-striped table-hover align-items-center justify-content-center mb-0 p-0 table-stripped table-dark">
+                                  <thead>
+                                    <tr>
+                                      <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Loan Ref</th>
+                                      
+                                      <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Amount</th>
+                                      <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">FNs</th>
+                                      <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Repayment</th>
+                                      
+                                      <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Status</th>
+                                      
+                    
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {% for loan in all_loans_filtered %}
+                                    <tr>
+                                      <TD>
+                                          <div class="d-flex px-1">
+                                              
+                                              <div class="my-auto">
+                                              <h6 class="mb-0 text-xs"><a href="{{domain}}/admin/loans/{{ loan.ref }}/" class="text-primary">{{ loan.ref }}</a></h6>
+                                              </div>
+                                          </div>
+                                      </TD>
+                                      
+                                     
+                                      <TD>
+                                        <p class="text-xs font-weight-bold mb-0">{{ loan.amount|default_if_none:"0"|currency }}</p>
+                                      </TD>
+                                      <TD>
+                                        <p class="text-xs font-weight-bold mb-0">{{ loan.number_of_fortnights }}</p>
+                                      </TD>
+                                      <TD>
+                                        <p class="text-xs font-weight-bold mb-0">{{ loan.repayment_amount|default_if_none:"0"|currency }}</p>
+                                      </TD>
+                                      
+                                     
+                                      
+                                      
+                                      <TD class="align-middle text-xs">
+                                        <span class="badge badge-sm bg-gradient-warning">{{ loan.status }}</span>
+                                      </TD>
+                                      
+                                    </tr>
+                                    {% endfor %}
+                                    
+                                  </tbody>
+                                </table>
+                              </div>
+                            
+                        </div>
+                      </li>
+            
+                    </ul>
+                  
+                  </div>
+            
+                  
+                  <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12 mb-1">
+                
+                  
+                
+                    
+                 
+            
+                  
+                  </div>
+                
+                </div><!-- row -->
+              
+            
+
+
+          </div>
+          <div class="tab-pane" id="loan">
+
+            {% if others %}
+
+            <div class="row mt-3">
+              <div class="table-responsive p-2">
+                <table class="table table-dark table-striped table-sm p-0 m-0" style="border-radius: 10px;">
+                  <thead>
+                    <tr>
+                      <th class="text-center">Loans</th>
+                      <th class="text-center">Funded</th>
+                      <th class="text-center">Interests</th>
+                      <th class="text-center">Total Loan</th>
+                      <th class="text-center">Repayments</th>
+                      <th class="text-center">Arrears</th>
+                      <th class="text-center">Default Interests</th>
+                      <th class="text-center">Outstanding</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="text-center">{% if all_loans_filtered.count %}{{ all_loans_filtered.count }}{% else %}No Loans{% endif %}</td>
+                      <td class="text-center">{% if funded_sum %}K{{ funded_sum|default_if_none:"0"|currency }}{% else %}0{% endif %}</td>
+                      <td class="text-center">{% if interests_sum %}K{{ interests_sum|default_if_none:"0"|currency }}{% else %}0{% endif %}</td>
+                      <td class="text-center">{% if totalloan_sum %}K{{ totalloan_sum|default_if_none:"0"|currency }}{% else %}0{% endif %}</td>
+                      <td class="text-center">{% if repayments_sum %}K{{ repayments_sum|default_if_none:"0"|currency }}{% else %}0{% endif %}</td>
+                      <td class="text-center">{% if arrears_sum %}K{{ arrears_sum|default_if_none:"0"|currency }}{% else %}0{% endif %}</td>
+                      <td class="text-center">{% if defaultinterests_sum %}K{{ defaultinterests_sum|default_if_none:"0"|currency }}{% else %}0{% endif %}</td>
+                      <td class="text-center">{% if outstanding_sum %}K{{ outstanding_sum|default_if_none:"0"|currency }}{% else %}0{% endif %}</td>
+                   
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {% endif %}
+
+
+            {% if pending %}
+
+            <div class="row mt-1">
+              <div class="table-responsive p-2">
+                <table class="table table-dark table-striped table-sm p-0 m-0" style="border-radius: 10px;">
+                  <thead>
+                    <tr>
+                      <th class="text-center">Loans</th>
+                      <th class="text-center">Total Pending</th>
+                      <th class="text-center">Expected Interests</th>
+                      <th class="text-center">Repayments</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="text-center">{% if all_loans_filtered.count %}{{ all_loans_filtered.count }}{% else %}No Loans{% endif %}</td>
+                      <td class="text-center">{% if pending_sum %}K{{ pending_sum|default_if_none:"0"|currency }}{% else %}0{% endif %}</td>
+                      <td class="text-center">{% if expected_interests_sum %}K{{ expected_interests_sum|default_if_none:"0"|currency }}{% else %}0{% endif %}</td>
+                      <td class="text-center">{% if expected_repayments_sum %}K{{ expected_repayments_sum|default_if_none:"0"|currency }}{% else %}0{% endif %}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {% endif %}
+          
+            
+          
+            <div class="row">
+              <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <!-- ALL LOANS -->
+                <div class="card my-3">
+                    <div class="card-header bg-secondary p-0 position-relative mt-n2 mx-3 z-index-2">
+                      <h6 class="text-white text-center pt-2 pb-1">LOANS</h6>
+                    </div>
+                  <div class="card-body px-0 p-1">
+                    <div class="table-responsive p-1">
+                      <table id="allLoansTable" class="table table-striped table-hover align-items-center justify-content-center mb-0">
+                        <thead>
+                          <tr>
+                            <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Loan Ref</th>
+                            <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">First Name</th>
+                            <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Last Name</th>
+                            <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Type</th>
+                            <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Amount</th>
+                            <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Repayment</th>
+                            <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">FNs</th>
+                            
+                            <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Interest</th>
+                            <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">TOTAL LOAN</th>
+                            <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Status</th>
+                            <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Download</th>
+          
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for loan in all_loans_filtered %}
+                          <tr>
+                            <TD>
+                                <div class="d-flex px-1">
+                                   
+                                    <div class="my-auto">
+                                    <h6 class="mb-0 text-xs"><a href="{{domain}}/admin/loans/{{ loan.ref }}/" class="text-primary">{{ loan.ref }}</a></h6>
+                                    </div>
+                                </div>
+                            </TD>
+                            <TD>
+                              <a href="{% url 'view_client' user.id %}">
+                                <span class="text-xs font-weight-bold">{{ loan.owner.first_name}} 
+                                {% if loan.owner.middle_name != None %}
+                                  {{ loan.owner.middle_name}} 
+                                {% endif %} 
+                                
+                              </span>
+                              </a>
+                            </TD>
+                            <TD>
+                              <a href="{% url 'view_client' user.id %}">
+                                <span class="text-xs font-weight-bold">
+                                {{ loan.owner.last_name}}
+                                </span>
+                              </a>
+                            </TD>
+                            <TD>
+                              <span class="text-xs font-weight-bold">{{ loan.type }}</span>
+                            </TD>
+                            <TD>
+                              <p class="text-xs font-weight-bold mb-0">{{ loan.amount|default_if_none:"0"|currency }}</p>
+                            </TD>
+                            
+                            <TD>
+                              <span class="text-xs font-weight-bold">{{ loan.repayment_amount|default_if_none:"0"|currency }}</span>
+                            </TD>
+                            <TD>
+                              <span class="text-xs font-weight-bold">{{ loan.number_of_fortnights }}</span>
+                            </TD>
+                            
+                            <TD>
+                              <span class="text-xs font-weight-bold">{{ loan.interest|default_if_none:"0"|currency }}</span>
+                            </TD>
+                            <TD>
+                              <span class="text-xs font-weight-bold">{{ loan.total_outstanding|default_if_none:"0"|currency }}</span>
+                            </TD>
+                            <TD class="align-middle text-xs">
+                              <span class="badge badge-sm bg-gradient-warning">{{ loan.category }}</span>
+                            </TD>
+                            <TD class="align-middle">
+                              {% if loan.category == 'PENDING' %}
+                   
+                                {% if loan.files.application_form_url %}
+                                <a href="{{domain}}{{loan.files.application_form_url}}">
+                                  
+                                {% else %}
+                                <a href="{{domain}}/loan/dla/{{ loan.ref }}/">
+                                  
+                                {% endif %}
+                              {% else %}
+                                <a href="{{domain}}/loan/dls/{{ loan.ref }}/">
+                              {% endif %}
+                              <button class="btn btn-lg bg-primary text-light m-0 pt-0 pb-0 pl-2 pr-2" >
+                                <i class="fa-solid fa-download"></i>
+                              </button>
+                              </a>
+                            </TD>
+                          
+                          </tr>
+                          {% endfor %}
+                          
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+          </div>
+          <div class="tab-pane fade" id="pro">
+            <div class="card p-0 mt-3 mb-2">
+              <div class="card-header bg-secondary pt-2 pr-1 pb-2 pl-1 text-center">
+                <h5 class="text-light p-0 m-0"><b>Profile Information</b></h5>
+              </div>
+              <div class="card-body p-2">
+                <div class="row">
+                  <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 mb-1">
+                    <div class="card p-1">
+                      <div class="card-body pt-2 p-1">
+                        <ul class="list-group">
+                          <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-0 pb-3 mb-2 bg-gray-100 border-radius-lg">
+                            <div class="d-flex flex-column">
+                              <h6 class="mb-1 text-md text-primary">Personal Information<span><a class="btn btn-link text-dark px-3 mb-0" href="{% url 'edit_personalinfo_staff' user.id %}"><i class="material-icons text-sm me-2">edit</i>Edit</a></span></h6>
+                              <div class="row">
+                                {% if field_settings.personal_info.propic != False %}
+                                <div class="col-3">
+                                  <a href="#" data-bs-toggle="modal" data-bs-target="#imgstaticBackdrop"><img src="{{ user.propic_url }}"  width="100%"></a>
+                                </div>
+                                {% endif %}
+                                <div class="col-9">
+                                  <span class="mb-1 text-sm">UID: <span class="text-dark font-weight-bold ms-sm-2">{{ user.uid }}</span></span>
+                                  <br>
+                                  <span class="mb-1 text-sm">Name: <span class="text-dark font-weight-bold ms-sm-2">
+                                    {% if field_settings.personal_info.first_name != False %}{{ user.first_name}}{% endif %}
+                                    {% if field_settings.personal_info.middle_name != False %}{% if user.middle_name != None %}{{ user.middle_name}}{% endif %}{% endif %}
+                                    {% if field_settings.personal_info.last_name != False %}{{ user.last_name}}{% endif %}
+                                  </span></span>
+                                </div>
+                              </div>
+                              {% if field_settings.personal_info.gender != False %}
+                              <span class="mb-1 text-sm">Gender: <span class="text-dark font-weight-bold ms-sm-2">{{ user.gender }}</span></span>
+                              {% endif %}
+                              {% if field_settings.personal_info.date_of_birth != False %}
+                              <span class="mb-1 text-sm">Date of Birth: <span class="text-dark font-weight-bold ms-sm-2">{{ user.date_of_birth|sdate }}</span>{% if user.age != None %} <span class="badge bg-light text-dark ms-1">Age {{ user.age }}</span>{% endif %}</span>
+                              {% endif %}
+                              {% if field_settings.personal_info.marital_status != False %}
+                              <span class="mb-1 text-sm">Marital Status: <span class="text-dark font-weight-bold ms-sm-2">{{ user.marital_status }}</span></span>
+                              {% endif %}
+                                
+                            </div>
+                           
+                          </li>
+                          
+                          <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-0 pb-3 mb-2 bg-gray-100 border-radius-lg">
+                            <div class="d-flex flex-column">
+                              <h6 class="mb-1 text-md text-primary">Contact & Address <span><a class="btn btn-link text-dark px-3 mb-0" href="{% url 'edit_addressinfo_staff' user.id %}"><i class="material-icons text-sm me-2">edit</i>Edit</a></span></h6>
+                              <span class="mb-1 text-sm">Email: <span class="text-dark font-weight-bold ms-sm-2">{{ suser.email }}</span></span>
+                              <span class="mb-1 text-sm">Mobile 1: <span class="text-dark ms-sm-2 font-weight-bold">{{ user.mobile1 }}</span></span>
+                              <span class="mb-1 text-sm">Mobile 2: <span class="text-dark ms-sm-2 font-weight-bold">{{ user.mobile2 }}</span></span>
+                              {% if field_settings.contact_info.work_phone != False %}<span class="mb-1 text-sm">Work Phone: <span class="text-dark ms-sm-2 font-weight-bold">{{ user.work_phone }}</span></span>{% endif %}
+                              {% if field_settings.contact_info.work_email != False %}<span class="mb-1 text-sm">Work Email: <span class="text-dark ms-sm-2 font-weight-bold">{{ user.work_email }}</span></span>{% endif %}
+                              <hr class="p-0 mt-2 mb-2" style="border: solid 1px green">
+                              <span class="mb-1 text-sm">Resident Owner: <span class="text-dark ms-sm-2 font-weight-bold">{{ user.resident_owner }}</span></span>
+                              <span class="mb-1 text-sm">Residential Address: <span class="text-dark font-weight-bold ms-sm-2">{{ user.residential_address }}</span></span>
+                              <span class="mb-1 text-sm">Residential Province: <span class="text-dark font-weight-bold ms-sm-2">{{ user.residential_province }}</span></span>
+                              <span class="mb-1 text-sm">Place of Origin: <span class="text-dark font-weight-bold ms-sm-2">{{ user.place_of_origin }}</span></span>
+                              <span class="mb-1 text-sm">Province of Origin: <span class="text-dark font-weight-bold ms-sm-2">{{ user.province }}</span></span>
+                            </div>
+                            
+                          </li>
+                                     
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+            
+                  <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 mb-2">
+                  <div class="card p-1">
+                  
+                  <div class="card-body pt-2 p-1">
+                    <ul class="list-group">
+            
+                      <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-0 pb-3 mb-2 bg-gray-100 border-radius-lg">
+                        <div class="d-flex flex-column">
+                          <h6 class="mb-1 text-md text-primary">Personal Uploads<span><a class="btn btn-link text-dark px-3 mb-0" href="{% url 'edit_useruploads_staff' user.id %}"><i class="material-icons text-sm me-2">edit</i>Edit</a></span></h6>
+                          {% if field_settings.user_uploads.nid_number != False %}<span class="mb-1 text-sm">NID Number: <span class="text-dark font-weight-bold ms-sm-2">{{ user.nid_number }}</span></span>{% endif %}
+                          {% if field_settings.user_uploads.nid != False %}<span class="mb-1 text-sm">NID: <span class="text-dark ms-sm-2 font-weight-bold"><a href="{{ user.nid_url }}" target="_blank">{% if user.nid_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View NID</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>{% endif %}
+                          {% if field_settings.user_uploads.passport_number != False %}<span class="mb-1 text-sm">Passport Number: <span class="text-dark font-weight-bold ms-sm-2">{{ user.passport_number }}</span></span>{% endif %}
+                          {% if field_settings.user_uploads.passport != False %}<span class="mb-1 text-sm">Passport: <span class="text-dark ms-sm-2 font-weight-bold"><a href="{{ user.passport_url }}" target="_blank">{% if user.passport_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View Passport</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>{% endif %}
+                          {% if field_settings.user_uploads.drivers_license_number != False %}<span class="mb-1 text-sm">License Number: <span class="text-dark font-weight-bold ms-sm-2">{{ user.license_number }}</span></span>{% endif %}
+                          {% if field_settings.user_uploads.drivers_license != False %}<span class="mb-1 text-sm">License: <span class="text-dark ms-sm-2 font-weight-bold"><a href="{{ user.drivers_license_url }}" target="_blank">{% if user.drivers_license_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View License</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>{% endif %}
+                          {% if field_settings.user_uploads.super_member_code != False %}<span class="mb-1 text-sm">Super Member Number: <span class="text-dark ms-sm-2 font-weight-bold"></span>{{ user.super_member_code }}</span>{% endif %}
+                          {% if field_settings.user_uploads.superid != False %}<span class="mb-1 text-sm">Super ID: <span class="text-dark ms-sm-2 font-weight-bold"></span><a href="{{ user.super_id_url }}" target="_blank">{% if user.super_id_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View Super ID</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span>{% endif %}
+                        </div>
+                        
+                      </li>
+            
+                      <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-0 pb-3 mb-2 bg-gray-100 border-radius-lg">
+                        <div class="d-flex flex-column">
+                          <h6 class="mb-1 text-md text-primary">Primary Bank Account<span><a class="btn btn-link text-dark px-3 mb-0" href="{% url 'edit_bankinfo_staff' user.id %}"><i class="material-icons text-sm me-2">edit</i>Edit</a></span></h6>
+                          <span class="mb-1 text-sm">Bank: <span class="text-dark font-weight-bold ms-sm-2">{{ user.bank }}</span></span>
+                          <span class="mb-1 text-sm">Account Name: <span class="text-dark ms-sm-2 font-weight-bold">{{ user.bank_account_name }}</span></span>
+                          <span class="mb-1 text-sm">Account Number: <span class="text-dark ms-sm-2 font-weight-bold">{{ user.bank_account_number }}</span></span>
+                          <span class="mb-1 text-sm">Bank Branch: <span class="text-dark ms-sm-2 font-weight-bold">{{ user.bank_branch }}</span></span>
+                        </div>
+                      </li>
+            
+                    </ul>
+                  </div>
+                  </div>
+                  </div>
+            
+                  <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 mb-1">
+                  <div class="card p-1">
+                  
+                  <div class="card-body pt-2 p-1">
+                    <ul class="list-group">
+            
+                      <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-0 pb-3 mb-2 bg-gray-100 border-radius-lg">
+                        <div class="d-flex flex-column">
+                          <h6 class="mb-1 text-md text-primary">Employer Details<span><a class="btn btn-link text-dark px-3 mb-0" href="{% url 'edit_employerinfo_staff' user.id %}"><i class="material-icons text-sm me-2">edit</i>Edit</a></span></h6>
+                          {% if field_settings.employer_info.sector != False %}<span class="mb-1 text-sm">Sector: <span class="text-dark font-weight-bold ms-sm-2">{{ user.sector }}</span></span>{% endif %}
+                          {% if field_settings.employer_info.employer != False %}<span class="mb-1 text-sm">Company Name: <span class="text-dark font-weight-bold ms-sm-2">{{ user.employer }}</span></span>{% endif %}
+                          {% if field_settings.employer_info.office_address != False %}<span class="mb-1 text-sm">Office Address: <span class="text-dark ms-sm-2 font-weight-bold">{{ user.office_address }}</span></span>{% endif %}
+                          {% if field_settings.employer_info.payroll_officer_name != False %}<span class="mb-1 text-sm">Payroll Officer Name: <span class="text-dark ms-sm-2 font-weight-bold">{{ user.payroll_officer_name }}</span></span>{% endif %}
+                          {% if field_settings.employer_info.work_phone != False %}<span class="mb-1 text-sm">Payroll Officer Phone: <span class="text-dark ms-sm-2 font-weight-bold">{{ user.payroll_officer_phone }}</span></span>{% endif %}
+                          {% if field_settings.employer_info.work_email != False %}<span class="mb-1 text-sm">Payroll Officer Email: <span class="text-dark ms-sm-2 font-weight-bold">{{ user.payroll_officer_email }}</span></span>{% endif %}
+                          <span class="mb-1 text-sm">Payroll / Deduction Category: <span class="text-dark ms-sm-2 font-weight-bold">{{ user.get_deduction_category_display|default:"— Not set —" }}</span></span>
+                        </div>
+                      </li>
+            
+                      <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-0 pb-3 mb-2 bg-gray-100 border-radius-lg">
+                        <div class="d-flex flex-column">
+                          <h6 class="mb-1 text-md text-primary">Job Details<span><a class="btn btn-link text-dark px-3 mb-0" href="{% url 'edit_jobinfo_staff' user.id %}"><i class="material-icons text-sm me-2">edit</i>Edit</a></span></h6>
+                          {% if field_settings.job_info.employee_file_number != False %}<span class="mb-1 text-sm">Employee File Number: <span class="text-dark font-weight-bold ms-sm-2">{{ user.employee_file_number }}</span></span>{% endif %}
+                          {% if field_settings.job_info.job_title != False %}<span class="mb-1 text-sm">Job Title: <span class="text-dark font-weight-bold ms-sm-2">{{ user.job_title }}</span></span>{% endif %}
+                          {% if field_settings.job_info.start_date != False %}<span class="mb-1 text-sm">Start Date: <span class="text-dark font-weight-bold ms-sm-2">{{ user.start_date|sdate }}</span>{% if user.years_of_service != None %} <span class="badge bg-light text-dark ms-1">{{ user.years_of_service }} yrs service</span>{% endif %}</span>{% endif %}
+                          {% if field_settings.job_info.pay_frequency != False %}<span class="mb-1 text-sm">Pay Frequency: <span class="text-dark ms-sm-2 font-weight-bold">{{ user.pay_frequency }}</span></span>{% endif %}
+                          {% if field_settings.job_info.last_paydate != False %}<span class="mb-1 text-sm">Most Recent Paydate: <span class="text-dark ms-sm-2 font-weight-bold">{{ user.last_paydate }}</span></span>{% endif %}
+                          {% if field_settings.job_info.gross_pay != False %}<span class="mb-1 text-sm">Gross Pay: <span class="text-dark ms-sm-2 font-weight-bold">{{ user.gross_pay }}</span></span>{% endif %}
+                          {% if field_settings.job_info.work_id_number != False %}<span class="mb-1 text-sm">Work ID Number: <span class="text-dark font-weight-bold ms-sm-2">{{ user.work_id_number }}</span></span>{% endif %}
+                          {% if field_settings.job_info.work_id != False %}<span class="mb-1 text-sm">Work ID: <span class="text-dark ms-sm-2 font-weight-bold"><a href="{{ user.work_id_url }}" target="_blank">{% if user.work_id_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View Work ID</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>{% endif %}
+                          
+                        </div>
+                      </li>
+            
+                    </ul>
+                  </div>
+                  </div>
+            
+                  
+                  </div>
+                </div><!-- row -->
+              </div><!-- card body -->
+            </div><!-- Container Card-->
+            
+            <div class="card p-0 mt-3 mb-2">
+              <div class="card-header bg-secondary pt-2 pr-1 pb-2 pl-1 text-center">
+                <h5 class="text-light p-0 m-0">Required Uploads <b>WHEN APPLYING for a LOAN</b></h5>
+                <p class="text-sm text-light p-0 m-0">Documents marked with '*' must be available when reviewing loan for decision.</p>
+              </div>
+              <div class="card-body p-2">
+                <div class="row">
+                  <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 mb-1">
+                    <div class="card p-1">
+                      <div class="card-body pt-2 p-1">
+                        <ul class="list-group">
+                          <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-0 pb-3 mb-2 bg-gray-100 border-radius-lg">
+                            <div class="d-flex flex-column">
+                              <h6 class="mb-1 text-md text-primary">Work Uploads<span><a class="btn btn-link text-dark px-3 mb-0" href="{% url 'edit_work_uploads_staff' user.id %}"><i class="material-icons text-sm me-2">edit</i>Edit</a></span></h6>
+                              <span class="mb-1 text-sm">Work Confirmation Letter: <span class="text-dark ms-sm-2 font-weight-bold"><a href="{{ loanfile.work_confirmation_letter_url }}" target="_blank">{% if loanfile.work_confirmation_letter_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View Confirmation Letter</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>
+                              <span class="mb-1 text-sm">Payslip 1: <span class="text-dark font-weight-bold ms-sm-2"><a href="{{ loanfile.payslip1_url }}" target="_blank">{% if loanfile.payslip2_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View Payslip 1</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>
+                              <span class="mb-1 text-sm">Payslip 2: <span class="text-dark ms-sm-2 font-weight-bold"><a href="{{ loanfile.payslip2_url }}" target="_blank">{% if loanfile.payslip2_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View Payslip 2</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>
+                            </div>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 mb-2">
+                    <div class="card p-1">
+                      <div class="card-body pt-2 p-1">
+                        <ul class="list-group">
+                          <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-0 pb-3 mb-2 bg-gray-100 border-radius-lg">
+                            <div class="d-flex flex-column">
+                              <h6 class="mb-1 text-md text-primary">Existing Loan Statements<span><a class="btn btn-link text-dark px-3 mb-0" href="{% url 'edit_loan_statement_uploads_staff' user.id %}"><i class="material-icons text-sm me-2">edit</i>Edit</a></span></h6>
+                              <span class="mb-1 text-sm">Loan Statement 1: <span class="text-dark ms-sm-2 font-weight-bold"><a href="{{ loanfile.loan_statement1_url }}" target="_blank">{% if loanfile.loan_statement1_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View Statement</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>
+                              <span class="mb-1 text-sm">Loan Statement 2: <span class="text-dark ms-sm-2 font-weight-bold"><a href="{{ loanfile.loan_statement2_url }}" target="_blank">{% if loanfile.loan_statement2_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View Statement</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>
+                              <span class="mb-1 text-sm">Loan Statement 3: <span class="text-dark ms-sm-2 font-weight-bold"><a href="{{ loanfile.loan_statement3_url }}" target="_blank">{% if loanfile.loan_statement3_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View Statement</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>
+                              <span class="mb-1 text-sm">Bank Statement: <span class="text-dark ms-sm-2 font-weight-bold"><a href="{{ loanfile.bank_statement_url }}" target="_blank">{% if loanfile.bank_statement_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View Statement</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>
+                              <span class="mb-1 text-sm">Super Statement: <span class="text-dark ms-sm-2 font-weight-bold"><a href="{{ loanfile.super_statement_url }}" target="_blank">{% if loanfile.super_statement_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View Super Statement</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>
+                              <span class="mb-1 text-sm">Bank Standing Order: <span class="text-dark ms-sm-2 font-weight-bold"><a href="{{ loanfile.bank_standing_order_url }}" target="_blank">{% if loanfile.bank_standing_order_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View Standing Order</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>
+                            </div>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 mb-2">
+                    <div class="card p-1">
+                      <div class="card-body pt-2 p-1">
+                        <ul class="list-group">
+                          <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-0 pb-3 mb-2 bg-gray-100 border-radius-lg">
+                            <div class="d-flex flex-column">
+                              <h6 class="mb-1 text-md text-primary">Required Documents<span><a class="btn btn-link text-dark px-3 mb-0" href="{% url 'edit_required_uploads_staff' user.id %}"><i class="material-icons text-sm me-2">edit</i>Edit</a></span></h6>
+                              <span class="mb-1 text-sm">Application Form: <span class="text-dark ms-sm-2 font-weight-bold"><a href="{{ loanfile.application_form_url }}" target="_blank">{% if loanfile.application_form_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View Application Form</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>
+                              <span class="mb-1 text-sm">Terms & Conditions: <span class="text-dark ms-sm-2 font-weight-bold"><a href="{{ loanfile.terms_conditions_url }}" target="_blank">{% if loanfile.terms_conditions_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View T&Cs Form</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>
+                              <span class="mb-1 text-sm">Statutory Declaration: <span class="text-dark ms-sm-2 font-weight-bold"><a href="{{ loanfile.stat_dec_url }}" target="_blank">{% if loanfile.stat_dec_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View Stat. Dec.</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>
+                              <span class="mb-1 text-sm">Irrevocable Salary Deduction Form:<span class="text-dark ms-sm-2 font-weight-bold"></span><a href="{{ loanfile.irr_sd_form_url }}" target="_blank">{% if loanfile.irr_sd_form_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View IRS Deduction</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span>
+                            
+                             
+                            </div>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div><!-- row -->
+              </div><!-- card body -->
+            </div><!-- Container Card-->
+
+            
+          </div>
+
+          {% if user.has_sme == 1 %}
+            <div class="tab-pane fade" id="sme">
+
+              <div class="card p-0 mt-2 mb-2">
+                <div class="card-header bg-secondary pt-2 pr-1 pb-2 pl-1 text-center">
+                  <h5 class="text-light p-0 m-0"><b>SME Information</b></h5>
+                </div>
+                <div class="card-body p-2">
+                  <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 mb-2">
+                      <div class="card p-1">
+                        <div class="card-body pt-2 p-1">
+                          <ul class="list-group">
+                            <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-0 pb-3 mb-2 bg-gray-100 border-radius-lg">
+                              <div class="d-flex flex-column">
+                                <h6 class="mb-3 text-md text-primary">Registration Details<span><a class="btn btn-link text-dark px-3 mb-0" href="{% url 'edit_sme_profile' %}"><i class="material-icons text-sm me-2">edit</i>Edit</a></span></h6>
+                                <span class="mb-2 text-sm">Trading Name: <span class="text-dark font-weight-bold ms-sm-2">
+                                  {{ smeprofile.trading_name}} 
+                                  </span></span>
+                                <span class="mb-2 text-sm">Registered Name: <span class="text-dark font-weight-bold ms-sm-2">{{ smeprofile.registered_name }}</span></span>
+                                <span class="mb-2 text-sm">IPA Registration Number: <span class="text-dark font-weight-bold ms-sm-2">{{ smeprofile.ipa_registration_number }}</span></span>
+                                <span class="mb-2 text-sm">TIN Number: <span class="text-dark font-weight-bold ms-sm-2">{{ smeprofile.tin_number }}</span></span>
+                                <hr class="p-0 mt-2 mb-2" style="border: solid 1px green">
+                                <span class="mb-2 text-sm">Business Address: <span class="text-dark font-weight-bold ms-sm-2">{{ smeprofile.business_address }}</span></span>
+                                <span class="mb-2 text-sm">Email: <span class="text-dark font-weight-bold ms-sm-2">{{ smeprofile.email }}</span></span>
+                                <span class="mb-2 text-sm">Phone: <span class="text-dark ms-sm-2 font-weight-bold">{{ smeprofile.phone }}</span></span>
+                                <span class="text-sm">Website: <span class="text-dark ms-sm-2 font-weight-bold">{{ smeprofile.website }}</span></span>
+                                
+                              </div>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+              
+                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 mb-1">
+                      <div class="card p-1">
+                        <div class="card-body pt-2 p-1">
+                          <ul class="list-group">                
+                            <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-0 pb-3 mb-2 bg-gray-100 border-radius-lg">
+                              <div class="d-flex flex-column">
+                                <h6 class="mb-3 text-md text-primary">SME Uploads<span><a class="btn btn-link text-dark px-3 mb-0" href="{% url 'edit_sme_profile_uploads' %}"><i class="material-icons text-sm me-2">edit</i>Edit</a></span></h6>
+                                
+                                <span class="mb-2 text-sm">IPA Certificate: <span class="text-dark ms-sm-2 font-weight-bold"><a href="{{ smeprofile.ipa_certificate_url }}" target="_blank">{% if smeprofile.ipa_certificate_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View IPA Certificate</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>
+                                <span class="mb-2 text-sm">Tin Certificate: <span class="text-dark ms-sm-2 font-weight-bold"><a href="{{ smeprofile.tin_certificate_url }}" target="_blank">{% if smeprofile.tin_certificate_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View TIN Certificate</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>
+                                <span class="mb-2 text-sm">Cash Flow: <span class="text-dark font-weight-bold ms-sm-2"><a href="{{ smeprofile.cash_flow_url }}" target="_blank">{% if smeprofile.cash_flow_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View Cash Flow</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>
+                                <span class="mb-2 text-sm">Bank Statement: <span class="text-dark font-weight-bold ms-sm-2"><a href="{{ smeprofile.sme_bank_statement_url }}" target="_blank">{% if smeprofile.sme_bank_statement_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View Bank Statement</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>
+                    
+                                <span class="mb-2 text-sm">Picture of Business Location: <span class="text-dark ms-sm-2 font-weight-bold"><a href="{{ smeprofile.location_pic_url }}" target="_blank">{% if smeprofile.location_pic_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View Pic</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>
+                              </div>
+                            </li>  
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+            
+                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 mb-1">
+                      <div class="card p-1">
+                      
+                      <div class="card-body pt-2 p-1">
+                        <ul class="list-group">
+              
+                          
+                          <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-0 pb-3 mb-2 bg-gray-100 border-radius-lg">
+                            <div class="d-flex flex-column">
+                              <h6 class="mb-3 text-md text-primary">Primary Account<span><a class="btn btn-link text-dark px-3 mb-0" href="{% url 'edit_sme_profile_bank' %}"><i class="material-icons text-sm me-2">edit</i>Edit</a></span></h6>
+                              <span class="mb-2 text-sm">Bank: <span class="text-dark font-weight-bold ms-sm-2">{{ smeprofile.bank }}</span></span>
+                              <span class="mb-2 text-sm">Account Name: <span class="text-dark ms-sm-2 font-weight-bold">{{ smeprofile.bank_account_name }}</span></span>
+                              <span class="mb-2 text-sm">Account Number: <span class="text-dark ms-sm-2 font-weight-bold">{{ smeprofile.bank_account_number }}</span></span>
+                              <span class="mb-2 text-sm">Bank Branch: <span class="text-dark ms-sm-2 font-weight-bold">{{ smeprofile.bank_branch }}</span></span>
+                             </div>
+                          </li> 
+                        
+                
+                        </ul>
+                      </div>
+                      </div>
+              
+                    
+                    </div>
+                  </div><!-- row -->
+                </div><!-- card body -->
+              </div><!-- Container Card-->
+
+              
+            </div>
+          {% endif %}
+
+          <div class="tab-pane fade" id="credit">
+            <div class="card mb-5 mt-3 mr-1 ml-1">
+              <div class="card-header bg-secondary pt-2 pr-2 pb-2 pl-2 text-center">
+                <h5 class="mb-0 text-light">Dinau Control Center - Credit Information</h5>
+              </div>
+
+              {% if not dcc_enabled %}
+              <div class="card-body p-3">
+                <div class="alert alert-info mb-0">
+                  <i class="fa-solid fa-shield-halved"></i>
+                  DCC credit checks are disabled, so no searches are billed. Client data continues to be
+                  synced to the DCC bureau. Enable pay-per-view credit checks in
+                  <a href="{% url 'admin_settings_dcc' %}">Settings &rarr; DCC</a>.
+                </div>
+              </div>
+
+              {% elif dcc_result.error %}
+              <div class="card-body p-3">
+                <div class="alert alert-danger mb-0">{{ dcc_result.error }}</div>
+              </div>
+
+              {% elif dcc_result.not_found %}
+              <div class="card-body p-3">
+                <div class="alert alert-info mb-0">
+                  <strong>{{ user.first_name }} {{ user.last_name }}</strong> (UID <code>{{ user.uid }}</code>)
+                  has no matching record in the DCC Credit Database yet. Nothing has been billed.
+                </div>
+              </div>
+
+              {% elif dcc_locked %}
+              <!-- PAY-PER-VIEW OVERLAY: data stays hidden until View Data is clicked (billed) -->
+              <div class="card-body p-0">
+                <div style="position: relative; min-height: 340px; overflow: hidden;">
+                  <div aria-hidden="true" style="filter: blur(7px); user-select: none; pointer-events: none; padding: 24px;">
+                    <h6 class="text-primary">Credit Info</h6>
+                    <hr>
+                    <p>Benchmark Score: <b>&#9608;&#9608;&#9608; / 1000 (&#9608;&#9608;)</b></p>
+                    <p>Credit Rating: <b>&#9608;&#9608;.&#9608;&#9608;</b></p>
+                    <p>Total Loans: &#9608;&#9608; &nbsp; Running: &#9608; &nbsp; Defaulted: &#9608; &nbsp; Outstanding: K&#9608;,&#9608;&#9608;&#9608;.&#9608;&#9608;</p>
+                    <p>Status: &#9608;&#9608;&#9608;&#9608;&#9608;&#9608; &nbsp;&nbsp; Lenders reporting: &#9608;</p>
+                    <p>Loan records, repayment history and bureau comments are included in the full report.</p>
+                  </div>
+                  <div style="position: absolute; inset: 0; background: rgba(33,37,41,.55); display: flex; align-items: center; justify-content: center;">
+                    <div class="text-center bg-white p-4" style="border-radius: 12px; max-width: 440px; box-shadow: 0 10px 30px rgba(0,0,0,.35);">
+                      <i class="fa-solid fa-lock text-secondary" style="font-size: 1.6rem;"></i>
+                      <h5 class="mt-2 mb-1">Credit data available</h5>
+                      <p class="text-muted mb-1" style="font-size:.85rem;">
+                        A DCC record was found for
+                        <strong>{{ dcc_report.client.first_name }} {{ dcc_report.client.last_name }}</strong>.
+                        Viewing is billed per view.
+                      </p>
+                      <p class="text-muted mb-3" style="font-size:.8rem;">
+                        {% if dcc_access.price_per_view %}Price: <strong>{{ dcc_access.currency }} {{ dcc_access.price_per_view }}</strong> &middot;{% endif %}
+                        access stays open for <strong>{{ dcc_access.window_hours|default:12 }} hours</strong> after unlocking.
+                      </p>
+                      <form method="post" action="{% url 'dcc_unlock' user.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{% url 'view_client' user.id %}#credit">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                          <i class="fa-solid fa-eye"></i>&nbsp; View Data
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {% elif dcc_report %}
+              <div class="card-body p-3">
+                {% if dcc_access.expires_at %}
+                <div class="alert alert-success pt-2 pb-2" style="font-size:.85rem;">
+                  <i class="fa-solid fa-lock-open"></i>
+                  Paid view is open — access to this client's DCC data ends
+                  <strong>{{ dcc_access.expires_at }}</strong>. After that, viewing again is billed as a new view.
+                </div>
+                {% endif %}
+
+                <div class="row mt-1">
+                  <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 mb-2">
+                    <ul class="list-group">
+                      <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-0 pb-3 mb-2 bg-gray-100 border-radius-lg">
+                        <div class="d-flex flex-column w-100">
+                          <h6 class="mt-2 mb-0 text-md text-primary">DCC Benchmark Score<span></span></h6>
+                          <hr class="p-0 mt-1 mb-3" style="border: solid 1px green">
+                          <p class="p-0 m-0">Full Name: <span class="text-primary">{{ dcc_report.client.first_name }} {{ dcc_report.client.last_name }}</span></p>
+                          <p class="p-0 m-0">DCC UID: {{ dcc_report.client.CUID }}</p>
+                          <p class="text-dark mt-2 mb-1">Benchmark Score:
+                            <span class="text-xl text-primary"><b>{{ dcc_report.summary.score }}</b></span> / 1000
+                            <span class="badge bg-gradient-info">{{ dcc_report.summary.grade }}</span>
+                          </p>
+                          <p class="text-dark">Credit Rating: <span class="text-lg text-primary"><b>{{ dcc_report.summary.credit_rating }}</b></span> / 100</p>
+                          <p class="p-0 m-0 text-dark">Bureau Status:</p>
+                          {% if dcc_report.summary.dcc_flagged %}
+                          <p class="text-lg p-0 m-0">Client is <span class="text-danger"><b>Flagged in DCC</b></span>{% if dcc_report.summary.dcc_status %} — {{ dcc_report.summary.dcc_status }}{% endif %}</p>
+                          {% else %}
+                          <p class="text-lg p-0 m-0"><span class="text-success"><b>{{ dcc_report.summary.dcc_status|default:"CLEAR" }}</b></span></p>
+                          {% endif %}
+                          <hr class="p-0 mt-2 mb-2">
+                          <p class="p-0 m-0 text-sm">Lenders reporting: <b>{{ dcc_report.summary.tenants_reporting }}</b></p>
+                          <p class="p-0 m-0 text-sm">Months with repayments: <b>{{ dcc_report.summary.months_active }}</b></p>
+                          <p class="p-0 m-0 text-sm">Past default/recovery episodes: <b>{{ dcc_report.summary.status_events }}</b></p>
+                          <p class="p-0 m-0 text-sm">Identity changes on file: <b>{{ dcc_report.summary.identity_changes }}</b></p>
+                          {% if dcc_report.client.dcc_comment %}
+                          <p class="p-0 mt-2 m-0 text-sm"><b>Bureau comment:</b> {{ dcc_report.client.dcc_comment }}</p>
+                          {% endif %}
+                        </div>
+                      </li>
+                      <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-2 pb-3 mb-2 bg-gray-100 border-radius-lg">
+                        <div class="d-flex flex-column w-100">
+                          <p class="p-0 m-0 text-sm">Total Loans: <b>{{ dcc_report.summary.total_loans }}</b></p>
+                          <p class="p-0 m-0 text-sm">Running: <b>{{ dcc_report.summary.running_loans }}</b></p>
+                          <p class="p-0 m-0 text-sm">Completed: <b>{{ dcc_report.summary.completed_loans }}</b></p>
+                          <p class="p-0 m-0 text-sm">Defaulted: <b class="{% if dcc_report.summary.defaulted_loans %}text-danger{% endif %}">{{ dcc_report.summary.defaulted_loans }}</b></p>
+                          <p class="p-0 m-0 text-sm">Outstanding: <b>{{ dcc_report.summary.total_outstanding }}</b></p>
+                          <p class="p-0 m-0 text-sm">Arrears: <b class="{% if dcc_report.summary.total_arrears %}text-danger{% endif %}">{{ dcc_report.summary.total_arrears }}</b></p>
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-xs-12 mb-2">
+                    <ul class="list-group">
+                      <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-0 pb-3 mb-2 bg-gray-100 border-radius-lg">
+                        <div class="d-flex flex-column w-100">
+                          <h6 class="mt-2 mb-0 text-md text-primary">Loans on Record (all lenders)<span></span></h6>
+                          <hr class="p-0 mt-1 mb-3" style="border: solid 1px green">
+                          {% if dcc_report.loans is not None %}
+                          <div class="table-responsive p-1">
+                            <table class="table table-striped table-hover align-items-center justify-content-center mb-0 p-0 table-dark">
+                              <thead>
+                                <tr>
+                                  <th class="text-uppercase text-light text-sm font-weight-bolder opacity-7">Ref</th>
+                                  <th class="text-uppercase text-light text-sm font-weight-bolder opacity-7 ps-2">Lender</th>
+                                  <th class="text-uppercase text-light text-sm font-weight-bolder opacity-7 ps-2">Amount</th>
+                                  <th class="text-uppercase text-light text-sm font-weight-bolder opacity-7 ps-2">Outstanding</th>
+                                  <th class="text-uppercase text-light text-sm font-weight-bolder opacity-7 ps-2">Arrears</th>
+                                  <th class="text-uppercase text-light text-sm font-weight-bolder opacity-7 ps-2">Defaults</th>
+                                  <th class="text-uppercase text-light text-sm font-weight-bolder opacity-7 ps-2">Status</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {% for loan in dcc_report.loans %}
+                                <tr>
+                                  <td><p class="text-sm font-weight-bold mb-0 ps-2">{{ loan.ref }}</p></td>
+                                  <td><p class="text-sm mb-0 ps-2">{{ loan.LUID }}</p></td>
+                                  <td><p class="text-sm font-weight-bold mb-0 ps-2">{{ loan.amount|default_if_none:"0" }}</p></td>
+                                  <td><p class="text-sm font-weight-bold mb-0 ps-2">{{ loan.total_outstanding|default_if_none:"0" }}</p></td>
+                                  <td><p class="text-sm font-weight-bold mb-0 ps-2">{{ loan.total_arrears|default_if_none:"0" }}</p></td>
+                                  <td><p class="text-sm mb-0 ps-2">{{ loan.number_of_defaults|default:0 }}</p></td>
+                                  <td class="align-middle text-sm"><span class="badge badge-sm bg-gradient-warning">{{ loan.status|default:loan.funded_category }}</span></td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="7" class="text-center text-light">No loans on record.</td></tr>
+                                {% endfor %}
+                              </tbody>
+                            </table>
+                          </div>
+                          {% else %}
+                          <p class="text-muted text-sm">Loan detail is not included in this tenant's DCC plan.</p>
+                          {% endif %}
+                        </div>
+                      </li>
+
+                      <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-0 pb-3 mb-2 bg-gray-100 border-radius-lg">
+                        <div class="d-flex flex-column w-100">
+                          <h6 class="mt-2 mb-0 text-md text-primary">Recent Transactions<span></span></h6>
+                          <hr class="p-0 mt-1 mb-3" style="border: solid 1px green">
+                          {% if dcc_report.transactions is not None %}
+                          <div class="table-responsive p-1">
+                            <table class="table table-striped table-hover align-items-center justify-content-center mb-0 p-0 table-dark">
+                              <thead>
+                                <tr>
+                                  <th class="text-uppercase text-light text-sm font-weight-bolder opacity-7">Date</th>
+                                  <th class="text-uppercase text-light text-sm font-weight-bolder opacity-7 ps-2">Loan</th>
+                                  <th class="text-uppercase text-light text-sm font-weight-bolder opacity-7 ps-2">Statement</th>
+                                  <th class="text-uppercase text-light text-sm font-weight-bolder opacity-7 ps-2">Debit</th>
+                                  <th class="text-uppercase text-light text-sm font-weight-bolder opacity-7 ps-2">Credit</th>
+                                  <th class="text-uppercase text-light text-sm font-weight-bolder opacity-7 ps-2">Balance</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {% for txn in dcc_report.transactions %}
+                                <tr>
+                                  <td><p class="text-sm mb-0 ps-2">{{ txn.date }}</p></td>
+                                  <td><p class="text-sm mb-0 ps-2">{{ txn.loanref }}</p></td>
+                                  <td><p class="text-sm mb-0 ps-2">{{ txn.statement|default:"—" }}</p></td>
+                                  <td><p class="text-sm font-weight-bold mb-0 ps-2">{{ txn.debit|default_if_none:"0" }}</p></td>
+                                  <td><p class="text-sm font-weight-bold mb-0 ps-2">{{ txn.credit|default_if_none:"0" }}</p></td>
+                                  <td><p class="text-sm font-weight-bold mb-0 ps-2">{{ txn.balance|default_if_none:"0" }}</p></td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="6" class="text-center text-light">No transactions on record.</td></tr>
+                                {% endfor %}
+                              </tbody>
+                            </table>
+                          </div>
+                          {% else %}
+                          <p class="text-muted text-sm">Transaction history is not included in this tenant's DCC plan.</p>
+                          {% endif %}
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                </div><!-- row -->
+
+                <p class="text-muted mb-0"><small>Source: DCC Credit Database ({{ dcc_endpoint }}) — plan {{ dcc_report.plan }}.
+                  <a href="{% url 'dcc_credit_check' user.id %}">Open full report page</a>.</small></p>
+              </div>
+              {% endif %}
+
+            </div>
+          </div>
+          <div class="tab-pane fade" id="action">
+            <div class="row">
+              <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12 mt-4">
+                <div class="card p-1 mb-3">
+                  <div class="card-header bg-secondary pt-2 pr-2 pb-2 pl-2  text-center">
+                    <h5 class="mb-0 text-light">
+                        {{ user.first_name}} 
+                        {% if user.middle_name != None %}
+                          {{ user.middle_name}} 
+                        {% endif %} 
+                        {{ user.last_name}}  
+                    </h5>
+                  </div>
+                  <div class="card-body pt-3 p-1 text-center">
+                    <div class="btn-group">
+                        {% if user.activation == 0 %}
+                        <a href="{% url 'activate_user' uid=user.id %}">
+                          <button type="button" class="btn btn-lg btn-success" style="border: solid 2px #fff">Activate</button>
+                        </a>
+                        {% else %}
+                        <a href="{% url 'deactivate_user' uid=user.id %}">
+                          <button type="button" class="btn btn-lg btn-danger" style="border: solid 2px #fff">Deactivate</button>
+                        </a>
+                        {% endif %}
+                    
+                        <a href="#">
+                            <button type="button" class="btn btn-lg btn-info" style="border: solid 2px #fff" data-bs-toggle="modal" data-bs-target="#staticBackdrop">SET REPAYMENT LIMIT</button>
+                        </a>
+                        <a href="#">
+                            <button type="button" class="btn btn-lg btn-secondary" style="border: solid 2px #fff" data-bs-toggle="modal" data-bs-target="#maxLoanModal">SET MAX LOAN AMOUNT</button>
+                        </a>
+                        <a href="#">
+                            <button type="button" class="btn btn-lg btn-warning" style="border: solid 2px #fff">Default Flag</button>
+                        </a>
+                        
+                        <a href="#">
+                            <button type="button" class="btn btn-lg btn-dark" style="border: solid 2px #fff">DCC Flag</button>
+                        </a>
+                        <a href="{% url 'suspend_user' uid=user.user_id %}">
+                          <button type="button" class="btn btn-lg btn-danger" style="border: solid 2px #fff">Suspend</button>
+                        </a>
+                    </div>
+                    <p>
+                      {% if user.repayment_limit %}Repayment Limit: <b>K {{ user.repayment_limit|default_if_none:"0"|currency }}</b>{% endif %}
+                      {% if user.max_loan_amount %}&nbsp;&nbsp;|&nbsp;&nbsp;Max Loan Amount: <b>K {{ user.max_loan_amount|default_if_none:"0"|currency }}</b> <span class="badge bg-warning text-dark" style="font-size:.7rem;">Open Repayment</span>{% endif %}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ── Work Email Notification Setting ── -->
+            <div class="row mb-3">
+              <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                  <div class="card-header py-2 px-3" style="background:linear-gradient(135deg,#344767 0%,#21315c 100%);border-radius:10px 10px 0 0;">
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="material-icons text-white" style="font-size:1rem;">mark_email_read</span>
+                      <h6 class="mb-0 text-white fw-bold" style="font-size:.82rem;">System Notifications — Work Email</h6>
+                    </div>
+                  </div>
+                  <div class="card-body py-3 px-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <div>
+                      {% if user.notify_work_email %}
+                        <span class="badge bg-success me-2" style="font-size:.78rem;">ENABLED</span>
+                        <span style="font-size:.85rem;color:#344767;">System emails <strong>will</strong> be sent to this client's work email
+                          {% if user.work_email %}(<code style="font-size:.78rem;">{{ user.work_email }}</code>){% else %}(no work email set){% endif %}.
+                        </span>
+                      {% else %}
+                        <span class="badge bg-danger me-2" style="font-size:.78rem;">DISABLED</span>
+                        <span style="font-size:.85rem;color:#666;">System emails <strong>will not</strong> be sent to this client's work email. Personal email only.</span>
+                      {% endif %}
+                    </div>
+                    <a href="{% url 'toggle_work_email_notify' uid=user.id %}"
+                       class="btn btn-sm {% if user.notify_work_email %}btn-outline-danger{% else %}btn-outline-success{% endif %} fw-bold"
+                       style="font-size:.8rem;"
+                       onclick="return confirm('{% if user.notify_work_email %}Disable{% else %}Enable{% endif %} work email notifications for {{ user.first_name }} {{ user.last_name }}?')">
+                      <span class="material-icons align-middle" style="font-size:.9rem;">{% if user.notify_work_email %}notifications_off{% else %}notifications_active{% endif %}</span>
+                      {% if user.notify_work_email %}Disable{% else %}Enable{% endif %} Work Email Notifications
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- ── End Work Email Notification Setting ── -->
+
+            <div class="row">
+              <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                <div class="card p-1">
+                  <div class="card-header bg-secondary p-0 m-0">
+                      <h6 class="text-white text-center pt-2 pb-1">Message Applicant</h6>
+                  </div>
+                  <div class="card-body px-0 p-3 text-center">
+                    <form method='POST'>
+                      {% csrf_token %}
+                        <label for="subject">Subject:</label>
+                        <input id="subject" type="text" name="subject" class="form-control" placeholder="Subject">
+                        <label>Message:</label>
+                        <textarea id="messageapplcant" name="messageapplicant" class="form-control" rows="4" cols="50" placeholder="Type message here..."></textarea>
+                      
+                      <br>
+                      <button type="submit" class="btn btn-sm btn-primary">Send Message</button> 
+                    </form>
+                  </div>
+                </div>
+                
+              </div>
+              <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                <div class="card p-1">
+                  <div class="card-header bg-secondary p-0 m-0">
+                      <h6 class="text-white text-center pt-2 pb-1">Client Attachment</h6>
+                  </div>
+                  
+                  <div class="card-body px-0 p-3 text-center">
+                    <h4>Assign Location</h4>
+                    <form method='POST'>
+                      {% csrf_token %}
+                      <div class="input-group mb-2">
+                        <select name="assignlocation" class="form-select" aria-label="Default select">
+                          <option value="">Select Location</option>
+                          {% for location in locationlist %}
+                          <option value="{{location}}">{{ location }}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                      <button type="submit" class="btn btn-sm btn-primary">ASSIGN</button> 
+                    </form>
+                  </div>
+                  <hr class="p-0 mt-2 mb-2" style="border: solid 1px green">
+                  <div class="card-body px-0 p-3 text-center">
+                    <h4>Assign Staff</h4>
+                    <form method='POST'>
+                      {% csrf_token %}
+                       
+                      <div class="input-group mb-2">
+                        <select name="assignstaff" class="form-select" aria-label="Default select">
+                          <option value="">Select Staff</option>
+                          {% for staff in stafflist %}
+                          <option value="{{ staff }}">{{ staff }}</option>
+                          {% endfor %}
+
+                        </select>
+                      </div>
+                        
+                      <button type="submit" class="btn btn-sm btn-primary">ASSIGN</button> 
+                    </form>
+                  </div>
+                </div>
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  
+
+  
+
+
+  <!-- Content Goes Here -->
+</div>
+{% endblock %}
+
+{% block scripts %}
+
+
+
+
+
+<!-- LOAN BASE SCRIPTS -->
+<!-- DATATables LOCAL JS -->
+<!--
+<script type="text/javascript" src="{% static 'DataTables/datatables.min.js' %}"></script>   
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/v/bs5/jq-3.6.0/jszip-2.5.0/dt-1.12.1/b-2.2.3/b-colvis-2.2.3/b-html5-2.2.3/b-print-2.2.3/cr-1.5.6/kt-2.7.0/sp-2.0.2/datatables.min.js"></script>
+-->
+<!-- DATATABLE SCRIPT-->
+<!--
+<script>
+    $("#collectionStatement").DataTable({
+        // DataTable configurations
+        paging: true,
+        pageLength: 10,
+        lengthChange: true,
+        autoWidth: true,
+        searching: true,
+        bInfo: true,
+        bSort: true,
+
+        dom: 'lBfrtip',
+        buttons: [
+            {
+                extend: 'copy',
+                text: '<i class="fa fa-solid fa-copy"></i>',
+                className: 'btn btn-secondary',
+                titleAttr: 'Copy Data',
+                // Choose Columns
+                exportOptions: {
+                  columns: [0,1,2,3,4,5,6,7,8,9,10,11]
+                }
+            },
+            {
+              extend: 'excel',
+              text: '<i class="fa fa-solid fa-file-excel"></i>',
+              className: 'btn btn-secondary',
+              titleAttr: 'Export to Excel',
+              // Choose Columns
+              exportOptions: {
+                columns: [0,1,2,3,4,5,6,7,8,9,10,11]
+              }
+            },
+            {
+              extend: 'print',
+              text: '<i class="fa fa-solid fa-print"></i>',
+              className: 'btn btn-secondary',
+              titleAttr: 'Print Table',
+              // Choose Columns
+              exportOptions: {
+                columns: [0,1,2,3,4,5,6,7,8,9,10,11]
+              },
+              // Font size when printing
+              customize: function ( win ) {
+                $(win.document.body).css('font-size', '10pt')
+                $(win.document.body).find('table')
+                  .addClass('compact')
+                  .css('font-size', 'inherit');
+              }
+            },
+            {
+              extend: 'pdf',
+              text: '<i class="fa fa-solid fa-file-pdf"></i>',
+              className: 'btn btn-secondary',
+              titleAttr: 'Export to PDF',
+              orientation: 'landscape',
+              pageSize: 'A4',
+              
+              // Choose Columns
+              exportOptions: {
+                columns: [0,1,2,3,4,5,6,7,8,9,10,11]
+              },
+              
+              // center the table
+              tableHeader: {
+                alignment: 'left'
+              },
+              // Font size & Customization
+              customize: function (doc) {
+              //      doc.style.tableHeader.alignment = 'center'; // Header position 
+                   // doc.style.tableBodyOdd.alignment = 'center';
+                  // doc.style.tableBodyEven.alignment = 'center';
+              //      doc.style.tableHeader.fontSize = 7;
+               //     doc.defaultStyle.fontSize = 6;
+              //      // TO GET 100% width on table
+                   doc.content[1].table.widths = Array(doc.content[1].table.body[1].length + 1).join('*').split('');
+              },
+              
+            },
+            {
+              extend: 'collection',
+              className: 'custom-html-collection',
+              buttons: [
+                  '<h6>Export</h6>',
+                  'csv',
+                  '<h6 class="not-top-heading">Hide/Show Columns</h6>',
+                  'colvis',
+              ]
+          }
+
+        ]
+    });
+</script>
+CHARTJS SCRIPT -->
+<!--
+<script type="text/javascript" src="{% static 'scripts/chartjs.min.js' %}"></script>
+<script>
+  var ctx = document.getElementById("chartpie").getContext("2d");
+
+  new Chart(ctx, {
+    type: "pie",
+    data: {
+      labels: ["M", "T", "W", "T", "F", "S", "S"],
+      datasets: [{
+        label: "Sales",
+        tension: 0.4,
+        borderWidth: 0,
+        borderRadius: 4,
+        borderSkipped: false,
+        backgroundColor: "rgba(255, 255, 255, .8)",
+        data: [50, 20, 10, 22, 50, 10, 40],
+        maxBarThickness: 6
+      }, ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false,
+        }
+      },
+      interaction: {
+        intersect: false,
+        mode: 'index',
+      },
+      scales: {
+        y: {
+          grid: {
+            drawBorder: false,
+            display: true,
+            drawOnChartArea: true,
+            drawTicks: false,
+            borderDash: [5, 5],
+            color: 'rgba(255, 255, 255, .2)'
+          },
+          ticks: {
+            suggestedMin: 0,
+            suggestedMax: 500,
+            beginAtZero: true,
+            padding: 10,
+            font: {
+              size: 14,
+              weight: 300,
+              family: "Roboto",
+              style: 'normal',
+              lineHeight: 2
+            },
+            color: "#fff"
+          },
+        },
+        x: {
+          grid: {
+            drawBorder: false,
+            display: true,
+            drawOnChartArea: true,
+            drawTicks: false,
+            borderDash: [5, 5],
+            color: 'rgba(255, 255, 255, .2)'
+          },
+          ticks: {
+            display: true,
+            color: '#f8f9fa',
+            padding: 10,
+            font: {
+              size: 14,
+              weight: 300,
+              family: "Roboto",
+              style: 'normal',
+              lineHeight: 2
+            },
+          }
+        },
+      },
+    },
+  });
+
+
+  var ctx2 = document.getElementById("chart-line").getContext("2d");
+
+  new Chart(ctx2, {
+    type: "line",
+    data: {
+      labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+      datasets: [{
+        label: "Mobile apps",
+        tension: 0,
+        borderWidth: 0,
+        pointRadius: 5,
+        pointBackgroundColor: "rgba(255, 255, 255, .8)",
+        pointBorderColor: "transparent",
+        borderColor: "rgba(255, 255, 255, .8)",
+        borderColor: "rgba(255, 255, 255, .8)",
+        borderWidth: 4,
+        backgroundColor: "transparent",
+        fill: true,
+        data: [50, 40, 300, 320, 500, 350, 200, 230, 500],
+        maxBarThickness: 6
+
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false,
+        }
+      },
+      interaction: {
+        intersect: false,
+        mode: 'index',
+      },
+      scales: {
+        y: {
+          grid: {
+            drawBorder: false,
+            display: true,
+            drawOnChartArea: true,
+            drawTicks: false,
+            borderDash: [5, 5],
+            color: 'rgba(255, 255, 255, .2)'
+          },
+          ticks: {
+            display: true,
+            color: '#f8f9fa',
+            padding: 10,
+            font: {
+              size: 14,
+              weight: 300,
+              family: "Roboto",
+              style: 'normal',
+              lineHeight: 2
+            },
+          }
+        },
+        x: {
+          grid: {
+            drawBorder: false,
+            display: false,
+            drawOnChartArea: false,
+            drawTicks: false,
+            borderDash: [5, 5]
+          },
+          ticks: {
+            display: true,
+            color: '#f8f9fa',
+            padding: 10,
+            font: {
+              size: 14,
+              weight: 300,
+              family: "Roboto",
+              style: 'normal',
+              lineHeight: 2
+            },
+          }
+        },
+      },
+    },
+  });
+
+  var ctx3 = document.getElementById("chart-line-tasks").getContext("2d");
+
+  new Chart(ctx3, {
+    type: "line",
+    data: {
+      labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+      datasets: [{
+        label: "Mobile apps",
+        tension: 0,
+        borderWidth: 0,
+        pointRadius: 5,
+        pointBackgroundColor: "rgba(255, 255, 255, .8)",
+        pointBorderColor: "transparent",
+        borderColor: "rgba(255, 255, 255, .8)",
+        borderWidth: 4,
+        backgroundColor: "transparent",
+        fill: true,
+        data: [50, 40, 300, 220, 500, 250, 400, 230, 500],
+        maxBarThickness: 6
+
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false,
+        }
+      },
+      interaction: {
+        intersect: false,
+        mode: 'index',
+      },
+      scales: {
+        y: {
+          grid: {
+            drawBorder: false,
+            display: true,
+            drawOnChartArea: true,
+            drawTicks: false,
+            borderDash: [5, 5],
+            color: 'rgba(255, 255, 255, .2)'
+          },
+          ticks: {
+            display: true,
+            padding: 10,
+            color: '#f8f9fa',
+            font: {
+              size: 14,
+              weight: 300,
+              family: "Roboto",
+              style: 'normal',
+              lineHeight: 2
+            },
+          }
+        },
+        x: {
+          grid: {
+            drawBorder: false,
+            display: false,
+            drawOnChartArea: false,
+            drawTicks: false,
+            borderDash: [5, 5]
+          },
+          ticks: {
+            display: true,
+            color: '#f8f9fa',
+            padding: 10,
+            font: {
+              size: 14,
+              weight: 300,
+              family: "Roboto",
+              style: 'normal',
+              lineHeight: 2
+            },
+          }
+        },
+      },
+    },
+  });
+</script>
+ LOAN BASE SCRIPTS -->
+
+
+{% endblock %}

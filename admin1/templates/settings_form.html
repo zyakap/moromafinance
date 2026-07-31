@@ -1,0 +1,92 @@
+{% extends "admin_base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %} Form Settings {% endblock %}
+
+{% block breadcrumb %} <a href="{% url 'admin_dashboard' %}">Admin</a> / <a href="{% url 'admin_settings_general' %}">Settings</a> {% endblock %}
+{% block breadcrumb_active %} Forms {% endblock %}
+{% block dashboard_title %} Settings {% endblock %}
+
+{% block css %}
+<style>
+  .fx-block { border:1px solid #eef1f7; border-radius:10px; overflow:hidden; margin-bottom:1rem; }
+  .fx-block-head { background:#f7f8fb; padding:10px 14px; font-size:.85rem; font-weight:700; color:#28324a; }
+  .fx-tbl { width:100%; font-size:.82rem; margin:0; }
+  .fx-tbl th { background:#fff; font-size:.7rem; text-transform:uppercase; letter-spacing:.4px; color:#8a94a6; padding:8px 14px; border-bottom:1px solid #eef1f7; }
+  .fx-tbl td { padding:7px 14px; border-bottom:1px solid #f4f6f9; color:#48526a; }
+  .fx-tbl tr:last-child td { border-bottom:none; }
+  .fx-tbl input[type=checkbox] { width:16px; height:16px; accent-color:var(--wc-primary,#6bb10d); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="sx-wrap">
+  {% include "settings_nav.html" %}
+
+  <div class="card sx-card">
+    <div class="card-header sx-head">
+      <div class="sx-ico"><i class="fa fa-list-check"></i></div>
+      <div>
+        <h5>Form Settings</h5>
+        <p>Choose which fields appear on client-facing forms and which are mandatory.</p>
+      </div>
+    </div>
+    <div class="card-body pt-3 p-3">
+      <form method="post">
+        {% csrf_token %}
+        {% for block in blocks %}
+          <div class="fx-block">
+            <div class="fx-block-head">{{ block.label }}</div>
+            <div class="table-responsive">
+              <table class="fx-tbl">
+                <thead>
+                  <tr>
+                    <th>Field</th>
+                    <th class="text-center" style="width:110px;">Enable</th>
+                    <th class="text-center" style="width:110px;">Required</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% if block.preregistration is not None %}
+                    <tr style="background:#f2f7ff;">
+                      <td><strong>Employer Preregistration Required</strong></td>
+                      <td class="text-center">
+                        <input type="checkbox" name="employer_preregistration_required" {% if block.preregistration %}checked{% endif %}>
+                      </td>
+                      <td class="text-center">—</td>
+                    </tr>
+                  {% endif %}
+                  {% for field in block.fields %}
+                    <tr>
+                      <td>{{ field.label }}</td>
+                      <td class="text-center">
+                        <input type="checkbox" name="enabled__{{ block.name }}__{{ field.name }}" {% if field.enabled %}checked{% endif %}>
+                      </td>
+                      <td class="text-center">
+                        <input type="checkbox" name="required__{{ block.name }}__{{ field.name }}" {% if field.required %}checked{% endif %}>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                  {% if block.default_payment_description is not None %}
+                    <tr style="background:#fffaf0;">
+                      <td colspan="3">
+                        <strong>Default Description</strong>
+                        <small class="text-muted d-block">Used when Description is disabled or left blank.</small>
+                        <input type="text" name="default_payment_description"
+                               value="{{ block.default_payment_description }}"
+                               class="form-control form-control-sm mt-1"
+                               placeholder="e.g. Fortnightly Salary Deduction">
+                      </td>
+                    </tr>
+                  {% endif %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary"><i class="fa fa-save me-1"></i> Save Form Settings</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

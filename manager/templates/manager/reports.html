@@ -1,0 +1,70 @@
+{% extends 'manager_base.html' %}
+{% load humanize %}
+
+{% block title %}Manager Reports{% endblock %}
+{% block breadcrumb %}<a href="{% url 'manager:dashboard' %}">Manager</a>{% endblock %}
+{% block breadcrumb_active %}Reports{% endblock %}
+{% block dashboard_title %}Manager Reports &amp; Analytics{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="mb-3">Monthly Performance Summary</h4>
+                    <div class="row">
+                        <div class="col-md-3 text-center mb-3">
+                            <h3 class="text-success">{{ monthly_stats.loans_approved }}</h3>
+                            <p class="text-muted mb-0">Loans Approved</p>
+                            <small class="text-muted">K{{ monthly_stats.loans_approved_amount|floatformat:0|intcomma }}</small>
+                        </div>
+                        <div class="col-md-3 text-center mb-3">
+                            <h3 class="text-danger">{{ monthly_stats.loans_rejected }}</h3>
+                            <p class="text-muted mb-0">Loans Rejected</p>
+                            <small class="text-muted">This Month</small>
+                        </div>
+                        <div class="col-md-3 text-center mb-3">
+                            <h3 class="text-info">{{ monthly_stats.payments_approved }}</h3>
+                            <p class="text-muted mb-0">Payment Uploads Processed</p>
+                            <small class="text-muted">This Month</small>
+                        </div>
+                        <div class="col-md-3 text-center mb-3">
+                            {% widthratio monthly_stats.loans_approved monthly_stats.loans_approved|add:monthly_stats.loans_rejected 100 as approval_rate %}
+                            <h3 class="text-primary">{{ approval_rate|default:0 }}%</h3>
+                            <p class="text-muted mb-0">Approval Rate</p>
+                            <small class="text-muted">This Month</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="mb-3">Items Awaiting Attention</h4>
+                    <div class="row">
+                        <div class="col-md-4 text-center mb-3">
+                            <h3 class="text-warning">{{ pending_stats.pending_loans }}</h3>
+                            <p class="text-muted mb-0">Pending Loans</p>
+                            <a href="{% url 'manager:pending_loans' %}" class="btn btn-sm btn-outline-primary mt-2">Review</a>
+                        </div>
+                        <div class="col-md-4 text-center mb-3">
+                            <h3 class="text-warning">{{ pending_stats.pending_payments }}</h3>
+                            <p class="text-muted mb-0">Pending Payment Uploads</p>
+                            <a href="{% url 'manager:pending_payments' %}" class="btn btn-sm btn-outline-primary mt-2">Review</a>
+                        </div>
+                        <div class="col-md-4 text-center mb-3">
+                            <h3 class="text-secondary">{{ pending_stats.on_hold_loans }}</h3>
+                            <p class="text-muted mb-0">Loans On Hold</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,472 @@
+{% extends "admin_base.html" %}
+{% load static %}
+{% load finance_formats %}
+{% block title %} LOCATIONS {% endblock %}
+{% block breadcrumb %} 
+  <a href="{% url 'dashboard' %}">Dashboard</a>  /  
+  <a href="{% url 'transactions' %}">Locations</a> 
+{% endblock %}
+{% block breadcrumb_active %} Locations {% endblock %}
+{% block dashboard_title %} All Locations {% endblock %}
+
+{% block css %}
+<!-- DataTables LOCAL CSS -->
+<link rel="stylesheet" type="text/css" href="{% static 'DataTables/datatables.min.css' %}"/>   
+<!-- link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs5/jq-3.6.0/jszip-2.5.0/dt-1.12.1/b-2.2.3/b-colvis-2.2.3/b-html5-2.2.3/b-print-2.2.3/cr-1.5.6/kt-2.7.0/sp-2.0.2/datatables.min.css"/ -->
+<!-- Font Awesome Icons -->
+<script src="{% static 'fontawesomefree/js/all.min.js' %}"></script> 
+<!-- FLEX BOX Styles -->
+<style>
+  .flex-container {
+    display: flex;
+  }
+  .flex-child {
+    flex: 1;
+  }  
+  .flex-child:first-child {
+    margin-right: 5px;
+  } 
+  .flex-child:last-child {
+    margin-left: 5px;
+  } 
+</style>
+{% endblock %}
+
+{% block content %}
+
+
+  <!-- Content Goes Here -->
+  <div class="row mt-2">
+    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 mb-1">
+        <div class="card p-0 m-0 text-center button button2 btn-sm">
+          <a href="{% url 'locations_clients' %}">
+            <h6 class="p-1 m-0 text-light text-xs"><span class="text-md">Clients</span> by Location &nbsp;</h6>
+          </a> 
+        </div>
+    </div>
+    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 mb-1">
+      <div class="card p-0 m-0 text-center button button2 btn-sm">
+        <a href="{% url 'locations_loans' %}">
+          <h6 class="p-1 m-0 text-light text-xs"><span class="text-md">Loans</span> by Location &nbsp;</span></h6>
+        </a> 
+      </div>
+    </div>
+    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 mb-1">
+        <div class="card p-0 m-0 text-center button button2 btn-sm">
+          <a href="{% url 'locations_transactions' %}">
+            <h6 class="p-1 m-0 text-light text-xs"><span class="text-md">Transactions</span> By Location &nbsp;</h6>
+          </a> 
+        </div>
+    </div>
+  </div>
+
+  <div class="row mt-2">
+    <div class="container p-2 mb-2 text-center bg-secondary text-light opacity-7" style="border-radius: 10px;">
+        <h4 class="p-0 m-0 text-center bg-secondary text-light" style="border-radius: 10px;">Locations Overview</h4>
+    </div>
+  </div>
+
+  <!-- IF SINGLE LOCATION -->
+  {% for location in locations %}
+  <h6 class="mt-3"><span class="text-success">{{ location.name }}, {{ location.province}}</span> - OVERVIEW</h6>
+  <hr style="border: 1px solid blue" class="mt-1 mb-2 p-0">
+  <div class="row mt-1">
+    <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-xs-12 mb-1">
+        <div class="card p-1 m-0">
+          <div class="card-header bg-dark pt-1 pr-1 pl-1 pb-1 mb-0 mt-0 mr-0 ml-0">
+            <h6 class="p-0 m-0 text-light" style="font-weight: 700;">Business Overview</h6>
+          </div>
+          <div class="card-body p-2">
+            <p class="p-0 m-0 text-sm">Total Loans: <span class="text-primary text-sm"><b>{% if location.loans %}{{ location.loans }}{% else %}No Loans{% endif %}</b></span></p>
+            <p class="p-0 m-0 text-sm">Total Clients: <span class="text-primary text-sm"><b>{% if location.loans %}{{ location.loans }}{% else %}No Clients{% endif %}</b></span></p>
+            <p class="p-0 m-0 text-sm">Total Outstanding: <span class="text-primary text-sm"><b>{% if location.outstanding %}K{{ location.outstanding|default_if_none:"0"|currency }}{% else %}0{% endif %}</b></span></p>
+            
+          </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-xs-12 mb-1">
+      <div class="card p-1 m-0">
+        <div class="card-header bg-dark pt-1 pr-1 pl-1 pb-1 mb-0 mt-0 mr-0 ml-0">
+          <h6 class="p-0 m-0 text-light" style="font-weight: 700;"><span class="text-info">Loans</span> Overview</h6>
+        </div>
+        <div class="card-body p-2">
+            <p class="p-0 m-0 text-sm">Total Funded: <span class="text-primary text-sm"><b>{% if location.funded %}K{{ location.funded|default_if_none:"0"|currency }}{% else %}0{% endif %}</b></span></p>
+            <p class="p-0 m-0 text-sm">Total Interests: <span class="text-primary text-sm"><b>{% if location.interest %}K{{ location.interest|default_if_none:"0"|currency }}{% else %}0{% endif %}</b></span></p>
+            <p class="p-0 m-0 text-sm">Total Repayments: <span class="text-primary text-sm"><b>{% if location.repayment %}K{{ location.repayment|default_if_none:"0"|currency }}{% else %}0{% endif %}</b></span></p>
+            
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-xs-12 mb-1">
+      <div class="card p-1 m-0">
+        <div class="card-header bg-dark pt-1 pr-1 pl-1 pb-1 mb-0 mt-0 mr-0 ml-0">
+          <h6 class="p-0 m-0 text-light" style="font-weight: 700;"><span class="text-info">Defaults</span> Overview</h6>
+        </div>
+        <div class="card-body p-2">
+          <p class="p-0 m-0 text-sm">Loans in Default: <span class="text-primary text-sm"><b>{% if location.loans_in_default %}{{ location.loans_in_default }}{% else %}No Loans{% endif %}</b></span></p>
+          <p class="p-0 m-0 text-sm">Total Arrears: <span class="text-primary text-sm"><b>{% if location.arrears %}K{{ location.arrears|default_if_none:"0"|currency }}{% else %}0{% endif %}</b></span></p>
+          <p class="p-0 m-0 text-sm">Total in Recovery: <span class="text-primary text-sm"><b>{% if location.in_recovery %}K{{ location.in_recovery|default_if_none:"0"|currency }}{% else %}0{% endif %}</b></span></p>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-xs-12 mb-1">
+      <div class="card p-1 m-0">
+        <div class="card-header bg-dark pt-1 pr-1 pl-1 pb-1 mb-0 mt-0 mr-0 ml-0">
+          <h6 class="p-0 m-0 text-light" style="font-weight: 700;"><span class="text-info">Clients</span> Overview</h6>
+        </div>
+        <div class="card-body p-2">
+          <p class="p-0 m-0 text-sm">Total Clients: <span class="text-primary text-sm"><b>{% if location.clients %}{{ location.clients }}{% else %}No Clients{% endif %}</b></span></p>
+            <p class="p-0 m-0 text-sm">Clients with Loan: <span class="text-primary text-sm"><b>{% if location.clients_with_loan %}{{ location.clients_with_loan }}{% else %}No Clients{% endif %}</b></span></p>
+            <p class="p-0 m-0 text-xs">Clients in Recovery: <span class="text-primary text-xs"><b>{% if location.clients_in_recovery %}{{ location.clients_in_recovery }}{% else %}No Clients{% endif %}</b></span></p>
+        
+        </div>
+      </div>
+    </div>
+    
+  </div>
+  {% endfor %}
+
+
+
+  <!-- SINGLE LOCATION ENDS-->
+{% if location != 1 %}
+  <div class="card mt-5 pb-2 z-index-2 text-center">
+    <div class="card-header p-1 position-relative mt-n4 mx-3 z-index-2 bg-secondary">
+      <h5 class="pb-0 text-light">Location Breakup</h5>
+    </div>
+    <div class="card-body p-2 m-0">
+      <div class="row">
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-xs-12 mt-2">
+          <div class="bg-gradient-light shadow-light border-radius-lg py-3 pe-1">
+            <div class="chart">
+              <h6 class="text-primary text-sm">Outstanding by Location</h5>
+                <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+              <canvas id="outstandingbylocation" width="250" height="250"></canvas>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-xs-12 mt-2">
+          <div class="bg-gradient-light shadow-light border-radius-lg py-3 pe-1">
+            <div class="chart">
+              <h6 class="text-primary text-sm">Arrears by Location</h5>
+                <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+              <canvas id="arrearsbylocation" width="250" height="250"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-xs-12 mt-2">
+          <div class="bg-gradient-light shadow-light border-radius-lg py-3 pe-1">
+            <div class="chart">
+              <h6 class="text-primary text-sm">Loans by Location</h5>
+                <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+              <canvas id="loansbylocation" class="chart-canvas" height="100"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-xs-12 mt-2">
+          <div class="bg-gradient-light shadow-light border-radius-lg py-3 pe-1">
+            <div class="chart">
+              <h6 class="text-primary text-sm">Clients by Location</h5>
+                <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+              <canvas id="clientsbylocation" class="chart-canvas" height="100"></canvas>
+            </div>
+          </div>         
+        </div>
+      </div>
+    </div> 
+  </div>
+
+  {% else %}
+
+  <div class="card mt-5 pb-2 z-index-2 text-center">
+    <div class="card-header p-1 position-relative mt-n4 mx-3 z-index-2 bg-secondary">
+      <h5 class="pb-0 text-light">Transactions Breakup</h5>
+    </div>
+    <div class="card-body p-2 m-0">
+      <div class="row">
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-xs-12 mt-2">
+          <div class="bg-gradient-light shadow-light border-radius-lg py-3 pe-1">
+            <div class="chart">
+              <canvas id="dummy1CJS" width="400" height="400"></canvas>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-xs-12 mt-2">
+          <div class="bg-gradient-light shadow-light border-radius-lg py-3 pe-1">
+            <div class="chart">
+              <canvas id="default1CJS" width="400" height="400"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-xs-12 mt-2">
+          <div class="bg-gradient-light shadow-light border-radius-lg py-3 pe-1">
+            <div class="chart">
+              <canvas id="dummydnut" class="chart-canvas" height="100"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-xs-12 mt-2">
+          <div class="bg-gradient-light shadow-light border-radius-lg py-3 pe-1">
+            <div class="chart">
+              <canvas id="transbreakupdj" class="chart-canvas" height="100"></canvas>
+            </div>
+          </div>         
+        </div>
+      </div>
+    </div> 
+  </div>
+{% endif %}
+
+   
+
+
+
+{% endblock %}
+
+{% block scripts %}
+
+
+
+  <!-- CHART JS -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+  
+  <!-- outstandingby location -->
+
+<script>
+  const ctxobl = document.getElementById('outstandingbylocation').getContext('2d');
+  const myobl = new Chart(ctxobl, {
+      type: 'bar',
+      data: {
+          labels: {{ bloc_label|safe }},
+          datasets: [{
+              label: 'Outstanding',
+              data: {{ obloc_data|safe }},
+              backgroundColor: [
+              
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(75, 192, 192, 0.2)',   
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(255, 159, 64, 0.2)',
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(75, 192, 192, 0.2)',   
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(255, 159, 64, 0.2)',
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(255, 159, 64, 0.2)',
+                
+              ],
+              borderColor: [
+             
+                  'rgba(54, 162, 235, 1)',
+                  'rgba(75, 192, 192, 1)',   
+                  'rgba(255, 206, 86, 1)',
+                  'rgba(255, 159, 64, 1)',
+                  'rgba(255, 99, 132, 1)',
+                  'rgba(54, 162, 235, 1)',
+                  'rgba(75, 192, 192, 1)',   
+                  'rgba(255, 206, 86, 1)',
+                  'rgba(255, 159, 64, 1)',
+                  'rgba(255, 99, 132, 1)',
+                  'rgba(255, 159, 64, 1)',
+                 
+              ],
+              borderWidth: 1
+          }]
+      },
+      options: {
+          scales: {
+              y: {
+                  beginAtZero: true
+              }
+          }
+      }
+  });
+</script> 
+
+<!-- arrears by location -->
+<script>
+  const ctxabloc = document.getElementById('arrearsbylocation').getContext('2d');
+  const myChart = new Chart(ctxabloc, {
+      type: 'bar',
+      data: {
+          labels: {{ bloc_label|safe }},
+          datasets: [{
+              label: 'Arrears',
+              data: {{ abloc_data|safe }},
+              backgroundColor: [
+              'rgba(255, 99, 132, 0.2)',
+              'rgba(75, 192, 192, 0.2)',   
+              'rgba(255, 206, 86, 0.2)',
+              'rgba(255, 159, 64, 0.2)',
+              'rgba(255, 99, 132, 0.2)',
+              'rgba(255, 159, 64, 0.2)',
+              
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(75, 192, 192, 0.2)',   
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(255, 159, 64, 0.2)',
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+              
+                
+              ],
+              borderColor: [
+              'rgba(255, 99, 132, 1)',
+              'rgba(75, 192, 192, 1)',   
+              'rgba(255, 206, 86, 1)',
+              'rgba(255, 159, 64, 1)',
+              'rgba(255, 99, 132, 1)',
+              'rgba(255, 159, 64, 1)',
+              
+                  'rgba(54, 162, 235, 1)',
+                  'rgba(75, 192, 192, 1)',   
+                  'rgba(255, 206, 86, 1)',
+                  'rgba(255, 159, 64, 1)',
+                  'rgba(255, 99, 132, 1)',
+                  'rgba(54, 162, 235, 1)',
+            
+                 
+              ],
+              borderWidth: 1
+          }]
+      },
+      options: {
+          scales: {
+              y: {
+                  beginAtZero: true
+              }
+          }
+      }
+  });
+</script> 
+
+  <script>
+    
+    const cb_data = {
+      labels: {{ bloc_label|safe }},
+      datasets: [{
+        label: 'Loan Breakup',
+        data: {{ cbloc_data|safe }},
+        backgroundColor: [
+        'rgb(25, 123, 252)',
+                    'rgb(252, 40, 252)',
+                    'rgb(255, 192, 35)',
+                    'rgb(8, 214, 8)', 
+                    'rgb(25, 123, 52)',
+                    'rgb(152, 40, 152)',
+                    'rgb(55, 12, 35)',
+                    'rgb(208, 14, 8)',
+                    'rgb(125, 23, 52)',
+                    'rgb(252, 40, 252)',
+                    'rgb(25, 12, 135)',
+                    'rgb(118, 214, 18)',
+                    'rgb(215, 213, 252)',
+                    'rgb(2, 140, 212)',
+                    'rgb(215, 92, 35)',
+                    'rgb(88, 214, 88)',
+                    'rgb(25, 123, 252)',
+                    'rgb(22, 130, 152)',
+                    'rgb(55, 192, 135)',
+                    'rgb(188, 254, 18)',
+                    'rgb(215, 23, 22)',
+                    'rgb(22, 240, 255)',
+                    'rgb(25, 12, 35)',
+                    'rgb(208, 204, 81)',
+        ],
+        hoverOffset: 4
+      }]
+    };
+
+    const options131 = {
+      plugins: {
+        legend: {
+          labels:{
+                boxWidth: 10,
+          }
+        }
+      }
+    }
+  
+    const cb_config = {
+      type: 'doughnut',
+      data: cb_data,
+      options: options131
+    };
+  
+    const clientsbylocation = new Chart(
+      document.getElementById('clientsbylocation'),
+      cb_config
+    );
+  
+  </script>
+  
+  <script>
+    
+    const lbl_data = {
+      labels: {{ bloc_label|safe }},
+      datasets: [{
+        label: 'Clients by Residential Province',
+        data: {{ lbloc_data|safe }},
+        backgroundColor: [
+        'rgb(118, 214, 18)',
+                    'rgb(215, 213, 252)',
+                    'rgb(2, 140, 212)',
+                    'rgb(215, 92, 35)',
+                    'rgb(88, 214, 88)',
+                    'rgb(25, 123, 252)',
+                    'rgb(22, 130, 152)',
+                    'rgb(55, 192, 135)',
+                    'rgb(188, 254, 18)',
+                    'rgb(215, 23, 22)',
+                    'rgb(22, 240, 255)',
+                    'rgb(25, 12, 35)',
+                    'rgb(208, 204, 81)',
+        'rgb(25, 123, 252)',
+                    'rgb(252, 40, 252)',
+                    'rgb(255, 192, 35)',
+                    'rgb(8, 214, 8)', 
+                    'rgb(25, 123, 52)',
+                    'rgb(152, 40, 152)',
+                    'rgb(55, 12, 35)',
+                    'rgb(208, 14, 8)',
+                    'rgb(125, 23, 52)',
+                    'rgb(252, 40, 252)',
+                    'rgb(25, 12, 135)',
+                    
+        ],
+        hoverOffset: 4
+      }]
+    };
+
+    const options181 = {
+      plugins: {
+        legend: {
+          labels:{
+                boxWidth: 10,
+          }
+        }
+      }
+    }
+  
+    const lbl_config = {
+      type: 'doughnut',
+      data: lbl_data,
+      options: options181
+    };
+  
+    const loansbylocation = new Chart(
+      document.getElementById('loansbylocation'),
+      lbl_config
+    );
+  
+  </script>
+
+  
+
+
+
+
+{% endblock %}

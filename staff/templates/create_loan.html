@@ -1,0 +1,257 @@
+{% extends "staff_base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+
+{% block title %}Create Loan{% endblock %}
+{% block breadcrumb %}<a href="{% url 'staff_dashboard' %}">Dashboard</a> / <a href="{% url 'userloans' %}">Loans</a>{% endblock %}
+{% block breadcrumb_active %}Create Loan{% endblock %}
+{% block dashboard_title %}Create New Loan{% endblock %}
+
+{% block css %}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+<style>
+  #additional-warn {
+    display: none;
+    background: #fff3cd;
+    border: 2px solid #ffc107;
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 1.2rem;
+  }
+  #additional-warn.show { display: block; }
+  .warn-title {
+    font-size: 1rem; font-weight: 800; color: #856404;
+    display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+  }
+  .warn-title .wi { font-size: 1.3rem; color: #f57f17; }
+  .loan-pill {
+    display: inline-block; background: #fff; border: 1px solid #ffc107;
+    border-radius: 6px; padding: 4px 10px; font-size: .8rem;
+    font-weight: 600; color: #344767; margin: 3px 3px 3px 0;
+  }
+  .loan-pill .pr { color: #f57f17; }
+  .loan-pill.pending-pill { border-color: #adb5bd; }
+  .loan-pill.pending-pill .pr { color: #6c757d; }
+  .ack-row {
+    display: flex; align-items: flex-start; gap: 10px;
+    background: #ffeeba; border-radius: 8px;
+    padding: 12px 16px; margin-top: 14px;
+    border: 1px solid #ffc107;
+  }
+  .ack-row input[type=checkbox] { width:18px; height:18px; flex-shrink:0; margin-top:2px; cursor:pointer; }
+  .ack-label { font-size:.86rem; color:#533f03; font-weight:600; cursor:pointer; line-height:1.5; }
+  .ack-label strong { color:#c0392b; }
+  #submit-btn.ack-required { background:#dee2e6; border-color:#dee2e6; color:#6c757d; cursor:not-allowed; }
+  #ack-hint { display:none; font-size:.78rem; color:#f57f17; font-weight:700; }
+  #client-check-spinner { display:none; }
+  #client-check-spinner.show { display:inline-block; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mt-3">
+  <div class="col-xl-5 col-lg-7 col-md-10 col-sm-12">
+
+    <!-- ── Server-side warning (re-render after POST rejection) ── -->
+    {% if show_additional_warning %}
+    <div id="server-warn" style="background:#fff3cd;border:2px solid #ffc107;border-radius:10px;padding:18px 20px;margin-bottom:1.2rem;">
+      <div class="warn-title">
+        <i class="material-icons-round wi">warning</i>
+        {{ client_name }} already has active loan(s) — Additional Loan Required
+      </div>
+      <p style="font-size:.85rem;color:#533f03;margin-bottom:10px;">
+        Proceeding will create an <strong>ADDITIONAL</strong> loan. The classification will be set automatically.
+        Tick the box below and re-submit.
+      </p>
+      {% for l in active_funded %}
+      <span class="loan-pill">
+        <span class="pr">{{ l.ref }}</span> &nbsp;·&nbsp;
+        K{{ l.amount|floatformat:2 }} &nbsp;·&nbsp;
+        Outstanding: K{{ l.total_outstanding|default_if_none:0|floatformat:2 }}
+        &nbsp;·&nbsp; <em>{{ l.status }}</em>
+      </span>
+      {% endfor %}
+      {% for l in active_pending %}
+      <span class="loan-pill pending-pill">
+        <span class="pr">{{ l.ref }}</span> &nbsp;·&nbsp;
+        K{{ l.amount|floatformat:2 }} &nbsp;·&nbsp; <em>{{ l.status }}</em>
+      </span>
+      {% endfor %}
+      <div class="ack-row mt-3">
+        <input type="checkbox" id="server-ack">
+        <label class="ack-label" for="server-ack">
+          I acknowledge this is an <strong>Additional Loan</strong> for an existing borrower.
+          Classification will be set to <strong>ADDITIONAL</strong> automatically.
+        </label>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- ── Real-time AJAX warning (shown when client is selected) ── -->
+    <div id="additional-warn">
+      <div class="warn-title">
+        <i class="material-icons-round wi">warning</i>
+        <span id="warn-client-name">This client</span> already has active loan(s) — Additional Loan Required
+      </div>
+      <p style="font-size:.85rem;color:#533f03;margin-bottom:10px;">
+        You cannot create a <strong>New</strong> loan for this client.
+        Proceeding will classify this loan as <strong>ADDITIONAL</strong> automatically.
+        Tick the acknowledgement box below to continue.
+      </p>
+      <div id="existing-loans-list"></div>
+      <div class="ack-row">
+        <input type="checkbox" id="ack-checkbox" onchange="toggleAckSubmit()">
+        <label class="ack-label" for="ack-checkbox">
+          I acknowledge this is an <strong>Additional Loan</strong> for an existing borrower.
+          Classification will be set to <strong>ADDITIONAL</strong> automatically.
+        </label>
+      </div>
+    </div>
+
+    <!-- ── Loan form ── -->
+    <div class="card shadow" style="border-radius:12px;overflow:hidden;">
+      <div class="card-header py-3" style="background:linear-gradient(135deg,#344767 0%,#21315c 100%);">
+        <h5 class="text-white mb-0">
+          <i class="material-icons-round align-middle me-1">add_circle</i>
+          Create a Loan
+          <span id="additional-badge" class="badge bg-warning text-dark ms-2"
+                style="display:none;font-size:.72rem;vertical-align:middle;">ADDITIONAL LOAN</span>
+        </h5>
+      </div>
+      <div class="card-body p-4">
+        <form method="post" id="loanForm">
+          {% csrf_token %}
+          <input type="hidden" name="additional_loan_acknowledged"
+                 id="additional_loan_acknowledged"
+                 value="{% if show_additional_warning %}0{% else %}0{% endif %}">
+
+          {{ form|crispy }}
+
+          <div class="d-flex gap-3 mt-3 align-items-center flex-wrap">
+            <button type="submit" class="btn btn-primary px-4" id="submit-btn">
+              <i class="material-icons-round align-middle me-1" style="font-size:.9rem;">save</i>
+              CREATE LOAN
+            </button>
+            <span id="client-check-spinner" class="spinner-border spinner-border-sm text-secondary" role="status"></span>
+            <span id="ack-hint">⚠ Tick the acknowledgement box above first.</span>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+$(document).ready(function () {
+
+  /* ── Select2 ── */
+  $('#id_owner').select2({ width: '100%' });
+
+  var _clientHasActive = false;
+
+  /* ── Live client check ── */
+  $('#id_owner').on('change', function () {
+    var uid = $(this).val();
+    if (!uid) { resetWarning(); return; }
+
+    $('#client-check-spinner').addClass('show');
+
+    $.getJSON('{% url "client_loan_status_api" 0 %}'.replace('/0/', '/' + uid + '/'))
+      .done(function (data) {
+        $('#client-check-spinner').removeClass('show');
+        if (data.has_active) { showWarning(data); }
+        else { resetWarning(); }
+      })
+      .fail(function () { $('#client-check-spinner').removeClass('show'); });
+  });
+
+  function showWarning(data) {
+    _clientHasActive = true;
+    $('#warn-client-name').text(data.client_name);
+
+    var html = '';
+    (data.funded_loans || []).forEach(function (l) {
+      html += '<span class="loan-pill">'
+        + '<span class="pr">' + l.ref + '</span>'
+        + ' &nbsp;·&nbsp; K' + parseFloat(l.outstanding).toFixed(2) + ' outstanding'
+        + ' &nbsp;·&nbsp; <em>' + (l.funded_category || l.status) + '</em>'
+        + '</span> ';
+    });
+    (data.pending_loans || []).forEach(function (l) {
+      html += '<span class="loan-pill pending-pill">'
+        + '<span class="pr">' + l.ref + '</span>'
+        + ' &nbsp;·&nbsp; K' + parseFloat(l.amount).toFixed(2)
+        + ' &nbsp;·&nbsp; <em>' + l.status + '</em>'
+        + '</span> ';
+    });
+    $('#existing-loans-list').html(html);
+
+    $('#additional-warn').addClass('show');
+    $('#additional-badge').show();
+    $('#ack-checkbox').prop('checked', false);
+    $('#additional_loan_acknowledged').val('0');
+    disableSubmit();
+  }
+
+  function resetWarning() {
+    _clientHasActive = false;
+    $('#additional-warn').removeClass('show');
+    $('#additional-badge').hide();
+    $('#ack-checkbox').prop('checked', false);
+    $('#additional_loan_acknowledged').val('0');
+    enableSubmit();
+    $('#ack-hint').hide();
+  }
+
+  window.toggleAckSubmit = function () {
+    if ($('#ack-checkbox').is(':checked')) {
+      $('#additional_loan_acknowledged').val('1');
+      enableSubmit();
+      $('#ack-hint').hide();
+    } else {
+      $('#additional_loan_acknowledged').val('0');
+      disableSubmit();
+    }
+  };
+
+  /* ── Block form submit if client has active loans and not acknowledged ── */
+  $('#loanForm').on('submit', function (e) {
+    if (_clientHasActive && $('#additional_loan_acknowledged').val() !== '1') {
+      e.preventDefault();
+      $('#ack-hint').show();
+      $('#additional-warn')[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+
+  function disableSubmit() {
+    $('#submit-btn').addClass('ack-required').prop('disabled', true);
+  }
+  function enableSubmit() {
+    $('#submit-btn').removeClass('ack-required').prop('disabled', false);
+  }
+
+  /* ── Server-side re-render: wire the static ack checkbox ── */
+  {% if show_additional_warning %}
+  _clientHasActive = true;
+  disableSubmit();
+
+  $('#server-ack').on('change', function () {
+    if ($(this).is(':checked')) {
+      $('#additional_loan_acknowledged').val('1');
+      enableSubmit();
+      $('#ack-hint').hide();
+    } else {
+      $('#additional_loan_acknowledged').val('0');
+      disableSubmit();
+    }
+  });
+  {% endif %}
+
+});
+</script>
+{% endblock %}

@@ -1,0 +1,109 @@
+{% extends "admin_base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %} Employer Settings {% endblock %}
+
+{% block breadcrumb %} <a href="{% url 'admin_dashboard' %}">Admin</a> / <a href="{% url 'admin_settings_general' %}">Settings</a> {% endblock %}
+{% block breadcrumb_active %} Employers {% endblock %}
+{% block dashboard_title %} Settings {% endblock %}
+
+{% block content %}
+
+  <div class="sx-wrap">
+    <div>
+      {% include "settings_nav.html" %}
+
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      <div class="row">
+        <div class="col-md-4">
+          <div class="card sx-card">
+            <div class="card-header sx-head">
+              <div class="sx-ico"><i class="fa fa-building"></i></div>
+              <div><h5>{% if edit_employer %}Edit{% else %}Add{% endif %} Employer</h5><p>Employers selectable at client registration.</p></div>
+            </div>
+            <div class="card-body pt-3 p-3">
+              <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="{% if edit_employer %}edit_employer{% else %}add_employer{% endif %}">
+                {% if edit_employer %}<input type="hidden" name="employer_id" value="{{ edit_employer.id }}">{% endif %}
+                {{ employer_form|crispy }}
+                <button type="submit" class="btn btn-primary">{% if edit_employer %}UPDATE{% else %}ADD EMPLOYER{% endif %}</button>
+                {% if edit_employer %}<a href="{% url 'admin_settings_employers' %}" class="btn btn-secondary">CANCEL</a>{% endif %}
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-8">
+          <div class="card sx-card">
+            <div class="card-header sx-head">
+              <div class="sx-ico"><i class="fa fa-list"></i></div>
+              <div><h5>Registered Employers</h5><p>All employers with payroll contacts.</p></div>
+            </div>
+            <div class="card-body pt-3 p-3">
+              <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Sector</th>
+                      <th>Office Address</th>
+                      <th>Payroll Officer</th>
+                      <th>Payroll Phone</th>
+                      <th>Payroll Email</th>
+                      <th>Status</th>
+                      <th class="text-center">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for employer in employers %}
+                      <tr {% if not employer.active %}class="table-danger"{% endif %}>
+                        <td>{{ employer.name }}</td>
+                        <td>{{ employer.sector|default:"—" }}</td>
+                        <td>{{ employer.office_address|default:"—" }}</td>
+                        <td>{{ employer.payroll_officer_name|default:"—" }}</td>
+                        <td>{{ employer.work_phone|default:"—" }}</td>
+                        <td>{{ employer.work_email|default:"—" }}</td>
+                        <td>
+                          {% if employer.active %}
+                            <span class="badge bg-success">Active</span>
+                          {% else %}
+                            <span class="badge bg-danger">Inactive</span>
+                          {% endif %}
+                        </td>
+                        <td class="text-center">
+                          <a href="?edit_employer={{ employer.id }}" class="btn btn-sm btn-warning">Edit</a>
+                          <form method="post" class="d-inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="toggle_employer">
+                            <input type="hidden" name="employer_id" value="{{ employer.id }}">
+                            <button type="submit" class="btn btn-sm {% if employer.active %}btn-danger{% else %}btn-success{% endif %}">
+                              {% if employer.active %}Deactivate{% else %}Activate{% endif %}
+                            </button>
+                          </form>
+                        </td>
+                      </tr>
+                    {% empty %}
+                      <tr>
+                        <td colspan="7" class="text-center text-muted">No employers found. Add an employer to get started.</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}

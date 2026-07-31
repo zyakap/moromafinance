@@ -1,0 +1,184 @@
+@page {
+  size: A4;
+  margin: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: #fff;
+}
+
+body {
+  color: #000;
+  font-family: Calibri, Arial, sans-serif;
+  font-size: 11pt;
+  line-height: 1.22;
+}
+
+.page {
+  position: relative;
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  background: #fff;
+  overflow: hidden;
+}
+
+.letterhead {
+  display: block;
+  width: 190mm;
+  height: auto;
+  margin: 10mm auto 0;
+}
+
+.letter {
+  width: 164mm;
+  margin: 8mm auto 0;
+}
+
+p {
+  margin: 0;
+}
+
+.center {
+  text-align: center;
+}
+
+.date {
+  margin-bottom: 6.8mm;
+}
+
+.recipient {
+  text-align: center;
+  margin-bottom: 6.4mm;
+}
+
+.recipient p {
+  margin-bottom: 1.3mm;
+}
+
+.employer,
+.blue {
+  color: #0070c0;
+}
+
+h1 {
+  display: table;
+  margin: 0 auto 6.8mm;
+  border-bottom: 0.25mm solid #000;
+  font-size: 11pt;
+  line-height: 1.15;
+  font-weight: 700;
+}
+
+.underline {
+  border-bottom: 0.25mm solid #0070c0;
+  font-weight: 700;
+}
+
+.employee-file {
+  margin-top: 6.5mm;
+}
+
+.note {
+  margin-top: 9.4mm;
+}
+
+.message {
+  margin-top: 6.8mm;
+  text-align: center;
+}
+
+.loan-details,
+.bank-details {
+  border-collapse: collapse;
+  margin-left: 12.7mm;
+}
+
+.loan-details {
+  margin-top: 7.1mm;
+}
+
+.bank-details {
+  margin-top: 5.1mm;
+}
+
+th,
+td {
+  height: 5.16mm;
+  padding: 0;
+  font-size: 11pt;
+  line-height: 1.1;
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  width: 76.2mm;
+  font-weight: 700;
+}
+
+td {
+  width: 70mm;
+  font-weight: 700;
+}
+
+.deduction {
+  position: relative;
+  height: 13.6mm;
+  margin-top: 7.9mm;
+  margin-left: 12.7mm;
+  white-space: nowrap;
+}
+
+.deduction-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-weight: 700;
+}
+
+.code {
+  position: absolute;
+  top: 4.7mm;
+  font-weight: 700;
+}
+
+.code-d {
+  left: 52.2mm;
+}
+
+.code-w {
+  left: 59.4mm;
+}
+
+.code-i {
+  left: 67.4mm;
+}
+
+.code-n {
+  left: 72.7mm;
+}
+
+.code-c {
+  left: 79.8mm;
+}
+
+.thanks {
+  margin-top: 6.8mm;
+}
+
+.closing {
+  margin-top: 6.8mm;
+  line-height: 1.23;
+}
+
+strong {
+  font-weight: 700;
+}

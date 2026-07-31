@@ -1,0 +1,66 @@
+{% extends "admin_base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}Appearance Settings{% endblock %}
+{% block breadcrumb %}<a href="{% url 'admin_dashboard' %}">Admin</a> / <a href="{% url 'admin_settings_general' %}">Settings</a>{% endblock %}
+{% block breadcrumb_active %}Appearance{% endblock %}
+{% block dashboard_title %}Settings{% endblock %}
+
+{% block content %}
+<div class="sx-wrap">
+  {% include "settings_nav.html" %}
+
+  <div class="row">
+    <div class="col-lg-10">
+      <div class="card sx-card">
+        <div class="card-header sx-head">
+          <div class="sx-ico"><i class="fa fa-palette"></i></div>
+          <div>
+            <h5>Branding &amp; Appearance</h5>
+            <p>Customise how the platform looks for your organisation — logo, colours, and font. Changes apply across the whole app.</p>
+          </div>
+        </div>
+        <div class="card-body pt-3 p-3">
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <h6 class="sx-sec">Brand</h6>
+            <div class="row g-2 mb-3">
+              <div class="col-md-6">{{ form.brand_name|as_crispy_field }}</div>
+              <div class="col-md-6">{{ form.font_family|as_crispy_field }}</div>
+            </div>
+
+            <h6 class="sx-sec">Logos &amp; Icon</h6>
+            <div class="row g-2 mb-3">
+              <div class="col-md-4">
+                {% if appearance_now.brand_logo_url %}<div class="mb-1"><img src="{{ appearance_now.brand_logo_url }}" alt="logo" style="max-height:48px;background:#1f2a44;padding:4px;border-radius:6px;"></div>{% endif %}
+                {{ form.brand_logo|as_crispy_field }}
+              </div>
+              <div class="col-md-4">
+                {% if appearance_now.login_logo_url %}<div class="mb-1"><img src="{{ appearance_now.login_logo_url }}" alt="login logo" style="max-height:48px;background:#eee;padding:4px;border-radius:6px;"></div>{% endif %}
+                {{ form.login_logo|as_crispy_field }}
+              </div>
+              <div class="col-md-4">
+                {% if appearance_now.favicon_url %}<div class="mb-1"><img src="{{ appearance_now.favicon_url }}" alt="favicon" style="max-height:32px;"></div>{% endif %}
+                {{ form.favicon|as_crispy_field }}
+              </div>
+            </div>
+
+            <h6 class="sx-sec">Colours</h6>
+            <div class="row g-2 mb-3">
+              <div class="col-md-3">{{ form.primary_color|as_crispy_field }}</div>
+              <div class="col-md-3">{{ form.sidebar_bg_color|as_crispy_field }}</div>
+              <div class="col-md-3">{{ form.topbar_color|as_crispy_field }}</div>
+              <div class="col-md-3 d-flex align-items-center">{{ form.sidebar_light_text|as_crispy_field }}</div>
+            </div>
+
+            <button type="submit" class="btn btn-primary mb-0"><i class="fa fa-save me-1"></i> Save Appearance</button>
+            <a href="{% url 'admin_settings_appearance' %}" class="btn btn-outline-secondary mb-0 ms-2">Refresh Preview</a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "staff_base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Add New Loan  {% endblock %}
+
+{% block breadcrumb %} <a href="{% url 'dashboard' %}">Dashboard</a>  /  <a href="{% url 'loans' %}">Loans</a> {% endblock %}
+{% block breadcrumb_active %} Add New Loan {% endblock %}
+{% block dashboard_title %} Add New Loan {% endblock %}
+
+{% block css %}
+
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+
+{% endblock %}
+
+{% block content %}
+
+
+  <!-- Content Goes Here -->
+  <div class="row mr-5">
+    <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12 col-xs-12">
+      <div class="card mt-2 p-1">
+        <div class="card-header bg-secondary m-0 pt-2 pr-1 pb-0 pl-2">
+          <h5 class="text-light"> Create a Loan </h5>
+          {% if loan_mode == 'OPEN_REPAYMENT' %}
+          <small class="text-warning">Open Repayment mode — enter the fortnightly repayment amount directly.</small>
+          {% else %}
+          <small class="text-light">Locked mode — repayment is calculated from the repayment table.</small>
+          {% endif %}
+        </div>
+        <div class="card-body m-0 p-2">
+          <form method="post">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <br>
+            <button type="submit" class="btn btn-primary">CREATE</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Content Ends Here -->
+
+ 
+{% endblock %}
+
+{% block scripts %}
+
+
+
+<!-- select 2   -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<!-- Initialize the Select2 plugin -->
+
+<script>
+  // In your Javascript (external .js resource or <script> tag)
+$(document).ready(function() {
+  $('#id_owner').select2();
+});
+
+</script>
+
+{% endblock %}
+
+

@@ -1,0 +1,211 @@
+{% extends "dashboard_base.html" %}
+{% load static %}
+
+{% block title %}Ticket {{ ticket.ref }}{% endblock %}
+{% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a> / <a href="{% url 'user_support' %}">Support</a>{% endblock %}
+{% block breadcrumb_active %}{{ ticket.ref }}{% endblock %}
+{% block dashboard_title %}Support Ticket{% endblock %}
+
+{% block css %}
+<style>
+  .ticket-wrap { max-width:760px; margin:0 auto; }
+
+  .ticket-meta-bar {
+    background:#fff; border-radius:10px;
+    box-shadow:0 2px 10px rgba(0,0,0,.07);
+    padding:14px 18px; margin-bottom:1rem;
+    display:flex; flex-wrap:wrap; gap:16px; align-items:center;
+  }
+  .tm-item { display:flex; flex-direction:column; }
+  .tm-label { font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#aaa; }
+  .tm-value { font-size:.85rem; font-weight:600; color:#344767; }
+
+  .status-badge { display:inline-block; padding:3px 12px; border-radius:20px; font-size:.72rem; font-weight:700; text-transform:uppercase; }
+  .s-waiting { background:#fff8e1; color:#f57f17; }
+  .s-replied { background:#e8f5e9; color:#2e7d32; }
+  .s-closed  { background:#f5f5f5; color:#888; }
+
+  .thread-box {
+    background:#fff; border-radius:10px;
+    box-shadow:0 2px 10px rgba(0,0,0,.07);
+    overflow:hidden; margin-bottom:1rem;
+  }
+  .thread-header { padding:12px 18px; border-bottom:1px solid #f0f2f5; display:flex; align-items:center; gap:8px; }
+  .thread-header h6 { margin:0; font-weight:700; color:#344767; font-size:.9rem; }
+  .thread-body { padding:18px; display:flex; flex-direction:column; gap:12px; max-height:480px; overflow-y:auto; }
+
+  .msg { display:flex; gap:10px; max-width:85%; }
+  .msg.client { align-self:flex-start; }
+  .msg.admin  { align-self:flex-end; flex-direction:row-reverse; }
+  .msg-avatar {
+    width:32px; height:32px; border-radius:50%; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    font-size:.8rem; font-weight:700; color:#fff;
+  }
+  .msg.client .msg-avatar { background:#344767; }
+  .msg.admin  .msg-avatar { background:#4CAF50; }
+  .msg-bubble { padding:10px 14px; border-radius:10px; font-size:.85rem; line-height:1.6; color:#344767; }
+  .msg.client .msg-bubble { background:#f0f4ff; border-top-left-radius:2px; }
+  .msg.admin  .msg-bubble { background:#e8f5e9; border-top-right-radius:2px; }
+  .msg-bubble.closed-note { background:#f5f5f5; color:#999; font-style:italic; font-size:.8rem; }
+  .msg-meta { font-size:.68rem; color:#aaa; margin-top:3px; }
+  .msg.admin .msg-meta { text-align:right; }
+  .msg-attach a { font-size:.75rem; color:#1565c0; text-decoration:none; display:block; margin-top:4px; }
+
+  .reply-box {
+    background:#fff; border-radius:10px;
+    box-shadow:0 2px 10px rgba(0,0,0,.07);
+    padding:16px 18px;
+  }
+  .reply-box label { font-size:.8rem; font-weight:700; color:#344767; margin-bottom:6px; display:block; }
+  .reply-box textarea {
+    width:100%; border:1px solid #dee2e6; border-radius:8px;
+    padding:10px 14px; font-size:.88rem; resize:vertical; min-height:80px;
+  }
+  .reply-box textarea:focus { outline:none; border-color:#344767; }
+  .reply-actions { display:flex; align-items:center; gap:10px; margin-top:10px; flex-wrap:wrap; }
+  .attach-label { font-size:.78rem; color:#6c757d; cursor:pointer; display:flex; align-items:center; gap:4px; }
+  .attach-label:hover { color:#344767; }
+  #attachInput { display:none; }
+  #attachPreview { font-size:.75rem; color:#4CAF50; }
+
+  .closed-bar {
+    background:#f8f9fa; border-radius:10px;
+    padding:14px 18px; text-align:center;
+    color:#888; font-size:.85rem;
+    box-shadow:0 2px 10px rgba(0,0,0,.07);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ticket-wrap mt-3">
+
+  <!-- Meta bar -->
+  <div class="ticket-meta-bar">
+    <div class="tm-item">
+      <span class="tm-label">Ticket Ref</span>
+      <span class="tm-value">{{ ticket.ref }}</span>
+    </div>
+    <div class="tm-item">
+      <span class="tm-label">Category</span>
+      <span class="tm-value">{{ ticket.category }}</span>
+    </div>
+    <div class="tm-item">
+      <span class="tm-label">Opened</span>
+      <span class="tm-value">{{ ticket.date|date:"d M Y, H:i" }}</span>
+    </div>
+    <div class="tm-item" style="margin-left:auto;">
+      <span class="tm-label">Status</span>
+      <span>
+        {% if ticket.status == 'user_replied' %}
+          <span class="status-badge s-waiting">Awaiting Reply</span>
+        {% elif ticket.status == 'staff_replied' %}
+          <span class="status-badge s-replied">Replied</span>
+        {% elif ticket.status == 'closed' %}
+          <span class="status-badge s-closed">Closed</span>
+        {% else %}
+          <span class="status-badge s-waiting">Open</span>
+        {% endif %}
+      </span>
+    </div>
+  </div>
+
+  <!-- Thread -->
+  <div class="thread-box">
+    <div class="thread-header">
+      <i class="material-icons-round text-primary" style="font-size:1.1rem;">forum</i>
+      <h6>{{ ticket.subject }}</h6>
+    </div>
+    <div class="thread-body" id="threadBody">
+      {% for thread in ticketthread %}
+        {% if 'U' in thread.thread %}
+        <div class="msg client">
+          <div class="msg-avatar">{{ user.first_name|first|upper }}</div>
+          <div>
+            <div class="msg-bubble {% if 'closed' in thread.thread_content|lower %}closed-note{% endif %}">
+              {{ thread.thread_content|striptags }}
+              {% if thread.attachment_name %}
+              <div class="msg-attach">
+                <a href="{{ thread.attachment_url }}" target="_blank">
+                  <i class="material-icons-round" style="font-size:.85rem;vertical-align:middle;">attach_file</i>
+                  View attachment
+                </a>
+              </div>
+              {% endif %}
+            </div>
+            <div class="msg-meta">You &nbsp;·&nbsp; {{ thread.date|date:"d M Y, H:i" }}</div>
+          </div>
+        </div>
+        {% else %}
+        <div class="msg admin">
+          <div class="msg-avatar">S</div>
+          <div>
+            <div class="msg-bubble {% if 'closed' in thread.thread_content|lower %}closed-note{% endif %}">
+              {{ thread.thread_content|striptags }}
+              {% if thread.attachment_name %}
+              <div class="msg-attach">
+                <a href="{{ thread.attachment_url }}" target="_blank">
+                  <i class="material-icons-round" style="font-size:.85rem;vertical-align:middle;">attach_file</i>
+                  View attachment
+                </a>
+              </div>
+              {% endif %}
+            </div>
+            <div class="msg-meta">Support Team &nbsp;·&nbsp; {{ thread.date|date:"d M Y, H:i" }}</div>
+          </div>
+        </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Reply / closed state -->
+  {% if ticket.status != 'closed' %}
+  <div class="reply-box">
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <label for="thread_content">Add a reply</label>
+      <textarea id="thread_content" name="thread_content" placeholder="Describe your issue or add more details…"></textarea>
+      <div class="reply-actions">
+        <button type="submit" class="btn btn-primary btn-sm px-4">
+          <i class="material-icons-round" style="font-size:.85rem;vertical-align:middle;">send</i>
+          Send
+        </button>
+        <label class="attach-label">
+          <i class="material-icons-round" style="font-size:1rem;vertical-align:middle;">attach_file</i>
+          Attach
+          <input type="file" name="attachment" id="attachInput">
+        </label>
+        <span id="attachPreview"></span>
+        <a href="{% url 'close_ticket' ticket.ref %}"
+           class="btn btn-sm btn-outline-secondary ms-auto"
+           onclick="return confirm('Mark this ticket as resolved?')">
+          Mark as Resolved
+        </a>
+      </div>
+    </form>
+  </div>
+  {% else %}
+  <div class="closed-bar">
+    <i class="material-icons-round align-middle" style="font-size:1rem;">check_circle</i>
+    This ticket is closed. If you need further help, <a href="{% url 'create_ticket' %}">open a new ticket</a>.
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  var tb = document.getElementById('threadBody');
+  if (tb) tb.scrollTop = tb.scrollHeight;
+
+  var ai = document.getElementById('attachInput');
+  if (ai) {
+    ai.addEventListener('change', function() {
+      document.getElementById('attachPreview').textContent = this.files.length ? this.files[0].name : '';
+    });
+  }
+</script>
+{% endblock %}

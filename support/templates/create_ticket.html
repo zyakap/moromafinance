@@ -1,0 +1,68 @@
+{% extends "dashboard_base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}New Support Ticket{% endblock %}
+{% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a> / <a href="{% url 'user_support' %}">Support</a>{% endblock %}
+{% block breadcrumb_active %}New Ticket{% endblock %}
+{% block dashboard_title %}Create Support Ticket{% endblock %}
+
+{% block css %}
+<style>
+  .create-wrap { max-width:680px; margin:0 auto; }
+  .create-card {
+    background:#fff; border-radius:12px;
+    box-shadow:0 2px 12px rgba(0,0,0,.08);
+    overflow:hidden; margin-top:1rem;
+  }
+  .create-card-header {
+    background:linear-gradient(135deg,#344767 0%,#21315c 100%);
+    padding:18px 24px; color:#fff;
+  }
+  .create-card-header h5 { margin:0; font-size:1rem; font-weight:700; }
+  .create-card-header p  { margin:4px 0 0; font-size:.82rem; opacity:.75; }
+  .create-card-body { padding:24px; }
+
+  .help-box {
+    background:#f0f4ff; border-radius:8px; padding:12px 16px;
+    margin-bottom:1.2rem; font-size:.82rem; color:#344767;
+    border-left:3px solid #344767;
+  }
+  .help-box ul { margin:6px 0 0; padding-left:1.2rem; }
+  .help-box ul li { margin-bottom:3px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="create-wrap">
+  <div class="create-card">
+    <div class="create-card-header">
+      <h5><i class="material-icons-round align-middle me-1" style="font-size:1rem;">add_comment</i>New Support Ticket</h5>
+      <p>Our support team typically responds within 1 business day.</p>
+    </div>
+    <div class="create-card-body">
+      <div class="help-box">
+        <strong>Tips for a faster resolution:</strong>
+        <ul>
+          <li>Select the most relevant category for your issue.</li>
+          <li>Write a clear, specific subject line.</li>
+          <li>Include your loan reference number if the issue relates to a loan.</li>
+          <li>Attach any screenshots or documents that help describe the issue.</li>
+        </ul>
+      </div>
+      <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.media }}
+        {{ form|crispy }}
+        <div class="d-flex gap-3 mt-3">
+          <button type="submit" class="btn btn-primary px-4">
+            <i class="material-icons-round align-middle me-1" style="font-size:.9rem;">send</i>
+            Submit Ticket
+          </button>
+          <a href="{% url 'user_support' %}" class="btn btn-light px-4">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

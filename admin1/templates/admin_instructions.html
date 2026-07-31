@@ -1,0 +1,1534 @@
+{% extends "admin_base.html" %}
+{% load static %}
+
+{% block title %} Admin Instructions {% endblock %}
+{% block breadcrumb %} <a href="{% url 'admin_dashboard' %}">Admin Dashboard</a> {% endblock %}
+{% block breadcrumb_active %} Instructions {% endblock %}
+{% block dashboard_title %} Admin Usage Instructions {% endblock %}
+
+{% block css %}
+<style>
+/* ══════════════════════════════════════
+   OUTER NAV  (Video / Usage Guide / FAQ)
+══════════════════════════════════════ */
+.inst-nav {
+  display: flex;
+  gap: 4px;
+  border-bottom: 2px solid #dee2e6;
+  margin-bottom: 1.5rem;
+}
+.inst-nav .inst-tab {
+  padding: 10px 22px;
+  font-weight: 600;
+  font-size: 0.88rem;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: #6c757d;
+  border: 2px solid transparent;
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  cursor: pointer;
+  background: #f8f9fa;
+  transition: all 0.15s;
+  user-select: none;
+}
+.inst-nav .inst-tab:hover { background: #e9ecef; color: #344767; }
+.inst-nav .inst-tab.active {
+  background: #fff;
+  color: #344767;
+  border-color: #dee2e6;
+  margin-bottom: -2px;
+}
+.inst-pane { display: none; }
+.inst-pane.active { display: block; }
+
+/* ══════════════════════════════════════
+   USAGE GUIDE  –  two-panel inner layout
+══════════════════════════════════════ */
+.guide-layout {
+  display: flex;
+  gap: 0;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 14px rgba(0,0,0,.08);
+  overflow: hidden;
+  /* Fixed height so the page itself never grows */
+  height: calc(100vh - 220px);
+  min-height: 520px;
+}
+
+/* Left sidebar */
+.guide-sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: #f8f9fa;
+  border-right: 1px solid #e9ecef;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+.guide-sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 16px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #6c757d;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: all 0.12s;
+  user-select: none;
+  white-space: nowrap;
+}
+.guide-sidebar-item:hover { background: #e9ecef; color: #344767; }
+.guide-sidebar-item.active {
+  background: #fff;
+  color: #344767;
+  border-left-color: #4CAF50;
+}
+.guide-sidebar-item .si-icon { font-size: 1rem; opacity: .8; }
+.guide-sidebar-item.active .si-icon { color: #4CAF50; opacity: 1; }
+.guide-sidebar-divider {
+  height: 1px;
+  background: #e9ecef;
+  margin: 6px 12px;
+}
+
+/* Right content */
+.guide-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 28px;
+}
+.guide-panel { display: none; }
+.guide-panel.active { display: block; }
+
+.guide-panel h5 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #344767;
+  margin-bottom: 0.3rem;
+}
+.guide-panel .panel-intro {
+  font-size: 0.84rem;
+  color: #6c757d;
+  margin-bottom: 1.2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #f0f2f5;
+}
+.guide-panel h6 {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #344767;
+  margin: 1.2rem 0 0.4rem;
+}
+.guide-panel h6:first-of-type { margin-top: 0; }
+.guide-panel p, .guide-panel ul, .guide-panel li {
+  font-size: 0.86rem;
+  color: #495057;
+  line-height: 1.7;
+}
+.guide-panel ul { padding-left: 1.3rem; margin-bottom: 0.6rem; }
+.guide-panel ul li { margin-bottom: 3px; }
+
+.step {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 9px;
+  padding: 9px 13px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 3px solid #4CAF50;
+  font-size: 0.86rem;
+}
+.step-num {
+  background: #344767;
+  color: #fff;
+  border-radius: 50%;
+  min-width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.badge-tip {
+  display: inline-block;
+  background: #e8f5e9; color: #2e7d32;
+  font-size: 0.7rem; font-weight: 700;
+  padding: 2px 8px; border-radius: 20px;
+  margin-right: 5px; letter-spacing: 0.3px;
+}
+.badge-warn {
+  display: inline-block;
+  background: #fff8e1; color: #f57f17;
+  font-size: 0.7rem; font-weight: 700;
+  padding: 2px 8px; border-radius: 20px;
+  margin-right: 5px; letter-spacing: 0.3px;
+}
+.info-box {
+  background: #f0f4ff;
+  border-left: 3px solid #344767;
+  border-radius: 0 8px 8px 0;
+  padding: 10px 14px;
+  font-size: 0.84rem;
+  margin: 0.8rem 0;
+  color: #344767;
+}
+
+/* ══════════════════════════════════════
+   FAQ pane
+══════════════════════════════════════ */
+.faq-category { margin-bottom: 1.8rem; }
+.faq-category-title {
+  font-size: 0.75rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 1px;
+  color: #6c757d; margin-bottom: 0.7rem;
+  padding-bottom: 5px; border-bottom: 2px solid #e9ecef;
+}
+.faq-item {
+  background: #fff; border-radius: 8px;
+  box-shadow: 0 1px 6px rgba(0,0,0,.06);
+  margin-bottom: 7px; overflow: hidden;
+}
+.faq-question {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  font-weight: 600; font-size: 0.855rem;
+  color: #344767; cursor: pointer;
+  user-select: none; gap: 10px;
+}
+.faq-question i.faq-icon { color: #4CAF50; font-size: 1rem; flex-shrink: 0; }
+.faq-question .faq-chevron { flex-shrink: 0; color: #aaa; transition: transform 0.2s; font-size: 0.88rem; }
+.faq-question.open .faq-chevron { transform: rotate(180deg); }
+.faq-answer {
+  display: none;
+  padding: 4px 16px 13px 42px;
+  font-size: 0.83rem; color: #5a6a82;
+  line-height: 1.7; border-top: 1px solid #f0f0f0;
+}
+.faq-answer ul { padding-left: 1.2rem; margin-top: 5px; }
+.faq-answer ul li { margin-bottom: 3px; }
+.faq-panel { display: none; }
+.faq-panel.active { display: block; }
+.faq-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #344767;
+  margin-bottom: 1.2rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid #f0f2f5;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── Outer navigation ── -->
+<div class="inst-nav mt-3" id="instNav">
+  <div class="inst-tab active" data-pane="pane-videos">
+    <i class="material-icons-round align-middle me-1" style="font-size:1rem;">play_circle</i>
+    Video Guides
+  </div>
+  <div class="inst-tab" data-pane="pane-guide">
+    <i class="material-icons-round align-middle me-1" style="font-size:1rem;">menu_book</i>
+    Usage Guide
+  </div>
+  <div class="inst-tab" data-pane="pane-faq">
+    <i class="material-icons-round align-middle me-1" style="font-size:1rem;">help_outline</i>
+    FAQ
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════
+     PANE 1 – VIDEO GUIDES
+═══════════════════════════ -->
+<div class="inst-pane active" id="pane-videos">
+  <h5 class="text-primary mb-3">
+    <i class="material-icons-round align-middle me-1">videocam</i>
+    Video Guides for Administrators
+  </h5>
+  <div class="row bg-light pb-3">
+    <div class="col-lg-6 col-md-12 col-sm-12">
+      <div class="card shadow my-2 bg-white rounded mx-2 p-0">
+        <div class="card-header bg-success text-light m-1 p-1">
+          <h5 class="text-light pt-1">ADMIN DASHBOARD OVERVIEW</h5>
+        </div>
+        <div class="card-body m-0 p-0">
+          <iframe width="100%" height="315" src="https://www.youtube.com/embed/QdyuwyTtdOU?si=ItHpWrkjRjYJRbng" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6 col-md-12 col-sm-12">
+      <div class="card shadow my-2 bg-white rounded mx-2 p-0">
+        <div class="card-header bg-success text-light m-1 p-1">
+          <h5 class="text-light pt-1">Sending ONE EMAIL to HUNDREDS of CLIENTS</h5>
+        </div>
+        <div class="card-body m-0 p-0">
+          <iframe width="100%" height="315" src="https://www.youtube.com/embed/iQ-h4Wx6zzs?si=_aqtm6nXhkuN_xSs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        </div>
+      </div>
+      <div class="card shadow my-2 bg-white rounded mx-2 p-0">
+        <div class="card-header bg-success text-light m-1 p-1">
+          <h5 class="text-light pt-1">AUTOMATED LOAN REPAYMENT REMINDERS</h5>
+        </div>
+        <div class="card-body m-0 p-0">
+          <iframe width="100%" height="315" src="https://www.youtube.com/embed/1kMhx1v38iM?si=_B6hgsL1i824VMem" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+</div><!-- /pane-videos -->
+
+
+<!-- ═══════════════════════════
+     PANE 2 – USAGE GUIDE
+     Two-panel: sidebar + content
+═══════════════════════════ -->
+<div class="inst-pane" id="pane-guide">
+  <div class="guide-layout">
+
+    <!-- Sidebar -->
+    <nav class="guide-sidebar" id="guideSidebar">
+      <div class="guide-sidebar-item active" data-panel="g-dashboard">
+        <i class="material-icons-round si-icon">dashboard</i> Dashboard
+      </div>
+      <div class="guide-sidebar-item" data-panel="g-settings">
+        <i class="material-icons-round si-icon">settings</i> Settings
+      </div>
+      <div class="guide-sidebar-item" data-panel="g-clients">
+        <i class="material-icons-round si-icon">people</i> Clients
+      </div>
+      <div class="guide-sidebar-item" data-panel="g-loans">
+        <i class="material-icons-round si-icon">account_balance</i> Loans
+      </div>
+      <div class="guide-sidebar-item" data-panel="g-credits">
+        <i class="material-icons-round si-icon">volunteer_activism</i> Loan Credits &amp; Refunds
+      </div>
+      <div class="guide-sidebar-item" data-panel="g-staff">
+        <i class="material-icons-round si-icon">badge</i> Staff &amp; Roles
+      </div>
+      <div class="guide-sidebar-item" data-panel="g-employers">
+        <i class="material-icons-round si-icon">business</i> Employers &amp; Payroll
+      </div>
+      <div class="guide-sidebar-item" data-panel="g-reports">
+        <i class="material-icons-round si-icon">bar_chart</i> Reports
+      </div>
+      <div class="guide-sidebar-item" data-panel="g-email">
+        <i class="material-icons-round si-icon">email</i> Email &amp; Notifications
+      </div>
+      <div class="guide-sidebar-item" data-panel="g-payments">
+        <i class="material-icons-round si-icon">upload_file</i> Bulk Payments
+      </div>
+      <div class="guide-sidebar-item" data-panel="g-alesco">
+        <i class="material-icons-round si-icon">receipt_long</i> Alesco Update
+      </div>
+      <div class="guide-sidebar-item" data-panel="g-pdf">
+        <i class="material-icons-round si-icon">picture_as_pdf</i> PDF Documents
+      </div>
+      <div class="guide-sidebar-item" data-panel="g-functions">
+        <i class="material-icons-round si-icon">build</i> Custom Functions
+      </div>
+      <div class="guide-sidebar-item" data-panel="g-automation">
+        <i class="material-icons-round si-icon">schedule</i> Automation &amp; Jobs
+      </div>
+      <div class="guide-sidebar-item" data-panel="g-integration">
+        <i class="material-icons-round si-icon">hub</i> DCC Integration
+      </div>
+      <div class="guide-sidebar-divider"></div>
+      <div class="guide-sidebar-item" data-panel="g-support">
+        <i class="material-icons-round si-icon">support_agent</i> Support Tickets
+      </div>
+      <div class="guide-sidebar-item" data-panel="g-referrers">
+        <i class="material-icons-round si-icon">share</i> Referrers
+      </div>
+    </nav>
+
+    <!-- Content area -->
+    <div class="guide-content" id="guideContent">
+
+      <!-- Dashboard -->
+      <div class="guide-panel active" id="g-dashboard">
+        <h5><i class="material-icons-round align-middle me-1" style="font-size:1.1rem;">dashboard</i> Dashboard Overview</h5>
+        <p class="panel-intro">The Dashboard is the first screen after logging in. It gives a live snapshot of your loan portfolio's health.</p>
+        <h6>Key Metrics Cards</h6>
+        <ul>
+          <li><strong>Total Loans</strong> – total records regardless of status.</li>
+          <li><strong>Active / Running</strong> – loans currently being repaid on schedule.</li>
+          <li><strong>Defaulted</strong> – loans with missed repayments beyond the grace period.</li>
+          <li><strong>Pending</strong> – applications awaiting admin review.</li>
+          <li><strong>Total Disbursed</strong> – cumulative amount of money lent out.</li>
+          <li><strong>Total Collected</strong> – cumulative repayments received to date.</li>
+        </ul>
+        <h6>Charts</h6>
+        <ul>
+          <li>The <strong>Loan Breakup</strong> doughnut chart shows loan distribution by status.</li>
+          <li>Bar charts give a visual breakdown of loan counts per status category.</li>
+        </ul>
+        <h6>Quick Actions</h6>
+        <p>Use the navigation sidebar to jump to Clients, Loans, Staff, Reports, or Settings at any time.</p>
+      </div>
+
+      <!-- Settings -->
+      <div class="guide-panel" id="g-settings">
+        <h5><i class="material-icons-round align-middle me-1" style="font-size:1.1rem;">settings</i> Settings</h5>
+        <p class="panel-intro">Settings control how the entire system behaves. <span class="badge-warn">WARN</span> Incorrect settings can break loan calculations — always double-check before saving. All settings are stored in a single configuration record and take effect immediately on save (no server restart required).</p>
+
+        <div class="info-box">
+          <strong>Settings menu location:</strong> All settings are accessed via the <a href="{% url 'admin_settings' %}"><strong>Settings</strong></a> item in the sidebar. The settings page is divided into tabs: <a href="{% url 'admin_settings_general' %}"><strong>General</strong></a>, <a href="{% url 'admin_settings_appearance' %}"><strong>Appearance</strong></a>, <a href="{% url 'admin_settings_date' %}"><strong>Date</strong></a>, <a href="{% url 'admin_settings_loans' %}"><strong>Loan</strong></a>, <a href="{% url 'admin_settings_credit' %}"><strong>Credit Check</strong></a>, <a href="{% url 'admin_settings_form' %}"><strong>Form</strong></a>, <a href="{% url 'admin_settings_banks' %}"><strong>Banks</strong></a>, <a href="{% url 'admin_settings_employers' %}"><strong>Employers</strong></a>, <a href="{% url 'admin_settings_roles' %}"><strong>Roles &amp; Access</strong></a> (also where Staff Accounts — create staff, edit their role/position, reset passwords, and suspend/reactivate access — lives), <a href="{% url 'admin_settings_credit_assessment' %}"><strong>Credit Assessment</strong></a>, <a href="{% url 'admin_settings_dcc' %}"><strong>DCC</strong></a>, and <a href="{% url 'admin_settings_tc_contracts' %}"><strong>T&amp;C and Contracts</strong></a>. Referral commission settings live under <a href="{% url 'referral_settings' %}"><strong>Referrers &rarr; Settings</strong></a>.
+        </div>
+
+        <!-- GENERAL SETTINGS -->
+        <h6>General Settings <span class="badge-info">Tab: General</span></h6>
+        <ul>
+          <li><strong>Loan Ref Prefix</strong> &ndash; short code (up to 5 characters) prepended to every loan reference number (e.g. <code>LMX</code> produces references like LMX-2024-0001).</li>
+          <li><strong>Admin Email Addresses</strong> &ndash; comma-separated list of addresses that receive system notifications (new applications, defaults, funding alerts).</li>
+          <li><strong>Default From Email</strong> &ndash; the sender address shown on all outgoing system emails.</li>
+          <li><strong>Support Email</strong> &ndash; the address displayed on the support/contact pages and used for support-related notifications.</li>
+          <li><strong>Email System to Work Email (Global)</strong> &ndash; master switch. When ON, system emails (funding, CDN, amortization, messages) can be sent to clients' work email addresses. When OFF, no system email goes to any work email regardless of per-client settings. Individual client overrides still apply when this is ON.</li>
+          <li><strong>Display Decimal Places</strong> &ndash; choose 0, 1, or 2 decimal places for currency display across the portal and PDF documents (default: 2).</li>
+          <li><strong>Decimal Rounding</strong> &ndash; rounding method for currency calculations: <code>HALF_UP</code> (standard rounding), <code>CEILING</code> (always rounds up), or <code>FLOOR</code> (always rounds down).</li>
+          <li><strong>Deduction Category Toggles</strong> &ndash; four independent on/off switches controlling which repayment deduction categories are offered to clients:
+            <ul>
+              <li><strong>ALESCO Payroll</strong> &ndash; government/public servant salary deduction.</li>
+              <li><strong>Private Sector Payroll</strong> &ndash; private employer salary deduction.</li>
+              <li><strong>Standing Order</strong> &ndash; automatic bank standing-order deduction.</li>
+              <li><strong>Voluntary Deductions</strong> &ndash; client-initiated voluntary repayments.</li>
+            </ul>
+            Only enabled categories appear in the deduction-category dropdown on the loan application form.
+          </li>
+          <li><strong>Company Bank Account (Primary)</strong> &ndash; Bank name, Account Name, Account Number, Branch, BSB/Sort code, and SWIFT code. Printed on IRSDA and CDN documents. Update here if your bank details change.</li>
+          <li><strong>Alesco Deduction Code</strong> &ndash; government payroll deduction code used for public servant salary deductions (e.g. <code>LMXCOD</code>).</li>
+        </ul>
+
+        <!-- APPEARANCE SETTINGS -->
+        <h6>Appearance Settings (White-Label Branding) <span class="badge-info">Tab: Appearance</span></h6>
+        <p>These settings let you rebrand the entire portal &mdash; colours, logo, and fonts &mdash; without touching code. Useful for white-label deployments or refreshing your brand identity.</p>
+        <ul>
+          <li><strong>Brand Name</strong> &ndash; the company/brand name shown in the sidebar header, browser tab titles, and outgoing email subjects (up to 100 characters).</li>
+          <li><strong>Brand Logo</strong> &ndash; upload your main logo (PNG or SVG recommended). Displayed in the sidebar header and throughout the portal.</li>
+          <li><strong>Login Logo</strong> &ndash; optional separate logo for the login screen. Falls back to the Brand Logo if not set.</li>
+          <li><strong>Favicon</strong> &ndash; browser tab icon (ideally 32&times;32 px PNG). Falls back to the Brand Logo if not set.</li>
+          <li><strong>Primary Color</strong> &ndash; main brand colour in hex (e.g. <code>#6bb10d</code>). Applied to buttons, links, active states, and accents.</li>
+          <li><strong>Sidebar Background Color</strong> &ndash; background colour of the left navigation sidebar in hex.</li>
+          <li><strong>Sidebar Light Text</strong> &ndash; toggle whether sidebar text and icons use a light colour (for dark sidebar backgrounds) or dark colour (for light sidebar backgrounds).</li>
+          <li><strong>Topbar / Report Strip Color</strong> &ndash; colour of the top navigation strip and report headers in hex.</li>
+          <li><strong>Font Family</strong> &ndash; choose the system font from: Roboto, Open Sans, Lato, Poppins, Inter, Montserrat, Nunito, or Source Sans Pro. Applied portal-wide.</li>
+        </ul>
+        <div class="info-box"><strong>Tip:</strong> After changing the logo or colours, hard-refresh your browser (Ctrl+Shift+R) to clear cached assets and see the new branding immediately.</div>
+
+        <!-- DATE SETTINGS -->
+        <h6>Date Settings <span class="badge-info">Tab: Date</span></h6>
+        <ul>
+          <li><strong>Date Format</strong> &ndash; system-wide date display format. Options: <code>YYYY-MM-DD</code>, <code>DD/MM/YYYY</code>, <code>MM/DD/YYYY</code>, <code>DD-MM-YYYY</code>, or <code>Jan 31, 2026</code> (human-readable). Applied to all date fields in the portal, statements, and PDF documents.</li>
+        </ul>
+
+        <!-- LOAN SETTINGS -->
+        <h6>Loan Settings <span class="badge-info">Tab: Loan</span></h6>
+        <ul>
+          <li><strong>Interest Type</strong> &ndash; <code>FIXED</code> (single flat rate for all terms), <code>VARIABLE</code> (tiered rates by fortnight bracket), or <code>CUSTOM</code> (custom rate logic).</li>
+          <li><strong>Interest Rate</strong> &ndash; the rate applied to new loans. For VARIABLE type, tiered rates are used internally based on the fortnight bracket (2 FN = 30%, 3&ndash;4 FN = 40%, 5&ndash;10 FN = 50%).</li>
+          <li><strong>Loan Amount Min / Max / Increment</strong> &ndash; defines the range and step of the amount dropdown on the client application form and staff loan creation (e.g. Min K500, Max K5000, Increment K100). Changes take effect immediately on the forms.</li>
+          <li><strong>Fortnight Min / Max / Increment</strong> &ndash; controls the fortnights range and step (e.g. Min 3, Max 26, Increment 1). Set Max to the highest term available in the repayment table.</li>
+          <li><strong>Processing Fee</strong> &ndash; enable or disable processing fees on new loans.</li>
+          <li><strong>Processing Fee Collection Mode</strong> &ndash; <code>CASH</code> (client pays the fee separately) or <code>WITHHELD</code> (fee is deducted from the disbursement amount before payout).</li>
+          <li><strong>Processing Fee Tiers</strong> &ndash; define tiered processing fees based on loan amount ranges. Each tier has: Min Amount, Max Amount (blank = no upper limit), Fee Amount, and an Active toggle. The system matches the loan amount to the appropriate tier at funding. Add as many tiers as needed.</li>
+          <li><strong>User Loan Application Mode</strong> &ndash; <code>LOCKED</code> (client selects from preset amount/term combinations using the repayment table) or <code>OPEN_REPAYMENT</code> (client enters a custom repayment amount; available only for clients with a <code>max_loan_amount</code> set on their profile).</li>
+          <li><strong>Staff Loan Creation Mode</strong> &ndash; <code>LOCKED</code> (staff uses the repayment table) or <code>OPEN_REPAYMENT</code> (staff enters a custom repayment amount manually).</li>
+          <li><strong>Refinance Type</strong> &ndash; determines how additional loans are structured against an existing running loan:
+            <ul>
+              <li><code>OFFSET_BALANCE</code> &ndash; new loan amount offsets the current running balance; the remaining difference is paid to the client; old loan is closed.</li>
+              <li><code>ADD_ON</code> &ndash; new loan amount and interest are added to the existing balance; the term is extended; a single combined repayment is calculated.</li>
+              <li><code>CONCURRENT</code> &ndash; both loans run side by side; repayment is doubled during the overlap period, then steps down to the new loan's repayment once the first loan's term ends.</li>
+              <li><code>ADD_ON_VARIED</code> &ndash; like Add On (old balance + new loan combined), but instead of the system deriving the term and repayment automatically, staff enter the combined term and fortnightly repayment by hand on the funding form.</li>
+              <li><code>REFINANCE_NOT_ALLOWED</code> <span class="badge-warn">STRICT</span> &ndash; disables refinancing entirely. A client with any existing loan (funded or pending) cannot get a new or additional loan under any circumstances, staff included, until their existing loan is fully Completed. Enforces one loan per client.</li>
+            </ul>
+          </li>
+          <li><strong>Send Cash Disbursement Notice</strong> &ndash; when ON, a CDN PDF is emailed to the client automatically when a loan is funded.</li>
+          <li><strong>CDN Send to Payroll Officer</strong> &ndash; when ON, the CDN is also emailed to the client's payroll officer (the employer's payroll section email).</li>
+          <li><strong>Send Loan Amortization Schedule</strong> &ndash; when ON, the LAS is emailed to the client (as an HTML table in the email body) when a loan is funded.</li>
+          <li><strong>Display Referrer on Loan</strong> &ndash; when ON, the referrer's name is shown on the loan information page (admin and staff views).</li>
+          <li><strong>Send Application Documents</strong> &ndash; master switch for the application document email system. When ON, the sub-settings below control exactly what is sent and to whom:
+            <ul>
+              <li><strong>Send to User</strong> &ndash; email the application documents to the client.</li>
+              <li><strong>Send to Staff</strong> &ndash; email the application documents to the assigned staff officer.</li>
+              <li><strong>BCC Admin</strong> &ndash; BCC the admin email addresses on application document emails.</li>
+              <li><strong>Include Application Form</strong> &ndash; attach the Loan Application Form PDF.</li>
+              <li><strong>Include Terms &amp; Conditions</strong> &ndash; attach the Terms &amp; Conditions PDF.</li>
+              <li><strong>Include Statutory Declaration</strong> &ndash; attach the Statutory Declaration PDF.</li>
+              <li><strong>Include IRSDA</strong> &ndash; attach the Irrevocable Salary Deduction Authority PDF.</li>
+            </ul>
+          </li>
+          <li><strong>Send Alesco Pay Update Email</strong> &ndash; when ON, an email is sent to the client when an Alesco payroll deduction is confirmed against their loan.</li>
+        </ul>
+
+        <h6>Loan Amortization Schedule (LAS) Column Settings</h6>
+        <p>Control which columns appear on the Loan Amortization Schedule PDF. Turn off columns you don't need to produce a cleaner, narrower document.</p>
+        <ul>
+          <li><strong>Show Period</strong> &ndash; fortnight period number (1, 2, 3&hellip;).</li>
+          <li><strong>Show Repayment Date</strong> &ndash; the scheduled repayment date for each period.</li>
+          <li><strong>Show Opening Balance</strong> &ndash; balance at the start of each period.</li>
+          <li><strong>Show Interest</strong> &ndash; interest portion of each repayment.</li>
+          <li><strong>Show Principal</strong> &ndash; principal portion of each repayment.</li>
+          <li><strong>Show Repayment</strong> &ndash; total repayment amount (interest + principal).</li>
+          <li><strong>Show Closing Balance</strong> &ndash; balance at the end of each period.</li>
+        </ul>
+
+        <!-- CREDIT CHECK SETTINGS -->
+        <h6>Credit Check Settings <span class="badge-info">Tab: Credit Check</span></h6>
+        <ul>
+          <li><strong>Automatic Credit Check</strong> &ndash; <code>YES</code> applies auto approve/decline rules based on the credit threshold; <code>NO</code> means the admin decides manually on every application.</li>
+          <li><strong>Approval Credit Threshold</strong> &ndash; the minimum credit rating a client must have for automatic approval (e.g. 80.00). Clients below this threshold are flagged for manual review.</li>
+          <li><strong>Percentage of Gross Allowable</strong> &ndash; maximum repayment as a percentage of gross salary (e.g. 30 means a client's total fortnightly repayments cannot exceed 30% of their gross fortnightly pay). Used to calculate each client's repayment limit.</li>
+          <li><strong>Default Repayment Limit</strong> &ndash; the repayment limit assigned to a client by default when their account is first activated (before job/income details are filled in).</li>
+          <li><strong>Minimum Repayment Limit</strong> &ndash; a global floor for repayment limits. No client's repayment limit can be set below this value, even if their income is very low.</li>
+          <li><strong>Repayment Limit Check Enabled</strong> &ndash; when ON, the system enforces the repayment limit on new loan applications (rejects applications where the repayment would exceed the limit). When OFF, the limit is shown as a warning but applications are still accepted.</li>
+          <li><strong>Bypass Activation Check</strong> &ndash; when ON, clients can apply for loans without their account being fully activated. Use with caution &mdash; normally leave OFF so only activated clients can apply.</li>
+          <li><strong>Default Interest Type</strong> &ndash; <code>PERCENTAGE</code> (charges a % of the missed repayment amount) or <code>FIXED</code> (charges a flat kina amount per default event).</li>
+          <li><strong>Default Interest Rate / Amount</strong> &ndash; enter the percentage (e.g. 20 for 20%) or the flat kina amount (e.g. 50 for K50.00) depending on the type selected.</li>
+          <li><strong>Default Interest Calculation Mercy Days</strong> &ndash; number of days after the missed payment date before the automatic classifier fires (e.g. 7 means the system waits 7 days before classifying the loan as defaulted).</li>
+          <li><strong>Default Interest Base</strong> &ndash; determines what the default interest is calculated on: <code>SHORTFALL</code> (interest charged only on the missed/shortfall amount) or <code>FULL</code> (interest charged on the full scheduled repayment amount).</li>
+          <li><strong>Auto-Default on Shortfall</strong> &ndash; when ON, a partial payment that is below the scheduled amount automatically triggers a default on the shortfall portion.</li>
+          <li><strong>Automatic Default Classification</strong> &ndash; when ON, the Celery scheduled task automatically calculates and applies default interest, updates the loan balance, creates a statement entry, and emails the client once the mercy period elapses with no payment recorded. When OFF, defaults must be registered manually via the loan view.</li>
+        </ul>
+
+        <!-- FORM SETTINGS -->
+        <h6>Form Settings <span class="badge-info">Tab: Form</span></h6>
+        <p>Control which fields appear on client-facing and staff-facing forms. Each field can be independently enabled/disabled and marked as required or optional.</p>
+        <ul>
+          <li><strong>Personal Information form</strong> &ndash; toggle and set required status for: first name, middle name, last name, gender, date of birth, marital status, profile photo.</li>
+          <li><strong>Contact &amp; Address form</strong> &ndash; mobile 1, mobile 2, residential address, residential province, place of origin, province, resident owner status.</li>
+          <li><strong>Bank Account form</strong> &ndash; bank, bank branch, account name, account number, bank standing order upload.</li>
+          <li><strong>User Uploads form</strong> &ndash; NID, passport, driver's licence, superannuation ID, work ID (each with its number field).</li>
+          <li><strong>Employer Information form</strong> &ndash; sector, employer, organisation type, office address, payroll officer name/phone/email.</li>
+          <li><strong>Job Information form</strong> &ndash; job title, start date, pay frequency, last pay date, gross pay, net pay, employee file number.</li>
+          <li><strong>Payment form</strong> &ndash; payment date, amount, mode, statement description.</li>
+          <li><strong>Employer Preregistration Required</strong> &ndash; when ON, the employer dropdown on client and staff forms only shows pre-registered employers; all payroll officer details are auto-filled server-side from the employer record. When OFF, all employer and payroll officer fields are shown as editable inputs.</li>
+          <li><strong>Default Payment Description</strong> &ndash; the default text used for the payment description field when it is disabled or left empty (e.g. "Fortnightly repayment").</li>
+        </ul>
+        <div class="info-box"><strong>Note:</strong> Fields disabled here are hidden from both client and staff forms, but data already saved in those fields is not deleted. Re-enabling a field restores it with its previous data intact.</div>
+
+        <!-- BANK SETTINGS -->
+        <h6>Bank Settings <span class="badge-info">Tab: Banks</span></h6>
+        <ul>
+          <li><strong>Bank Management</strong> &ndash; add, edit, activate/deactivate banks available in the client bank-account dropdown. Each bank stores: Name, SWIFT code, BSB prefix, and Active status.</li>
+          <li><strong>Bank Branch Management</strong> &ndash; add branches under each bank. Each branch stores: Parent bank, Branch name, BSB number, Address, City, Province, and Active status. When a client selects a bank, the branch dropdown automatically filters to show only that bank's active branches.</li>
+        </ul>
+        <div class="info-box"><strong>Tip:</strong> Deactivate (don't delete) banks or branches that are no longer used. This preserves historical loan data that references them while hiding them from new forms.</div>
+
+        <!-- EMPLOYER SETTINGS -->
+        <h6>Employer Settings <span class="badge-info">Tab: Employers</span></h6>
+        <ul>
+          <li>Register approved employer organisations. Each record stores: Name, Sector (PUBLIC/PRIVATE/SOE/SME), Organisation Type (DEPARTMENT/SOE/COMPANY/MSME), Office Address, Payroll Officer Name, Payroll Officer Phone, and Payroll Officer Email.</li>
+          <li><strong>Employer Preregistration</strong> &ndash; when ON (Form Settings), the employer dropdown only shows pre-registered employers; payroll officer details auto-fill from the employer record. When OFF, all fields are manual.</li>
+          <li><strong>Payroll Contacts Directory</strong> &ndash; available under <strong>Employers &rarr; Payroll Contacts</strong>. Shows all registered employers with payroll officer details in a searchable DataTable. Export as PDF (landscape A4) or Excel.</li>
+          <li><strong>Employer Overview</strong> &ndash; aggregate view showing loan counts, outstanding balances, and collection rates per employer.</li>
+          <li><strong>Loans by Employer</strong> &ndash; detailed report of all loans grouped by employer, exportable as Excel, TXT, or PDF.</li>
+        </ul>
+
+        <!-- REFERRAL SETTINGS -->
+        <h6>Referral Settings <span class="badge-info">Referrers &rarr; Settings</span></h6>
+        <ul>
+          <li><strong>Referral Commission</strong> &ndash; the fixed kina amount paid to a referrer for each referred client (e.g. K50.00). Recorded against each referral at the time the client is linked; changing the rate later does not affect referrals already recorded.</li>
+          <li><strong>Referral Payment Day</strong> &ndash; the day of the month on which commission payments are processed (default: 31, meaning end of month).</li>
+        </ul>
+
+        <!-- LOCATION SETTINGS -->
+        <h6>Location Management <span class="badge-info">Settings &rarr; Locations</span></h6>
+        <ul>
+          <li>Manage branch/office locations. Each location stores: Name, Province (22 PNG provinces), Address, Email, Phone.</li>
+          <li>Locations are used for filtering clients, loans, and transactions by branch, and for location-based reporting.</li>
+          <li>Each location tracks live metrics: loan count, defaults, funded amount, interest, repayments, arrears, outstanding, recovery count, client count, clients with loans, clients in recovery.</li>
+        </ul>
+
+        <div class="warn-box">
+          <strong>Important:</strong> Changing interest rates, loan limits, or default settings affects <em>new</em> loans only. Existing running loans retain the terms set at their approval time. Always test setting changes during off-hours and verify a sample loan calculation after saving.
+        </div>
+      </div>
+
+      <!-- Clients -->
+      <div class="guide-panel" id="g-clients">
+        <h5><i class="material-icons-round align-middle me-1" style="font-size:1.1rem;">people</i> Managing Clients</h5>
+        <p class="panel-intro">The <a href="{% url 'clients_all' %}">Clients</a> section lists every registered borrower. You can search, view, edit, and manage their profiles and loan documents.</p>
+        <h6>Viewing a Client</h6>
+        <div class="step"><div class="step-num">1</div><div>Navigate to <strong>Clients</strong> in the sidebar.</div></div>
+        <div class="step"><div class="step-num">2</div><div>Use the search bar or filters to locate the client by name, employer, or ID number.</div></div>
+        <div class="step"><div class="step-num">3</div><div>Click the client's name or <strong>View</strong> to open their profile.</div></div>
+        <h6>Client Profile Details</h6>
+        <ul>
+          <li>Personal information: name, DOB, gender, NID number, marital status.</li>
+          <li>Contact details: mobile numbers, email, work email, work phone.</li>
+          <li>Employment: employer, job title, office address, start date.</li>
+          <li>Banking: bank, branch, account name and number.</li>
+        </ul>
+        <h6>Editing a Client Profile</h6>
+        <ul>
+          <li>Use <strong>Edit Profile</strong> (tabbed wizard) to update personal, contact, employer, job, bank, or document sections independently.</li>
+          <li>Changes are reflected in all future PDF generation immediately.</li>
+          <li><strong>Employer tab</strong> — if Employer Preregistration is ON, only the employer dropdown is shown; payroll officer details are filled automatically from the registered employer record.</li>
+        </ul>
+        <h6>Work Email Notifications (Per-Client)</h6>
+        <ul>
+          <li>The client view page has a <strong>Work Email Notifications</strong> card showing whether system emails are currently sent to this client's work email.</li>
+          <li>Click <strong>Enable / Disable Work Email Notifications</strong> to toggle the per-client preference. This overrides the global setting for this individual client only.</li>
+          <li>The global switch in General Settings must also be ON for any individual override to take effect.</li>
+        </ul>
+        <h6>Payroll Officer vs Work Email</h6>
+        <ul>
+          <li><strong>Work Email</strong> — the client's own personal work email address (unique per client). Used for individual system notifications.</li>
+          <li><strong>Payroll Officer Email / Phone</strong> — the shared payroll section contact for the client's employer. Multiple clients at the same organisation share the same payroll officer details. Used for CDN and amortization schedule delivery to payroll.</li>
+        </ul>
+        <h6>Uploaded Documents</h6>
+        <ul>
+          <li>Each client's loan folder shows which supporting documents have been uploaded.</li>
+          <li>Green checkmarks indicate a complete document set; red icons flag missing documents.</li>
+        </ul>
+      </div>
+
+      <!-- Loans -->
+      <div class="guide-panel" id="g-loans">
+        <h5><i class="material-icons-round align-middle me-1" style="font-size:1.1rem;">account_balance</i> Managing Loans</h5>
+        <p class="panel-intro">All loan lifecycle management — from application review to disbursement and repayment tracking — happens here. Start at <a href="{% url 'loans' %}"><strong>Loans</strong></a> in the sidebar, or jump straight to the <a href="{% url 'all_loans' %}">All Loans list</a>.</p>
+        <h6>Loan Lists (Tabs)</h6>
+        <p>The <a href="{% url 'all_loans' %}"><strong>All Loans</strong></a> page has a row of tabs across the top — each is its own filtered list:</p>
+        <ul>
+          <li><a href="{% url 'all_loans' %}"><strong>All Loans</strong></a> – every loan regardless of status.</li>
+          <li><a href="{% url 'pending_loans' %}"><strong>Pending Loans</strong></a> – applications awaiting review.</li>
+          <li><a href="{% url 'running_loans' %}"><strong>Running Loans</strong></a> – disbursed, repayments active.</li>
+          <li><a href="{% url 'defaulted_loans' %}"><strong>Default Loans</strong></a> – missed repayments beyond grace period.</li>
+          <li><a href="{% url 'recovery_loans' %}"><strong>In Recovery</strong></a> – loans in the collections process.</li>
+          <li><a href="{% url 'completed_loans' %}"><strong>Completed Loans</strong></a> – fully repaid and closed.</li>
+          <li><a href="{% url 'awaiting_refund_loans' %}"><strong>Awaiting Refund</strong></a> – see the <strong>Loan Credits &amp; Refunds</strong> section in the sidebar; loans settled in full where the client overpaid and is still owed money back.</li>
+        </ul>
+        <h6>Reviewing an Application</h6>
+        <div class="step"><div class="step-num">1</div><div>Go to <a href="{% url 'pending_loans' %}"><strong>Loans → Pending</strong></a>.</div></div>
+        <div class="step"><div class="step-num">2</div><div>Open the loan. Review details, employer, amount, repayment schedule, and documents.</div></div>
+        <div class="step"><div class="step-num">3</div><div>Check the <strong>Credit Summary</strong> for existing loans and debt-to-income ratio.</div></div>
+        <div class="step"><div class="step-num">4</div><div>Click <strong>Approve</strong> or <strong>Reject</strong>.</div></div>
+        <h6>Disbursing (Funding)</h6>
+        <div class="step"><div class="step-num">1</div><div>Confirm all signed documents are uploaded.</div></div>
+        <div class="step"><div class="step-num">2</div><div>Click <strong>Fund Loan</strong>. Status moves to Running.</div></div>
+        <div class="step"><div class="step-num">3</div><div>A Cash Disbursement Notice PDF is generated automatically (if enabled in Loan Settings).</div></div>
+
+        <h6>Loan Amount Limits (Min / Max)</h6>
+        <ul>
+          <li>Every loan-creation path — the client's own application, staff <strong>Create Loan</strong>, <strong>Add Existing Loan with Details</strong>, and <strong>Add Additional Loan</strong> — checks the amount against the global <strong>Loan Amount Min/Max</strong> (<a href="{% url 'admin_settings_loans' %}">Settings → Loan</a>).</li>
+          <li>A client can have a personal override on their profile (<code>Max Loan Amount</code>) which replaces the global maximum for that client only — set it higher for a trusted client, or lower to cap them below the normal limit.</li>
+          <li>An amount below the minimum or above the effective maximum is rejected immediately with a clear error, before anything is created.</li>
+        </ul>
+
+        <h6>Existing Loan Guard</h6>
+        <ul>
+          <li>When staff or admin tries to create a new loan for a client who already has an active or pending loan, the system redirects to an <strong>Existing Loan</strong> page instead of the creation form.</li>
+          <li>The page shows the client's current loan details (ref, amount, outstanding balance, status, next payment date).</li>
+          <li>If the intent is to add funds on top of the existing balance, click <strong>Get Additional Loan</strong> — this takes you to the Additional Loan creation form which handles the balance transfer automatically (unless Refinance Not Allowed is set — see below).</li>
+        </ul>
+        <h6>Additional Loans &amp; Refinancing</h6>
+        <ul>
+          <li>Use <strong>Add Additional Loan</strong> (also on the <strong>Custom Functions</strong> page — see sidebar) when a client with a running loan needs more funds. The system closes the old loan, transfers the outstanding balance to the new loan, and recalculates the repayment schedule according to the configured <strong>Refinance Type</strong> (<a href="{% url 'admin_settings_loans' %}">Settings → Loan</a>): Offset Balance, Add On, Concurrent, Add On (Varied), or Refinance Not Allowed.</li>
+          <li><span class="badge-warn">NEW</span> When <strong>Refinance Type</strong> is set to <strong>Refinance Not Allowed</strong>, a client with any existing loan (funded or still pending) cannot get a new or additional loan at all — not even staff can override this. The <strong>Get Additional Loan</strong> button is hidden on the Existing Loan page, funding an approved application for a client who still has a running loan is blocked outright, and a new loan only becomes possible once their existing one reaches <strong>Completed</strong>. This enforces a strict one-loan-per-client policy.</li>
+          <li>A Cash Disbursement Notice and Amortization Schedule are sent at disbursement even for additional loans.</li>
+        </ul>
+        <h6>Apply Advance to Missed Payments <span class="badge-tip">NEW</span></h6>
+        <ul>
+          <li>When a client has a prepaid <strong>Advance Balance</strong> (shown on the loan page) large enough to fully cover a missed repayment, clicking <strong>Create Default</strong> is blocked with a warning — a default should never be charged when the money to cover it is already sitting there.</li>
+          <li>Instead, use the <strong>Apply Advance to Missed Payments</strong> button (shown on the loan page whenever the client has an advance balance). It settles the earliest overdue repayment straight from the advance balance and posts a clean statement line — no default, no interest charged.</li>
+          <li>If the advance only <em>partly</em> covers the missed repayment, Create Default still works as normal: it nets off whatever advance exists and charges default interest on the remaining shortfall only.</li>
+        </ul>
+        <h6>Recording Repayments</h6>
+        <ul>
+          <li>Click <strong>Add Payment</strong>, enter date and amount.</li>
+          <li>Bulk payments can be uploaded via <a href="{% url 'payment_uploads' %}"><strong>Upload Payments</strong></a> (CSV/Excel).</li>
+        </ul>
+        <h6>Loan Statement &amp; Amortization Schedule</h6>
+        <ul>
+          <li>Full transaction history is on the Statement tab. Click <strong>Download Statement</strong> for a PDF.</li>
+          <li>The <strong>LAS</strong> tab shows a projected repayment table for the full loan term.</li>
+          <li><strong>Regenerate Dates</strong> (on the loan page) rebuilds the remaining repayment schedule from a new next-payment date, term, and frequency — use it when a client's pay cycle changes or the original schedule was mis-anchored. Already-settled history is kept untouched.</li>
+        </ul>
+      </div>
+
+      <!-- Loan Credits & Refunds -->
+      <div class="guide-panel" id="g-credits">
+        <h5><i class="material-icons-round align-middle me-1" style="font-size:1.1rem;">volunteer_activism</i> Loan Credits &amp; Refunds <span class="badge-tip">NEW</span></h5>
+        <p class="panel-intro">When a closing payment on a loan overpays the outstanding balance — most commonly an external <strong>refinance payoff</strong> that turns out to be more than what was actually owed — the excess is never silently discarded. It is tracked as a <strong>credit owed back to the client</strong> until it is refunded or deliberately written off against the account.</p>
+
+        <h6>How a Loan Ends Up "Awaiting Refund"</h6>
+        <ul>
+          <li>A payment comes in that clears the loan's balance in full <em>and then some</em> — e.g. another finance company pays off the client's loan, but the payoff figure they send is a little higher than the true balance.</li>
+          <li>The loan is marked <strong>Awaiting Refund</strong> (its own tab on the <a href="{% url 'all_loans' %}">All Loans</a> page — see <a href="{% url 'awaiting_refund_loans' %}">Awaiting Refund</a> directly) instead of Completed. The debt itself <em>is</em> fully settled; only the refund is outstanding.</li>
+          <li>The exact excess amount is recorded as a <strong>Client Credit</strong> against that client, visible in the <a href="{% url 'client_credits' %}">Client Credits</a> register.</li>
+        </ul>
+
+        <h6>The Client Credits Register</h6>
+        <div class="step"><div class="step-num">1</div><div>Go to <a href="{% url 'client_credits' %}"><strong>Client Credits</strong></a> in the sidebar (under Transactions).</div></div>
+        <div class="step"><div class="step-num">2</div><div>The <strong>Owing to Clients</strong> table lists every credit not yet refunded: client name, loan reference, amount, reason, and date created.</div></div>
+        <div class="step"><div class="step-num">3</div><div>Once you have actually paid the client back (bank transfer, cash, cheque), find their row and use the <strong>Mark Refunded</strong> form: enter the date refunded, an optional note (e.g. a bank transfer reference), and <strong>upload the refund receipt</strong> as proof.</div></div>
+        <div class="step"><div class="step-num">4</div><div>Marking a credit refunded <strong>automatically finalises the loan</strong> to Completed if it was still sitting in Awaiting Refund — you don't need a separate step.</div></div>
+        <div class="step"><div class="step-num">5</div><div>The <strong>Refunded</strong> table below keeps a permanent record of every completed refund, including the uploaded receipt. Export the whole register as CSV using the button in the top-right of the page.</div></div>
+
+        <h6>Attribute to Client Credit &amp; Close Now</h6>
+        <ul>
+          <li>Sometimes you want to close the loan out immediately and deal with the refund separately later (e.g. the amount is small, or the client hasn't confirmed how they want it paid back yet).</li>
+          <li>Open the loan itself — the Awaiting Refund banner at the top has an <strong>Attribute to Client Credit &amp; Close Now</strong> button. This finalises the loan to Completed straight away, while the credit stays open and owing in the Client Credits register until it's refunded whenever convenient.</li>
+        </ul>
+
+        <div class="info-box"><strong>Nothing is ever lost:</strong> every credit is tied to both the client and the specific loan it came from, and the register keeps a full history of what was owed, when it was created, when it was refunded, and the receipt proving it — even after the loan itself is Completed and archived.</div>
+      </div>
+
+      <!-- Staff -->
+      <div class="guide-panel" id="g-staff">
+        <h5><i class="material-icons-round align-middle me-1" style="font-size:1.1rem;">badge</i> Staff Management, Roles &amp; Access</h5>
+        <p class="panel-intro">Staff (loan officers) can view clients and loans, record payments, and manage their pipeline. All staff accounts, roles, and access control live under <a href="{% url 'admin_settings_roles' %}"><strong>Settings → Roles &amp; Access</strong></a>.</p>
+        <h6>Adding, Editing &amp; Suspending a Staff Member</h6>
+        <div class="step"><div class="step-num">1</div><div>Go to <a href="{% url 'admin_settings_roles' %}"><strong>Settings → Roles &amp; Access</strong></a>.</div></div>
+        <div class="step"><div class="step-num">2</div><div>Click <strong>Add Staff</strong>. Enter name, email, and a temporary password, and pick their <strong>Role</strong> and <strong>Level</strong>.</div></div>
+        <div class="step"><div class="step-num">3</div><div>To edit an existing staff member's role or details, or to reset their password, find them in the staff list and click <strong>Edit</strong> / <strong>Reset Password</strong>.</div></div>
+        <div class="step"><div class="step-num">4</div><div>To temporarily remove access (without deleting the account), click <strong>Suspend</strong>. A suspended account is blocked from logging in until reactivated. Click <strong>Reactivate</strong> to restore access — you cannot suspend your own account.</div></div>
+        <h6>Roles</h6>
+        <ul>
+          <li><strong>Staff</strong> – the standard loan-officer role: can view/update loans and clients, record payments, but cannot approve/reject loans or access Settings, Reports, or the Admin Dashboard.</li>
+          <li><strong>Manager</strong> – an elevated staff role with additional workflow permissions (e.g. committing payments, credit-assessment sign-off) beyond a standard Staff account, without full admin/superuser access.</li>
+        </ul>
+        <h6>Credit Assessment</h6>
+        <ul>
+          <li><a href="{% url 'admin_settings_credit_assessment' %}"><strong>Settings → Credit Assessment</strong></a> configures the extended credit-assessment workflow: statement of position, referee details, and previous-employer history collected from applicants for a fuller picture of their financial standing before approval.</li>
+        </ul>
+        <h6>Terms &amp; Conditions / Contracts</h6>
+        <ul>
+          <li><a href="{% url 'admin_settings_tc_contracts' %}"><strong>Settings → T&amp;C and Contracts</strong></a> manages the legal contract templates used for signed loan agreements, including generation and tracking of signed-contract uploads.</li>
+        </ul>
+        <h6>DCC Credit Bureau Settings</h6>
+        <ul>
+          <li><a href="{% url 'admin_settings_dcc' %}"><strong>Settings → DCC</strong></a> configures the automatic credit-bureau scoring integration: whether a benchmark score is fetched automatically on application, whether it's used to auto-scale a client's repayment limit and maximum loan ceiling, and the minimum score below which an application is automatically declined. See the <strong>DCC Integration</strong> section for the data-feed side of this.</li>
+        </ul>
+      </div>
+
+      <!-- Employers & Payroll -->
+      <div class="guide-panel" id="g-employers">
+        <h5><i class="material-icons-round align-middle me-1" style="font-size:1.1rem;">business</i> Employers &amp; Payroll Contacts</h5>
+        <p class="panel-intro">The <a href="{% url 'employer_overview' %}">Employers</a> module manages the organisations that employ your clients. It controls the employer dropdown on application forms and maintains a central <a href="{% url 'payroll_contacts' %}">payroll contact directory</a>.</p>
+
+        <h6>Registering an Employer</h6>
+        <div class="step"><div class="step-num">1</div><div>Go to <strong>Settings → Employer Settings</strong>.</div></div>
+        <div class="step"><div class="step-num">2</div><div>Click <strong>Add Employer</strong>. Fill in: Name, Sector (Public / Private / SOE / SME), Organisation Type, Office Address.</div></div>
+        <div class="step"><div class="step-num">3</div><div>Enter the <strong>Payroll Officer Name</strong>, <strong>Payroll Officer Phone</strong>, and <strong>Payroll Officer Email</strong>. These are shared across all clients at the same employer — one set of payroll contact details per organisation.</div></div>
+        <div class="step"><div class="step-num">4</div><div>Set <strong>Active</strong> to ON. Only active employers appear in client and staff forms.</div></div>
+
+        <h6>Employer Preregistration</h6>
+        <ul>
+          <li>Controlled by <strong>Form Settings → Employer Preregistration Required</strong>.</li>
+          <li>When <strong>ON</strong>: client and staff employer forms show only an employer dropdown. Selecting an employer auto-fills all payroll officer details server-side — nothing is displayed or editable by the user. The data is saved silently.</li>
+          <li>When <strong>OFF</strong>: all employer and payroll officer fields are shown as editable inputs on the form.</li>
+          <li><span class="badge-tip">TIP</span> Preregistration prevents inconsistent payroll officer data across clients at the same employer.</li>
+        </ul>
+
+        <h6>Work Email vs Payroll Officer Email</h6>
+        <ul>
+          <li><strong>Work Email</strong> — unique to the client; their personal work email address. Used for individual notifications.</li>
+          <li><strong>Payroll Officer Email</strong> — the shared email for the employer's payroll section. The same email appears on every client from that employer. Used for CDN and amortization schedule delivery to the payroll officer.</li>
+          <li>These are stored in separate fields and never conflict.</li>
+        </ul>
+
+        <h6>Employer Overview &amp; Loans by Employer</h6>
+        <ul>
+          <li><strong>Employers → Overview</strong> — summary statistics per employer: total loans, total repayments, total outstanding, defaults, arrears.</li>
+          <li><strong>Employers → Loans by Employer</strong> — lists all active loans grouped by employer. Useful for preparing payroll deduction schedules.</li>
+        </ul>
+
+        <h6>Payroll Contacts Directory</h6>
+        <ul>
+          <li><strong>Employers → Payroll Contacts</strong> — a DataTable listing every registered employer with their payroll officer's name, phone, email, office address, client count, and active status.</li>
+          <li>Use the search bar to find a specific organisation quickly.</li>
+          <li>Export the full list as a formatted <strong>PDF</strong> (A4 landscape) or <strong>Excel</strong> (.xlsx) using the buttons in the top-right corner of the card. The export filename includes the current date.</li>
+        </ul>
+
+        <div class="info-box"><strong>Best practice:</strong> Keep payroll officer details up to date in the employer record. When a payroll officer changes, update the employer record — all existing and future client profiles linked to that employer will automatically use the new contact details on all outgoing emails.</div>
+      </div>
+
+      <!-- Reports -->
+      <div class="guide-panel" id="g-reports">
+        <h5><i class="material-icons-round align-middle me-1" style="font-size:1.1rem;">bar_chart</i> Reports</h5>
+        <p class="panel-intro">The <a href="{% url 'reports' %}">Reports</a> module generates financial and operational reports, downloadable as CSV, Excel, or PDF.</p>
+        <h6>Available Reports</h6>
+        <ul>
+          <li><strong>Loan Portfolio Report</strong> – all active loans with balances and status.</li>
+          <li><strong>Repayment Collection Report</strong> – payments received within a date range.</li>
+          <li><strong>Arrears &amp; Defaults Report</strong> – clients with outstanding missed payments.</li>
+          <li><strong>Employer-Wise Report</strong> – loan exposure by employer organisation.</li>
+          <li><strong>Disbursement Report</strong> – loans disbursed within a selected period.</li>
+          <li><strong>Client Statement</strong> – individual loan statement for a client.</li>
+        </ul>
+        <h6>Running a Report</h6>
+        <div class="step"><div class="step-num">1</div><div>Navigate to <strong>Reports</strong> and choose the report type.</div></div>
+        <div class="step"><div class="step-num">2</div><div>Set filters (date range, employer, loan status).</div></div>
+        <div class="step"><div class="step-num">3</div><div>Click <strong>Generate</strong>. Results appear on-screen.</div></div>
+        <div class="step"><div class="step-num">4</div><div>Use <strong>Download CSV</strong> or <strong>Download PDF</strong> to export.</div></div>
+      </div>
+
+      <!-- Email -->
+      <div class="guide-panel" id="g-email">
+        <h5><i class="material-icons-round align-middle me-1" style="font-size:1.1rem;">email</i> Email &amp; Notifications</h5>
+        <p class="panel-intro">The system sends automated emails at key lifecycle stages. Admins can also send manual bulk emails.</p>
+        <h6>Automated Emails Sent</h6>
+        <ul>
+          <li><strong>Application Submitted</strong> – PDF attachments (Loan Form, T&amp;C, IRSDA, Stat Dec) sent to client.</li>
+          <li><strong>Approval / Rejection</strong> – notifies client of loan decision.</li>
+          <li><strong>Disbursement Confirmation</strong> – confirms funds released.</li>
+          <li><strong>Repayment Reminder</strong> – sent before each repayment due date.</li>
+          <li><strong>Missed Payment Alert</strong> – triggers when repayment is overdue.</li>
+          <li><strong>Support Ticket Reply</strong> – client notified when admin replies to a ticket.</li>
+        </ul>
+        <h6>Sending a Bulk Email</h6>
+        <div class="step"><div class="step-num">1</div><div>Go to <strong>Clients → Bulk Email</strong>.</div></div>
+        <div class="step"><div class="step-num">2</div><div>Select target group (all Running loans, a specific employer, or all clients).</div></div>
+        <div class="step"><div class="step-num">3</div><div>Write subject and message. HTML formatting is supported.</div></div>
+        <div class="step"><div class="step-num">4</div><div>Click <strong>Send</strong>. Emails are queued individually to each recipient.</div></div>
+        <p class="mt-2"><span class="badge-tip">TIP</span> Use bulk email for repayment reminders, office closure notices, or policy updates.</p>
+      </div>
+
+      <!-- Bulk Payments -->
+      <div class="guide-panel" id="g-payments">
+        <h5><i class="material-icons-round align-middle me-1" style="font-size:1.1rem;">upload_file</i> Uploading Bulk Payments</h5>
+        <p class="panel-intro">When a payroll file arrives from an employer, upload payments in bulk instead of entering them one by one.</p>
+        <div class="step"><div class="step-num">1</div><div>Download the <strong>Payment Upload Template</strong> (CSV/Excel) from the Upload page.</div></div>
+        <div class="step"><div class="step-num">2</div><div>Fill in the columns: <code>Loan Ref</code>, <code>Payment Date</code>, <code>Amount</code>. Do not change the headers.</div></div>
+        <div class="step"><div class="step-num">3</div><div>Go to <strong>Functions → Upload Payments</strong> and select your file.</div></div>
+        <div class="step"><div class="step-num">4</div><div>Click <strong>Upload</strong>. Validated payments are posted; errors shown in a summary table.</div></div>
+        <p class="mt-2"><span class="badge-warn">WARN</span> Payments already recorded will be skipped to prevent duplicates. Review the results before closing.</p>
+      </div>
+
+      <!-- Alesco Update -->
+      <div class="guide-panel" id="g-alesco">
+        <h5><i class="material-icons-round align-middle me-1" style="font-size:1.1rem;">receipt_long</i> Alesco Update</h5>
+        <p class="panel-intro">Alesco is the government payroll system. The <a href="{% url 'alesco_update' %}"><strong>Alesco Update</strong></a> tool (Transactions &rarr; Alesco Update) reads the periodic Deduction Variation Report, matches every employee deduction to a client's loan, and posts the repayments in one review-and-confirm flow &mdash; with full cancel and rollback support if a file was wrong.</p>
+
+        <h6>1. Uploading a Deduction File</h6>
+        <div class="step"><div class="step-num">1</div><div>Go to <a href="{% url 'alesco_update' %}"><strong>Transactions &rarr; Alesco Update</strong></a> and choose the Alesco <strong>Deduction Variation Report</strong> text file.</div></div>
+        <div class="step"><div class="step-num">2</div><div>Click <strong>Process</strong>. The system reads the Period End date, paycode and every employee's <em>This Period</em> deduction, creates an upload (Pay Run) record, and matches each line to a client by Employee File Number.</div></div>
+        <div class="step"><div class="step-num">3</div><div>You land on the <strong>Confirm Payments</strong> page showing every line with This Period vs the loan's Expected Repayment and the variance.</div></div>
+        <p class="mt-1">The <strong>Recent Uploads</strong> table below the upload form lists past uploads (sortable/searchable) with their status and actions.</p>
+
+        <h6>2. Confirming Payments</h6>
+        <ul>
+          <li><strong>Confirm</strong> (per line) &ndash; posts that one deduction as a repayment: payment record, statement entry, balance update, and client notification (per Loan Settings).</li>
+          <li><strong>Confirm All</strong> &ndash; batch-confirms every pending matched line. Use this for a clean file.</li>
+          <li>Short deductions are handled per your Credit Check settings (shortfall default); over-deductions become advance credit.</li>
+        </ul>
+
+        <h6>3. Line Statuses</h6>
+        <ul>
+          <li><strong>Pending</strong> &ndash; matched, awaiting confirmation.</li>
+          <li><strong>Confirmed</strong> &ndash; payment posted; the action button changes to <strong>Rollback</strong>.</li>
+          <li><strong>Unmatched</strong> &ndash; the Employee File Number matched no client. Fix the file number on the client profile, then re-upload or confirm manually.</li>
+          <li><strong>Skipped</strong> &ndash; the listing shows a zero deduction for this pay (no money came in), so there is nothing to confirm. The expected repayment still falls due and can be defaulted from the loan page if unpaid.</li>
+        </ul>
+
+        <h6>4. Cancel Update</h6>
+        <p>On the Confirm page, <strong>Cancel Update</strong> abandons the whole upload so you can fix and re-upload the file:</p>
+        <ul>
+          <li>If nothing was confirmed yet, the upload and its pending lines are simply deleted.</li>
+          <li>If the run was <strong>partially confirmed</strong>, every confirmed payment is <strong>rolled back</strong> first (see below) and the pending lines are discarded, then the upload is deleted.</li>
+        </ul>
+
+        <h6>5. Rollback (wrong upload confirmed)</h6>
+        <p>Every confirmation snapshots the loan first, so it can be reversed exactly:</p>
+        <ul>
+          <li><strong>Per line:</strong> on the Confirm page, click <strong>Rollback</strong> next to a confirmed line. The payment and its statement entries are removed and the loan balance, arrears, schedule position and status are restored to exactly what they were before.</li>
+          <li><strong>Whole upload:</strong> on the Alesco Update page, the <strong>most recent</strong> completed/partial upload shows a <strong>Rollback</strong> button. It reverses every confirmed payment in that run, discards any pending lines, and removes the upload &mdash; a clean slate to re-upload the corrected file.</li>
+        </ul>
+        <div class="info-box"><strong>Safety rule:</strong> a line will <em>refuse</em> to roll back if any newer payment or statement was recorded on that loan after the confirmation &mdash; rolling back would erase that later work. Those loans are listed in the error message and must be reversed manually. Only the latest upload offers run-level rollback for the same reason.</div>
+        <p class="mt-2"><span class="badge-warn">WARN</span> Payments confirmed before rollback support was added have no snapshot and cannot be auto-reversed &mdash; correct those via the loan page.</p>
+
+        <h6>6. Categorized Unmatched Payments <span class="badge-tip">NEW</span></h6>
+        <p>A deduction line that couldn't be matched to any loan doesn't just disappear — it lands on the <a href="{% url 'alesco_unmatched' %}"><strong>Unmatched Payment Listing</strong></a> (also reachable from <a href="{% url 'reports' %}">Reports → Alesco Payroll Reports → Unmatched Payments — Categorized</a>), which now sorts every unmatched line into one of four reasons so you know exactly what to do with it:</p>
+        <ul>
+          <li><strong>No Client Record</strong> &ndash; the employee file number in the payroll file doesn't match any client at all.</li>
+          <li><strong>Possible Typo</strong> &ndash; no exact match, but the system found a client with a very similar file number and suggests it as the likely correct one — one click links the payment to that client.</li>
+          <li><strong>Ambiguous Match</strong> &ndash; more than one client shares that file number; pick the correct one from the candidates shown.</li>
+          <li><strong>Client Has No Loan</strong> &ndash; the file number matched a real client, but they have no loan for the deduction to apply to.</li>
+        </ul>
+        <p>Use the <strong>Link to Client</strong> action on a row to correct the file number and re-match it — the line immediately becomes payable on the normal Confirm page, with no separate "sync" step needed. Once money is confirmed unmatched-but-received from a non-client, the same page tracks it as owed back to them, with a <strong>Mark Refunded</strong> action and CSV export, exactly like the Client Credits register described earlier.</p>
+        <div class="info-box"><strong>Duplicate upload warning:</strong> if the same pay period was uploaded twice for the same payroll/paycode, a banner appears on the Unmatched page flagging it — cancel the repeat upload from the Alesco Update page before confirming further lines, or you risk double-posting the same deductions.</div>
+      </div>
+
+      <!-- PDF Documents -->
+      <div class="guide-panel" id="g-pdf">
+        <h5><i class="material-icons-round align-middle me-1" style="font-size:1.1rem;">picture_as_pdf</i> PDF Document Generation</h5>
+        <p class="panel-intro">The system generates pre-filled PDF documents from client and loan data.</p>
+        <h6>Documents Available</h6>
+        <ul>
+          <li><strong>Loan Application Form</strong> – personal, contact, work, bank, and loan details.</li>
+          <li><strong>Terms &amp; Conditions / Loan Agreement</strong> – borrower name, amounts, all legal clauses.</li>
+          <li><strong>IRSDA</strong> – addressed to the client's employer with deduction amounts and dates.</li>
+          <li><strong>Statutory Declaration</strong> – for client signature.</li>
+          <li><strong>Cash Disbursement Notice</strong> – generated at disbursement for records.</li>
+          <li><strong>Loan Amortization Schedule</strong> – full projected repayment table.</li>
+          <li><strong>Loan Account Statement</strong> – full transaction history.</li>
+        </ul>
+        <p><span class="badge-tip">TIP</span> All four application documents are emailed automatically when a client submits. Regenerate and download individually from the loan view page.</p>
+      </div>
+
+      <!-- Custom Functions -->
+      <div class="guide-panel" id="g-functions">
+        <h5><i class="material-icons-round align-middle me-1" style="font-size:1.1rem;">build</i> Custom Functions</h5>
+        <p class="panel-intro">Administrative tools for data management and bulk operations, at <a href="{% url 'custom_functions' %}"><strong>Custom Functions</strong></a>.</p>
+        <ul>
+          <li><a href="{% url 'add_new_loan' %}"><strong>Add New Loan</strong></a> – create a brand new, fully-detailed loan for a client one at a time (amount, term, dates entered by hand). Blocked if the client already has an active or pending loan (see Existing Loan Guard in the Loans section).</li>
+          <li><a href="{% url 'add_additional_loan' %}"><strong>Add Additional Loan</strong></a> – give a client with a running loan an additional/refinanced loan, structured per the configured Refinance Type. Disabled entirely when Refinance Type is Refinance Not Allowed.</li>
+          <li><a href="{% url 'upload_new_loan' %}"><strong>Upload New Loans</strong></a> – import historical loan data from Excel to migrate an existing portfolio.</li>
+          <li><a href="{% url 'direct_loan_update' %}"><strong>Direct Loan Update</strong></a> – update loan fields in bulk via an Excel template.</li>
+        </ul>
+        <div class="info-box"><strong>Staff have their own consolidated hub</strong> for exactly this kind of data entry — the staff portal's <strong>Existing Loan Functions</strong> page bundles Add New Loan, Add Additional Loan, bulk loan/statement uploads, and per-loan document upload in one place, with a brief explanation on each button.</div>
+        <p><span class="badge-warn">WARN</span> Bulk uploads are irreversible. Test with a small batch first and keep a data backup before running large uploads.</p>
+      </div>
+
+      <!-- Automation & Jobs -->
+      <div class="guide-panel" id="g-automation">
+        <h5><i class="material-icons-round align-middle me-1" style="font-size:1.1rem;">schedule</i> Automation &amp; Background Jobs</h5>
+        <p class="panel-intro">The system runs scheduled background jobs that handle reminders, defaults, and classification automatically — no manual action needed for routine operations. These are powered by a background worker (Celery) and a scheduler (Celery beat) backed by Redis.</p>
+
+        <h6>Scheduled Jobs &amp; What They Do</h6>
+        <ul>
+          <li><strong>Repayment Reminders</strong> – run daily (around 8:50&nbsp;AM) to email clients with repayments coming due.</li>
+          <li><strong>Run Defaults</strong> – runs every 30 minutes to flag loans whose repayment is overdue beyond the grace period, add default interest, and notify the client.</li>
+          <li><strong>Default Classification</strong> – runs every 10 minutes to keep aging/recovery classifications up to date.</li>
+          <li><strong>Payments Expected Today</strong> – runs regularly to track repayments due on the current day.</li>
+          <li><strong>Bulk Messaging</strong> – when you send a bulk email/message it is processed in the background so the page returns immediately.</li>
+        </ul>
+
+        <h6>How to Tell It's Working</h6>
+        <ul>
+          <li>Clients receive reminder and default emails without staff triggering them.</li>
+          <li>On the server, the worker and scheduler run as services: <code>loanmasta-celery</code> and <code>loanmasta-celerybeat</code> (with <code>redis-server</code>).</li>
+          <li>Activity is logged to <code>logs/celery-worker.log</code> and <code>logs/celery-beat.log</code>.</li>
+        </ul>
+
+        <h6>If Automation Stops</h6>
+        <ul>
+          <li>You can still run things manually: <strong>Functions → Run Defaults</strong> and <strong>Send Repayment Reminder</strong>.</li>
+          <li>Ask your server administrator to confirm the <code>redis-server</code>, <code>loanmasta-celery</code>, and <code>loanmasta-celerybeat</code> services are active.</li>
+        </ul>
+
+        <p class="mt-2"><span class="badge-tip">TIP</span> Bulk messaging still works even if the background worker is briefly unavailable — it falls back to sending within the request, so notices are never silently lost.</p>
+      </div>
+
+      <!-- DCC Integration -->
+      <div class="guide-panel" id="g-integration">
+        <h5><i class="material-icons-round align-middle me-1" style="font-size:1.1rem;">hub</i> DCC Credit-Bureau Integration</h5>
+        <p class="panel-intro">The system exposes a secure data feed (clients, loans, statements) consumed by the external DCC credit-bureau service.</p>
+
+        <h6>How It Works</h6>
+        <ul>
+          <li>The DCC client pulls eligible records through the API and the system marks them as sent so they are not duplicated.</li>
+          <li>Only clients who have given <strong>credit consent</strong> are included in the shared profile feed.</li>
+        </ul>
+
+        <h6>Security</h6>
+        <ul>
+          <li>The feed is protected by a secret <strong>API key</strong>. The DCC client must send this key with every request, or access is refused.</li>
+          <li>The key lives in the server's environment configuration — never in the codebase. If the key is rotated, the DCC client must be updated with the new value.</li>
+        </ul>
+
+        <p class="mt-2"><span class="badge-warn">WARN</span> If the DCC sync stops returning data, first confirm the DCC client is sending the correct API key before investigating further.</p>
+      </div>
+
+      <!-- Support Tickets -->
+      <div class="guide-panel" id="g-support">
+        <h5><i class="material-icons-round align-middle me-1" style="font-size:1.1rem;">support_agent</i> Support Ticket System</h5>
+        <p class="panel-intro">The <a href="{% url 'support_tickets_admin' %}">support ticket system</a> lets clients raise issues directly through the portal. Admins manage and respond to all tickets from the admin panel.</p>
+
+        <h6>Accessing Support Tickets</h6>
+        <p>Go to <strong>Support → Tickets</strong> in the admin sidebar. This opens the main ticket list with live stats at the top showing total, awaiting reply, replied, open, and closed counts.</p>
+
+        <h6>Ticket Statuses</h6>
+        <ul>
+          <li><strong>Awaiting Reply</strong> – client has sent a message and is waiting for a response from admin.</li>
+          <li><strong>Replied</strong> – admin has responded; ball is in the client's court.</li>
+          <li><strong>Closed</strong> – ticket has been resolved and closed by admin or the client.</li>
+        </ul>
+
+        <h6>Filtering Tickets</h6>
+        <p>Use the filter tabs at the top of the ticket list — <em>All, Awaiting Reply, Replied, Open, Closed</em> — or click the stat cards to jump to that filtered view. The orange badge next to <em>Awaiting Reply</em> shows the count of tickets needing attention.</p>
+
+        <h6>Viewing &amp; Replying to a Ticket</h6>
+        <div class="step"><div class="step-num">1</div><div>Click <strong>View</strong> on any ticket row to open the ticket thread.</div></div>
+        <div class="step"><div class="step-num">2</div><div>The left sidebar shows the ticket metadata: ref, category, subject, status, client details, employer, and timestamps. Use <strong>View Client Profile</strong> to jump directly to the client record.</div></div>
+        <div class="step"><div class="step-num">3</div><div>The right panel shows the full conversation thread. Client messages appear on the left in blue; admin replies appear on the right in green.</div></div>
+        <div class="step"><div class="step-num">4</div><div>Type your reply in the text box at the bottom and click <strong>Send Reply</strong>. An email notification is automatically sent to the client.</div></div>
+        <div class="step"><div class="step-num">5</div><div>Optionally attach a file to your reply using the <strong>Attach file</strong> link.</div></div>
+
+        <h6>Closing a Ticket</h6>
+        <div class="step"><div class="step-num">1</div><div>Once the issue is resolved, click <strong>Close &amp; Resolve Ticket</strong> in the sidebar.</div></div>
+        <div class="step"><div class="step-num">2</div><div>The system posts a system note to the thread and emails the client confirming resolution.</div></div>
+        <div class="step"><div class="step-num">3</div><div>If a ticket was closed prematurely, click <strong>Reopen Ticket</strong> to restore it to active status.</div></div>
+
+        <h6>Ticket Categories</h6>
+        <ul>
+          <li><strong>Loan Requirements</strong> – questions about eligibility, documents needed.</li>
+          <li><strong>Pending Loan</strong> – follow-up on a submitted application.</li>
+          <li><strong>Loan Repayment</strong> – queries about payment amounts, dates, or missed payments.</li>
+          <li><strong>Loan Issue</strong> – problems with a running or completed loan.</li>
+          <li><strong>Account Activation</strong> – client cannot log in or account is inactive.</li>
+          <li><strong>Web App Usage</strong> – technical difficulties using the portal.</li>
+        </ul>
+
+        <div class="info-box">
+          <strong>Best practice:</strong> Aim to respond to all <em>Awaiting Reply</em> tickets within one business day. Clients receive an email for every reply, so keep responses clear and professional. Close tickets only after the client's issue is fully resolved.
+        </div>
+
+        <h6>What Clients See</h6>
+        <ul>
+          <li>Clients access their tickets from <strong>Dashboard → Support Center</strong>.</li>
+          <li>They can create a new ticket, view the full conversation thread, reply, attach files, and mark their own ticket as resolved.</li>
+          <li>Their view shows status cards (Total, Awaiting Reply, Replied, Closed) and a list of all their tickets sorted by most recent activity.</li>
+        </ul>
+
+        <h6>Email Notifications Triggered</h6>
+        <ul>
+          <li>When a client creates a ticket → admin receives an email with the ticket content.</li>
+          <li>When a client replies → admin receives an email notification.</li>
+          <li>When admin replies → client receives an email with the reply text and a link to view the ticket.</li>
+          <li>When a ticket is closed → client receives a resolution confirmation email.</li>
+        </ul>
+      </div>
+
+      <!-- Referrers -->
+      <div class="guide-panel" id="g-referrers">
+        <h5><i class="material-icons-round align-middle me-1" style="font-size:1.1rem;">share</i> Referrer Management &amp; Commission</h5>
+        <p class="panel-intro">The <a href="{% url 'referrers_list' %}">referral system</a> lets you register individuals who refer clients to you, automatically track the commission owed, and mark payments at the end of each month.</p>
+
+        <h6>How It Works – Overview</h6>
+        <ul>
+          <li>You register a <strong>referrer</strong> (name, contact, bank details) once.</li>
+          <li>When a staff member creates a new client, they select the referrer from the <strong>Referred By</strong> dropdown on the client creation form.</li>
+          <li>The system immediately creates a <strong>referral record</strong> and assigns the fixed commission amount (set in Referral Settings) to that referrer.</li>
+          <li>At end of month, you review outstanding commissions and mark them paid — the system records who paid and when.</li>
+        </ul>
+
+        <h6>Referral Settings</h6>
+        <div class="step"><div class="step-num">1</div><div>Go to <strong>Settings → Referral Settings</strong>.</div></div>
+        <div class="step"><div class="step-num">2</div><div>Set the <strong>Referral Commission (K)</strong> — the fixed kina amount paid per referred client who registers.</div></div>
+        <div class="step"><div class="step-num">3</div><div>Set the <strong>Referral Payment Day</strong> — the day of the month commissions are paid out (e.g. 31 = last day of month).</div></div>
+        <div class="step"><div class="step-num">4</div><div>Click <strong>Update Referral Settings</strong>. The new rate applies to all future referral records from this point.</div></div>
+        <div class="info-box"><strong>Note:</strong> Changing the commission rate does not retroactively update existing referral records. Each record stores the commission amount that was active at the time the client was referred.</div>
+
+        <h6>Adding a Referrer</h6>
+        <div class="step"><div class="step-num">1</div><div>Go to <strong>Referrers → Add Referrer</strong> in the admin sidebar.</div></div>
+        <div class="step"><div class="step-num">2</div><div>Enter the referrer's full name, phone number, and email address.</div></div>
+        <div class="step"><div class="step-num">3</div><div>Enter their bank account details (Bank, Branch, Account Name, Account Number) — these are used when paying commission.</div></div>
+        <div class="step"><div class="step-num">4</div><div>Set status to <strong>Active</strong>. Only Active referrers appear in the client creation dropdown.</div></div>
+        <div class="step"><div class="step-num">5</div><div>Click <strong>Add Referrer</strong>. The referrer is now available for staff to select when registering new clients.</div></div>
+
+        <h6>Viewing a Referrer's Profile</h6>
+        <ul>
+          <li>Click any referrer in the list to open their profile page.</li>
+          <li>The profile shows: total clients referred, total commission earned, total unpaid, and total paid out to date.</li>
+          <li>Referred clients are grouped by month, showing the commission amount for each, and whether it has been paid.</li>
+          <li>Each monthly group has a <strong>Mark Paid</strong> button to record payment for that period.</li>
+        </ul>
+
+        <h6>Commission Overview (Monthly View)</h6>
+        <div class="step"><div class="step-num">1</div><div>Go to <strong>Referrers → Commission Overview</strong>.</div></div>
+        <div class="step"><div class="step-num">2</div><div>Use the month selector (top right) to pick the month you want to process.</div></div>
+        <div class="step"><div class="step-num">3</div><div>The page shows every referrer who has referrals in that month, with their total commission and a breakdown of each referred client.</div></div>
+        <div class="step"><div class="step-num">4</div><div>Once you have transferred the money to the referrer's bank account, click <strong>Mark Paid</strong> next to their name. The system records the payment with your name and today's date.</div></div>
+        <div class="step"><div class="step-num">5</div><div>Paid records show a green <strong>✓ All Paid</strong> badge. Unpaid ones show an orange <strong>Unpaid</strong> badge with the outstanding count.</div></div>
+
+        <h6>Deactivating a Referrer</h6>
+        <ul>
+          <li>Open the referrer's profile and click <strong>Deactivate</strong>. They will no longer appear in the client creation dropdown.</li>
+          <li>Existing referral records and unpaid commissions are not affected — they remain visible and payable.</li>
+          <li>Reactivate at any time by clicking <strong>Activate</strong> on their profile.</li>
+        </ul>
+
+        <h6>Referrer Stats at a Glance (List Page)</h6>
+        <ul>
+          <li>The referrers list shows each referrer's total referral count and their current unpaid commission balance.</li>
+          <li>Summary cards at the top show portfolio-wide totals: active referrers, all-time referrals, total unpaid, and total paid out.</li>
+        </ul>
+      </div>
+
+    </div><!-- /guide-content -->
+  </div><!-- /guide-layout -->
+</div><!-- /pane-guide -->
+
+
+<!-- ═══════════════════════════
+     PANE 3 – FAQ
+═══════════════════════════ -->
+<div class="inst-pane" id="pane-faq">
+  <div class="guide-layout">
+
+    <!-- FAQ Sidebar -->
+    <nav class="guide-sidebar" id="faqSidebar">
+      <div class="guide-sidebar-item active" data-faq="fq-applications">
+        <i class="material-icons-round si-icon">account_balance</i> Loan Applications
+      </div>
+      <div class="guide-sidebar-item" data-faq="fq-payments">
+        <i class="material-icons-round si-icon">payments</i> Repayments
+      </div>
+      <div class="guide-sidebar-item" data-faq="fq-clients">
+        <i class="material-icons-round si-icon">people</i> Clients &amp; Accounts
+      </div>
+      <div class="guide-sidebar-item" data-faq="fq-documents">
+        <i class="material-icons-round si-icon">picture_as_pdf</i> Documents &amp; PDFs
+      </div>
+      <div class="guide-sidebar-item" data-faq="fq-settings">
+        <i class="material-icons-round si-icon">settings</i> Settings
+      </div>
+      <div class="guide-sidebar-item" data-faq="fq-support">
+        <i class="material-icons-round si-icon">support_agent</i> Support Tickets
+      </div>
+      <div class="guide-sidebar-item" data-faq="fq-referrers">
+        <i class="material-icons-round si-icon">share</i> Referrers
+      </div>
+      <div class="guide-sidebar-item" data-faq="fq-credits">
+        <i class="material-icons-round si-icon">volunteer_activism</i> Loan Credits &amp; Refunds
+      </div>
+    </nav>
+
+    <!-- FAQ Content -->
+    <div class="guide-content" id="faqContent">
+
+      <!-- Loan Applications -->
+      <div class="faq-panel active" id="fq-applications">
+        <div class="faq-panel-title"><i class="material-icons-round" style="font-size:1.1rem;">account_balance</i> Loan Applications</div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>A client submitted an application but I cannot see it in Pending — where is it?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Check the <strong>All Loans</strong> table and search by name or email. The loan may have been actioned into a different status by another admin. Confirm the client completed the final submit step — partial applications stay in draft.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>Can I edit the loan amount after an application is submitted?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Yes, while the loan is in <strong>Pending</strong> or <strong>Documents Pending</strong> status. Once set to <strong>Running</strong>, terms are locked — contact your system administrator if a correction is needed.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>The client says they never received the email with their documents — what do I do?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Ask the client to check spam/junk. If nothing is there, open the loan view page and click <strong>Resend Documents Email</strong>. Ensure the client's email address on their profile is correct first.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>A client wants to apply for a second loan while the first is still running — is this allowed?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">The system permits multiple loans per client. The credit check will include the existing loan balance in the debt-to-income calculation. Approval is at admin discretion based on the credit summary.</div>
+        </div>
+      </div>
+
+      <!-- Repayments & Payments -->
+      <div class="faq-panel" id="fq-payments">
+        <div class="faq-panel-title"><i class="material-icons-round" style="font-size:1.1rem;">payments</i> Repayments &amp; Payments</div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>A payment was entered with the wrong amount — how do I correct it?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Go to the loan's <strong>Statement</strong> tab, find the entry, and click <strong>Delete</strong>. Then re-enter the correct payment with <strong>Add Payment</strong>. Only admins can delete statement entries.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>The loan is showing as Defaulted but the client has made all payments — why?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">A payment was likely posted with an incorrect date, or Run Defaults detected a gap. Review the statement to confirm dates. If everything is correct, use <strong>Update Loan Status</strong> to manually set the status back to Running.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>How does bulk payment upload handle partial payments?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Each row is processed independently. Partial payments reduce the balance and the system flags arrears if the total for a period is below the scheduled instalment. Enter the exact amount received — no automatic rounding.</div>
+        </div>
+      </div>
+
+      <!-- Clients & Accounts -->
+      <div class="faq-panel" id="fq-clients">
+        <div class="faq-panel-title"><i class="material-icons-round" style="font-size:1.1rem;">people</i> Clients &amp; Accounts</div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>A client forgot their password — how do I reset it?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Direct the client to the <strong>Forgot Password</strong> link on the login page. A reset email will be sent to their registered address. Admins cannot view or manually set client passwords for security reasons.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>A client's employer has changed — how do I update this?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Go to the client's profile → <strong>Edit Profile</strong>. Update Employer and Office Address. If the new employer isn't in the approved list, add it first under <strong>Settings → Employers</strong>. Generate a new IRSDA addressed to the new employer.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>Can I delete a client account?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Accounts with active or historical loan records cannot be deleted to preserve audit trails. Deactivate the account instead, or contact your system administrator for a full removal request.</div>
+        </div>
+      </div>
+
+      <!-- Documents & PDFs -->
+      <div class="faq-panel" id="fq-documents">
+        <div class="faq-panel-title"><i class="material-icons-round" style="font-size:1.1rem;">picture_as_pdf</i> Documents &amp; PDFs</div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>The generated PDFs are showing the wrong company name — how do I fix this?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Update <strong>Company Name</strong> under <strong>Settings → General</strong>. Regenerate existing documents from the loan view page — already-generated PDFs are not retroactively updated.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>The IRSDA form shows the wrong bank account details.</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Update the company bank account under <strong>Settings → Banks</strong>, then regenerate the IRSDA from the loan view page.</div>
+        </div>
+      </div>
+
+      <!-- Settings & Configuration -->
+      <div class="faq-panel" id="fq-settings">
+        <div class="faq-panel-title"><i class="material-icons-round" style="font-size:1.1rem;">settings</i> Settings &amp; Configuration</div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>I updated the interest rate — will it affect existing running loans?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">No. The Settings rate applies to <em>new</em> applications only. Running loans keep the rate set at approval time. Edit the loan directly (admin only) if a correction is needed.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>What does "Run Defaults" do and when should I use it?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer"><strong>Run Defaults</strong> scans Running loans for missed repayments past the mercy period and classifies them as Defaulted, applying default interest. If <strong>Automatic Default Classification</strong> is ON in Credit Settings, this runs on a Celery schedule automatically. Use the manual <strong>Run Defaults</strong> button only if the scheduler has not run, or right after a large batch payment upload.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>The loan amount slider on the client application form shows the wrong range — how do I fix it?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Go to <strong>Settings → Loan Settings</strong> and update <strong>Loan Amount Min</strong>, <strong>Loan Amount Max</strong>, <strong>Fortnight Min</strong>, and <strong>Fortnight Max</strong>. These values feed directly into the slider on the application form — no code change or server restart is needed.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>I want to stop system emails going to clients' work email addresses globally — how?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Go to <strong>Settings → General Settings</strong> and turn off <strong>Enable System Emails to Client Work Email</strong>. This is a global switch — when OFF, no system email (loan funding, CDN, amortization, messages) will be sent to any client's work email regardless of per-client settings.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>Where did the Default Interest Rate and Mercy Days settings go? They're not in Loan Settings anymore.</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">These settings were moved to <strong>Settings → Credit Check Settings</strong> where they sit alongside the Automatic Default Classification toggle. You'll find: Default Interest Type, Default Interest Rate/Amount, Default Mercy Period (days), Enable Automatic Default Classification.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>What is the difference between Payroll Officer Email and Work Email on a client profile?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer"><strong>Work Email</strong> is the client's own personal work email — unique to each client and used for direct notifications. <strong>Payroll Officer Email</strong> is the shared email for the employer's payroll section — the same address appears on all clients from the same employer and is used for CDN and amortization schedule delivery to payroll. They are stored in separate fields and never conflict.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>How do I rebrand the portal with my own logo and colours?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Go to <strong>Settings &rarr; Appearance</strong>. Upload your logo (Brand Logo and optionally a separate Login Logo and Favicon), set the Primary Color, Sidebar Background Color, Topbar Color, and choose a Font Family. Changes take effect immediately. Hard-refresh your browser (Ctrl+Shift+R) to clear cached assets.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>How do I set up tiered processing fees based on loan amount?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">In <strong>Settings &rarr; Loan Settings</strong>, enable Processing Fee and choose the collection mode (Cash or Withheld). Then add tiers: each tier has a Min Amount, Max Amount (leave blank for no upper limit), and Fee Amount. The system automatically selects the matching tier when a loan is funded based on the loan amount.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>Which columns should I show on the Loan Amortization Schedule?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">In <strong>Settings &rarr; Loan Settings</strong>, under the LAS Column Settings section, toggle each column on or off. For a standard client-facing schedule, show Period, Repayment Date, Repayment, and Closing Balance. For an internal/audit version, enable all columns including Opening Balance, Interest, and Principal.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>How do I control which documents are emailed with a loan application?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">In <strong>Settings &rarr; Loan Settings</strong>, turn on <strong>Send Application Documents</strong> (the master switch), then use the sub-toggles to choose: Send to User, Send to Staff, BCC Admin, and which PDFs to attach (Application Form, Terms &amp; Conditions, Statutory Declaration, IRSDA). Each can be toggled independently.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>What is the difference between Offset Balance, Add-On, and Concurrent refinance?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Set this in <strong>Settings &rarr; Loan Settings &rarr; Refinance Type</strong>. <strong>Offset Balance</strong> pays off the old loan from the new loan amount and gives the client the remainder. <strong>Add-On</strong> combines both balances into one extended-term loan with a single repayment. <strong>Concurrent</strong> runs both loans side by side with doubled repayments during the overlap, then steps down. Choose based on your lending policy.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>How do I enable or disable deduction categories (Alesco, Private, Standing Order, Voluntary)?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">In <strong>Settings &rarr; General Settings</strong>, use the four deduction-category toggles. Only enabled categories appear in the deduction dropdown on the loan application form. Disable categories you don't offer to keep the form clean.</div>
+        </div>
+      </div>
+
+      <!-- Support Tickets -->
+      <div class="faq-panel" id="fq-support">
+        <div class="faq-panel-title"><i class="material-icons-round" style="font-size:1.1rem;">support_agent</i> Support Tickets</div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>A ticket shows "Awaiting Reply" but I already responded — why hasn't it changed?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">The status updates to <strong>Replied</strong> only when a reply is submitted through the ticket reply form. If you sent an email directly to the client instead of using the ticket thread, the status will not update automatically. Open the ticket and post a reply via the reply box.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>Can I reopen a closed ticket?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Yes. Open the ticket view and click <strong>Reopen Ticket</strong> in the sidebar. The status reverts to Replied (active) and you can continue the conversation.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>Is the client notified by email every time I reply?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Yes. Every admin reply triggers an automatic email to the client's registered email address with the reply content and a link to view the full thread in the portal.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>Can I attach a file to a ticket reply?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Yes. In the reply form at the bottom of the ticket thread, click <strong>Attach file</strong>, select the file, then send your reply. The attachment will appear as a link in the thread for the client to download.</div>
+        </div>
+      </div>
+
+      <!-- Referrers & Commissions -->
+      <div class="faq-panel" id="fq-referrers">
+        <div class="faq-panel-title"><i class="material-icons-round" style="font-size:1.1rem;">share</i> Referrers &amp; Commissions</div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>How is the referral commission amount determined?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">The commission is a fixed kina amount set in <strong>Settings → Referral Settings</strong>. Every time a new client is linked to a referrer, the current commission rate is recorded against that referral. Changing the rate later does not affect referrals already recorded.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>A referrer is not appearing in the client creation dropdown — why?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Only referrers with <strong>Active</strong> status appear in the dropdown. Open the referrer's profile and click <strong>Activate</strong> if they have been deactivated. Also ensure the referrer has been registered under <strong>Referrers → Add Referrer</strong>.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>Can I record a referral for a client who was created before the referral system was set up?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Not automatically. The referral record is created at the moment a client is registered with a referrer selected. For existing clients, a referral can be added by editing the client's profile and setting the <strong>Referred By</strong> field — however, the commission record will need to be reviewed manually since it won't have the correct date.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>I accidentally marked a month as paid — can I undo it?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">There is no automatic undo from the UI. To correct this, access the Django admin panel (<strong>/appadmin/referral/referralrecord/</strong>) and set the affected records back to unpaid. Contact your system administrator if you do not have access to the Django admin panel.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>What happens to unpaid commissions if a referrer is deactivated?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Deactivating a referrer only prevents them from appearing in new client registrations. All existing referral records, including unpaid commissions, are preserved and remain payable. You can still view and pay them through the referrer's profile or the Commission Overview page.</div>
+        </div>
+      </div>
+
+      <!-- Loan Credits & Refunds -->
+      <div class="faq-panel" id="fq-credits">
+        <div class="faq-panel-title"><i class="material-icons-round" style="font-size:1.1rem;">volunteer_activism</i> Loan Credits &amp; Refunds</div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>A client's loan disappeared from Completed after a refinance payoff — where did it go?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">If the closing payment overpaid the balance (common with external refinance payoffs), the loan is deliberately kept out of Completed and instead marked <strong>Awaiting Refund</strong> — its own tab on the All Loans page. The debt is settled, but the excess is still owed to the client and tracked in <strong>Client Credits</strong> until refunded.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>How do I record that I've refunded a client their excess?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Go to <strong>Client Credits</strong>, find their row in the "Owing to Clients" table, and use the <strong>Mark Refunded</strong> form — enter the date, an optional note, and upload the refund receipt. This automatically finalises the loan to Completed if it was still Awaiting Refund.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>Can I close the loan before actually refunding the client?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Yes. Open the loan and use <strong>Attribute to Client Credit &amp; Close Now</strong> on the Awaiting Refund banner. The loan finalises to Completed immediately, and the credit stays open in the Client Credits register until you refund it whenever convenient.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>What does "Refinance Not Allowed" actually block?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Set in <strong>Settings → Loan → Refinance Type</strong>. When active, a client with any existing loan (funded or pending) cannot get a new or additional loan at all — Add Additional Loan refuses outright, and funding an approved application for a client who still has a running loan is blocked rather than auto-refinanced. A new loan only becomes possible once their existing one reaches Completed.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <i class="material-icons-round faq-icon">help</i>
+            <span>Create Default is refusing to charge a default on a loan with a missed payment — why?</span>
+            <i class="material-icons-round faq-chevron">expand_more</i>
+          </div>
+          <div class="faq-answer">Check the loan's <strong>Advance Balance</strong>. If it's large enough to fully cover the missed repayment, the system blocks Create Default (a default should never be charged when the money to cover it already exists) and points you to <strong>Apply Advance to Missed Payments</strong> instead, which settles the repayment straight from the advance with no default or interest.</div>
+        </div>
+      </div>
+
+    </div><!-- /faqContent -->
+  </div><!-- /guide-layout -->
+</div><!-- /pane-faq -->
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // ── Outer tab switching ──────────────────────────
+  document.querySelectorAll('#instNav .inst-tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('#instNav .inst-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.inst-pane').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.pane).classList.add('active');
+    });
+  });
+
+  // ── FAQ sidebar switching ─────────────────────────
+  document.querySelectorAll('#faqSidebar .guide-sidebar-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+      document.querySelectorAll('#faqSidebar .guide-sidebar-item').forEach(i => i.classList.remove('active'));
+      document.querySelectorAll('#faqContent .faq-panel').forEach(p => p.classList.remove('active'));
+      item.classList.add('active');
+      var panel = document.getElementById(item.dataset.faq);
+      if (panel) panel.classList.add('active');
+      document.getElementById('faqContent').scrollTop = 0;
+      document.querySelectorAll('#faqContent .faq-question.open').forEach(function(q) {
+        q.classList.remove('open');
+        q.nextElementSibling.style.display = 'none';
+      });
+    });
+  });
+
+  // ── Inner guide sidebar switching ────────────────
+  document.querySelectorAll('#guideSidebar .guide-sidebar-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+      document.querySelectorAll('#guideSidebar .guide-sidebar-item').forEach(i => i.classList.remove('active'));
+      document.querySelectorAll('#guideContent .guide-panel').forEach(p => p.classList.remove('active'));
+      item.classList.add('active');
+      var panel = document.getElementById(item.dataset.panel);
+      if (panel) { panel.classList.add('active'); panel.scrollTop = 0; }
+      // also scroll the content area back to top
+      document.getElementById('guideContent').scrollTop = 0;
+    });
+  });
+
+  // ── FAQ accordion ─────────────────────────────────
+  function toggleFaq(question) {
+    var answer = question.nextElementSibling;
+    var isOpen = question.classList.contains('open');
+    document.querySelectorAll('.faq-question.open').forEach(function(q) {
+      q.classList.remove('open');
+      q.nextElementSibling.style.display = 'none';
+    });
+    if (!isOpen) {
+      question.classList.add('open');
+      answer.style.display = 'block';
+    }
+  }
+
+  // ── URL hash deep-linking ─────────────────────────
+  var hash = window.location.hash.replace('#', '');
+  var paneMap = { 'videos': 'pane-videos', 'guide': 'pane-guide', 'faq': 'pane-faq' };
+  if (paneMap[hash]) {
+    document.querySelectorAll('#instNav .inst-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.inst-pane').forEach(p => p.classList.remove('active'));
+    var matchTab = document.querySelector('[data-pane="' + paneMap[hash] + '"]');
+    if (matchTab) { matchTab.classList.add('active'); document.getElementById(paneMap[hash]).classList.add('active'); }
+  }
+  // deep-link into a specific guide panel: #guide-support
+  if (hash.startsWith('guide-')) {
+    var panelId = 'g-' + hash.replace('guide-', '');
+    document.querySelectorAll('#instNav .inst-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.inst-pane').forEach(p => p.classList.remove('active'));
+    var guideTab = document.querySelector('[data-pane="pane-guide"]');
+    if (guideTab) { guideTab.classList.add('active'); document.getElementById('pane-guide').classList.add('active'); }
+    document.querySelectorAll('#guideSidebar .guide-sidebar-item').forEach(i => i.classList.remove('active'));
+    document.querySelectorAll('#guideContent .guide-panel').forEach(p => p.classList.remove('active'));
+    var sideItem = document.querySelector('[data-panel="' + panelId + '"]');
+    var panel = document.getElementById(panelId);
+    if (sideItem) sideItem.classList.add('active');
+    if (panel) panel.classList.add('active');
+  }
+</script>
+{% endblock %}

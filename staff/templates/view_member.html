@@ -1,0 +1,433 @@
+{% extends "staff_base.html" %}
+
+{% block title %} {{ user.first_name }} {% if user.middle_name %}{{user.middle_name}}{% endif %} {{ user.last_name }} {% endblock %}
+
+{% block breadcrumb %} Dashboard {% endblock %}
+{% block breadcrumb_active %} Profile {% endblock %}
+{% block dashboard_title %} 
+                  {{ user.first_name.upper}} 
+                  {% if user.middle_name != None %}
+                    {{ user.middle_name.upper }} 
+                  {% endif %} 
+                  {{ user.last_name.upper }}
+ {% endblock %}
+
+{% block content %}
+
+<!-- Button trigger modal -->
+
+
+<!-- Modal -->
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="staticBackdropLabel">Profile Photo</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <img src="{{ user.propic_url }}"  width="100%">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- Content Goes Here -->
+
+  {% if user.has_loan %}
+  <div style="background:linear-gradient(135deg,#e65100 0%,#ef6c00 100%);color:#fff;border-radius:10px;padding:10px 16px;margin-bottom:.8rem;display:flex;align-items:center;gap:10px;font-size:.85rem;">
+    <i class="material-icons-round" style="font-size:1.2rem;">info</i>
+    <span><strong>Active Loan —</strong> Client has an active loan. Profile editing is available via the Edit Profile button below.</span>
+  </div>
+  {% endif %}
+
+  <div style="margin-bottom:.8rem;">
+    <a href="{% url 'edit_profile_wizard_staff' user.id %}" style="background:#344767;color:#fff;border-radius:8px;padding:8px 16px;font-size:.85rem;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
+      <i class="material-icons-round" style="font-size:.95rem;">edit</i> Edit Profile
+    </a>
+  </div>
+
+  <div class="card p-0 mt-2 mb-2">
+    <div class="card-header bg-secondary pt-2 pr-1 pb-2 pl-1 text-center">
+      <h5 class="text-light p-0 m-0"><b>Profile Information</b></h5>
+    </div>
+    <div class="card-body p-2">
+      <div class="row">
+        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 mb-1">
+          <div class="card p-1">
+            <div class="card-body pt-2 p-1">
+              <ul class="list-group">
+
+                <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-0 pb-3 mb-2 bg-gray-100 border-radius-lg">
+                  <div class="d-flex flex-column">
+                    <h6 class="mb-1 text-md text-primary">Personal Information<span><a class="btn btn-link text-dark px-3 mb-0" href="{% url 'edit_profile_wizard_staff' user.id %}?tab=personal"><i class="material-icons text-sm me-2">edit</i>Edit</a></span></h6>
+                    <div class="row">
+                      {% if field_settings.personal_info.propic != False %}
+                      <div class="col-3">
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#staticBackdrop"><img src="{{ user.propic_url }}"  width="100%"></a>
+                      </div>
+                      {% endif %}
+                      <div class="col-9">
+                        <span class="mb-1 text-sm">UID: <span class="text-dark font-weight-bold ms-sm-2">{{ user.uid }}</span></span>
+                        <br>
+                        <span class="mb-1 text-sm">Name: <span class="text-dark font-weight-bold ms-sm-2">
+                          {% if field_settings.personal_info.first_name != False %}{{ user.first_name}}{% endif %}
+                          {% if field_settings.personal_info.middle_name != False %}{% if user.middle_name != None %}{{ user.middle_name}}{% endif %}{% endif %}
+                          {% if field_settings.personal_info.last_name != False %}{{ user.last_name}}{% endif %}
+                        </span></span>
+                      </div>
+                    </div>
+                    {% if field_settings.personal_info.gender != False %}
+                    <span class="mb-1 text-sm">Gender: <span class="text-dark font-weight-bold ms-sm-2">{{ user.gender }}</span></span>
+                    {% endif %}
+                    {% if field_settings.personal_info.date_of_birth != False %}
+                    <span class="mb-1 text-sm">Date of Birth: <span class="text-dark font-weight-bold ms-sm-2">{{ user.date_of_birth }}</span></span>
+                    {% endif %}
+                    {% if field_settings.personal_info.marital_status != False %}
+                    <span class="mb-1 text-sm">Marital Status: <span class="text-dark font-weight-bold ms-sm-2">{{ user.marital_status }}</span></span>
+                    {% endif %}
+                      
+                  </div>
+                 
+                </li>
+
+                
+                
+                <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-0 pb-3 mb-2 bg-gray-100 border-radius-lg">
+                  <div class="d-flex flex-column">
+                    <h6 class="mb-1 text-md text-primary">Contact & Address <span><a class="btn btn-link text-dark px-3 mb-0" href="{% url 'edit_profile_wizard_staff' user.id %}?tab=contact"><i class="material-icons text-sm me-2">edit</i>Edit</a></span></h6>
+                    <span class="mb-1 text-sm">Email: <span class="text-dark font-weight-bold ms-sm-2">{{ user.email }}</span></span>
+                    <span class="mb-1 text-sm">Mobile 1: <span class="text-dark ms-sm-2 font-weight-bold">{{ user.mobile1 }}</span></span>
+                    <span class="mb-1 text-sm">Mobile 2: <span class="text-dark ms-sm-2 font-weight-bold">{{ user.mobile2 }}</span></span>
+                    {% if field_settings.contact_info.work_phone != False %}<span class="mb-1 text-sm">Work Phone: <span class="text-dark ms-sm-2 font-weight-bold">{{ user.work_phone }}</span></span>{% endif %}
+                    {% if field_settings.contact_info.work_email != False %}<span class="mb-1 text-sm">Work Email: <span class="text-dark ms-sm-2 font-weight-bold">{{ user.work_email }}</span></span>{% endif %}
+                    <hr class="p-0 mt-2 mb-2" style="border: solid 1px green">
+                    <span class="mb-1 text-sm">Resident Owner: <span class="text-dark ms-sm-2 font-weight-bold">{{ user.resident_owner }}</span></span>
+                    <span class="mb-1 text-sm">Residential Address: <span class="text-dark font-weight-bold ms-sm-2">{{ user.residential_address }}</span></span>
+                    <span class="mb-1 text-sm">Residential Province: <span class="text-dark font-weight-bold ms-sm-2">{{ user.residential_province }}</span></span>
+                    <span class="mb-1 text-sm">Place of Origin: <span class="text-dark font-weight-bold ms-sm-2">{{ user.place_of_origin }}</span></span>
+                    <span class="mb-1 text-sm">Province of Origin: <span class="text-dark font-weight-bold ms-sm-2">{{ user.province }}</span></span>
+                  </div>
+                  
+                </li>
+                           
+              </ul>
+            </div>
+          </div>
+        </div>
+  
+        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 mb-2">
+        <div class="card p-1">
+        
+        <div class="card-body pt-2 p-1">
+          <ul class="list-group">
+  
+            <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-0 pb-3 mb-2 bg-gray-100 border-radius-lg">
+              <div class="d-flex flex-column">
+                <h6 class="mb-1 text-md text-primary">Personal Uploads<span><a class="btn btn-link text-dark px-3 mb-0" href="{% url 'edit_profile_wizard_staff' user.id %}?tab=uploads"><i class="material-icons text-sm me-2">edit</i>Edit</a></span></h6>
+                {% if field_settings.user_uploads.nid_number != False %}<span class="mb-1 text-sm">NID Number: <span class="text-dark font-weight-bold ms-sm-2">{{ user.nid_number }}</span></span>{% endif %}
+                {% if field_settings.user_uploads.nid != False %}<span class="mb-1 text-sm">NID: <span class="text-dark ms-sm-2 font-weight-bold"><a href="{{ user.nid_url }}" target="_blank">{% if user.nid_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View NID</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>{% endif %}
+                {% if field_settings.user_uploads.passport_number != False %}<span class="mb-1 text-sm">Passport Number: <span class="text-dark font-weight-bold ms-sm-2">{{ user.passport_number }}</span></span>{% endif %}
+                {% if field_settings.user_uploads.passport != False %}<span class="mb-1 text-sm">Passport: <span class="text-dark ms-sm-2 font-weight-bold"><a href="{{ user.passport_url }}" target="_blank">{% if user.passport_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View Passport</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>{% endif %}
+                {% if field_settings.user_uploads.drivers_license_number != False %}<span class="mb-1 text-sm">License Number: <span class="text-dark font-weight-bold ms-sm-2">{{ user.license_number }}</span></span>{% endif %}
+                {% if field_settings.user_uploads.drivers_license != False %}<span class="mb-1 text-sm">License: <span class="text-dark ms-sm-2 font-weight-bold"><a href="{{ user.drivers_license_url }}" target="_blank">{% if user.drivers_license_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View License</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>{% endif %}
+                {% if field_settings.user_uploads.super_member_code != False %}<span class="mb-1 text-sm">Super Member Number: <span class="text-dark ms-sm-2 font-weight-bold"></span>{{ user.super_member_code }}</span>{% endif %}
+                {% if field_settings.user_uploads.superid != False %}<span class="mb-1 text-sm">Super ID: <span class="text-dark ms-sm-2 font-weight-bold"></span><a href="{{ user.super_id_url }}" target="_blank">{% if user.super_id_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View Super ID</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span>{% endif %}
+              </div>
+              
+            </li>
+  
+            <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-0 pb-3 mb-2 bg-gray-100 border-radius-lg">
+              <div class="d-flex flex-column">
+                <h6 class="mb-1 text-md text-primary">Primary Bank Account<span><a class="btn btn-link text-dark px-3 mb-0" href="{% url 'edit_profile_wizard_staff' user.id %}?tab=bank"><i class="material-icons text-sm me-2">edit</i>Edit</a></span></h6>
+                <span class="mb-1 text-sm">Bank: <span class="text-dark font-weight-bold ms-sm-2">{{ user.bank }}</span></span>
+                <span class="mb-1 text-sm">Account Name: <span class="text-dark ms-sm-2 font-weight-bold">{{ user.bank_account_name }}</span></span>
+                <span class="mb-1 text-sm">Account Number: <span class="text-dark ms-sm-2 font-weight-bold">{{ user.bank_account_number }}</span></span>
+                <span class="mb-1 text-sm">Bank Branch: <span class="text-dark ms-sm-2 font-weight-bold">{{ user.bank_branch }}</span></span>
+              </div>
+            </li>
+  
+          </ul>
+        </div>
+        </div>
+        </div>
+  
+        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 mb-1">
+        <div class="card p-1">
+        
+        <div class="card-body pt-2 p-1">
+          <ul class="list-group">
+  
+            <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-0 pb-3 mb-2 bg-gray-100 border-radius-lg">
+              <div class="d-flex flex-column">
+                <h6 class="mb-1 text-md text-primary">Employer Details<span><a class="btn btn-link text-dark px-3 mb-0" href="{% url 'edit_profile_wizard_staff' user.id %}?tab=employer"><i class="material-icons text-sm me-2">edit</i>Edit</a></span></h6>
+                {% if field_settings.employer_info.sector != False %}<span class="mb-1 text-sm">Sector: <span class="text-dark font-weight-bold ms-sm-2">{{ user.sector }}</span></span>{% endif %}
+                {% if field_settings.employer_info.employer != False %}<span class="mb-1 text-sm">Company Name: <span class="text-dark font-weight-bold ms-sm-2">{{ user.employer }}</span></span>{% endif %}
+                {% if field_settings.employer_info.office_address != False %}<span class="mb-1 text-sm">Office Address: <span class="text-dark ms-sm-2 font-weight-bold">{{ user.office_address }}</span></span>{% endif %}
+                {% if field_settings.employer_info.payroll_officer_name != False %}<span class="mb-1 text-sm">Payroll Officer Name: <span class="text-dark ms-sm-2 font-weight-bold">{{ user.payroll_officer_name }}</span></span>{% endif %}
+                {% if field_settings.employer_info.work_phone != False %}<span class="mb-1 text-sm">Payroll Officer Phone: <span class="text-dark ms-sm-2 font-weight-bold">{{ user.payroll_officer_phone }}</span></span>{% endif %}
+                {% if field_settings.employer_info.work_email != False %}<span class="mb-1 text-sm">Payroll Officer Email: <span class="text-dark ms-sm-2 font-weight-bold">{{ user.payroll_officer_email }}</span></span>{% endif %}
+                <span class="mb-1 text-sm">Payroll / Deduction Category: <span class="text-dark ms-sm-2 font-weight-bold">{{ user.get_deduction_category_display|default:"— Not set —" }}</span></span>
+              </div>
+            </li>
+  
+            <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-0 pb-3 mb-2 bg-gray-100 border-radius-lg">
+              <div class="d-flex flex-column">
+                <h6 class="mb-1 text-md text-primary">Job Details<span><a class="btn btn-link text-dark px-3 mb-0" href="{% url 'edit_profile_wizard_staff' user.id %}?tab=job"><i class="material-icons text-sm me-2">edit</i>Edit</a></span></h6>
+                {% if field_settings.job_info.employee_file_number != False %}<span class="mb-1 text-sm">Employee File Number: <span class="text-dark font-weight-bold ms-sm-2">{{ user.employee_file_number }}</span></span>{% endif %}
+                {% if field_settings.job_info.job_title != False %}<span class="mb-1 text-sm">Job Title: <span class="text-dark font-weight-bold ms-sm-2">{{ user.job_title }}</span></span>{% endif %}
+                {% if field_settings.job_info.start_date != False %}<span class="mb-1 text-sm">Start Date: <span class="text-dark font-weight-bold ms-sm-2">{{ user.start_date }}</span></span>{% endif %}
+                {% if field_settings.job_info.pay_frequency != False %}<span class="mb-1 text-sm">Pay Frequency: <span class="text-dark ms-sm-2 font-weight-bold">{{ user.pay_frequency }}</span></span>{% endif %}
+                {% if field_settings.job_info.last_paydate != False %}<span class="mb-1 text-sm">Most Recent Paydate: <span class="text-dark ms-sm-2 font-weight-bold">{{ user.last_paydate }}</span></span>{% endif %}
+                {% if field_settings.job_info.gross_pay != False %}<span class="mb-1 text-sm">Gross Pay: <span class="text-dark ms-sm-2 font-weight-bold">{{ user.gross_pay }}</span></span>{% endif %}
+                {% if field_settings.job_info.work_id_number != False %}<span class="mb-1 text-sm">Work ID Number: <span class="text-dark font-weight-bold ms-sm-2">{{ user.work_id_number }}</span></span>{% endif %}
+                {% if field_settings.job_info.work_id != False %}<span class="mb-1 text-sm">Work ID: <span class="text-dark ms-sm-2 font-weight-bold"><a href="{{ user.work_id_url }}" target="_blank">{% if user.work_id_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View Work ID</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>{% endif %}
+                
+              </div>
+            </li>
+  
+          </ul>
+        </div>
+        </div>
+  
+        
+        </div>
+      </div><!-- row -->
+    </div><!-- card body -->
+  </div><!-- Container Card-->
+
+  {% if appearance.credit_assessment_enabled %}
+  <div class="card p-0 mt-3 mb-2">
+    <div class="card-header bg-secondary pt-2 pr-1 pb-2 pl-1 text-center">
+      <h5 class="text-light p-0 m-0">Credit Assessment</h5>
+    </div>
+    <div class="card-body p-2">
+      <div class="row">
+        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 mb-1">
+          <div class="card p-1">
+            <div class="card-body pt-2 p-1">
+              <ul class="list-group">
+                <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-0 pb-3 mb-2 bg-gray-100 border-radius-lg">
+                  <div class="d-flex flex-column">
+                    <h6 class="mb-1 text-md text-primary">Referee Information<span><a class="btn btn-link text-dark px-3 mb-0" href="{% url 'edit_refereeinfo_staff' user.id %}"><i class="material-icons text-sm me-2">edit</i>Edit</a></span></h6>
+                    <span class="mb-1 text-sm">Name: <span class="text-dark font-weight-bold ms-sm-2">{{ user.referee_first_name }} {{ user.referee_last_name }}</span></span>
+                    <span class="mb-1 text-sm">Mobile: <span class="text-dark font-weight-bold ms-sm-2">{{ user.referee_mobile }}</span></span>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 mb-1">
+          <div class="card p-1">
+            <div class="card-body pt-2 p-1">
+              <ul class="list-group">
+                <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-0 pb-3 mb-2 bg-gray-100 border-radius-lg">
+                  <div class="d-flex flex-column">
+                    <h6 class="mb-1 text-md text-primary">Previous Employer<span><a class="btn btn-link text-dark px-3 mb-0" href="{% url 'edit_previousemployer_staff' user.id %}"><i class="material-icons text-sm me-2">edit</i>Edit</a></span></h6>
+                    <span class="mb-1 text-sm">Employer: <span class="text-dark font-weight-bold ms-sm-2">{{ user.previous_employer }}</span></span>
+                    <span class="mb-1 text-sm">Years of Service: <span class="text-dark font-weight-bold ms-sm-2">{{ user.number_of_years_with_previous_employer }}</span></span>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 mb-1">
+          <div class="card p-1">
+            <div class="card-body pt-2 p-1">
+              <ul class="list-group">
+                <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-0 pb-3 mb-2 bg-gray-100 border-radius-lg">
+                  <div class="d-flex flex-column">
+                    {% if user.statement_of_position %}
+                    <h6 class="mb-1 text-md text-primary">Statement of Position<span><a class="btn btn-link text-dark px-3 mb-0" href="{% url 'edit_statement_of_position_staff' user.id %}"><i class="material-icons text-sm me-2">edit</i>Edit</a></span></h6>
+                    <span class="mb-1 text-sm">Net Position: <span class="text-dark font-weight-bold ms-sm-2">K {{ user.statement_of_position.net_position|floatformat:2 }}</span></span>
+                    {% else %}
+                    <h6 class="mb-1 text-md text-primary">Statement of Position<span><a class="btn btn-link text-dark px-3 mb-0" href="{% url 'add_statement_of_position_staff' user.id %}"><i class="material-icons text-sm me-2">add</i>Create</a></span></h6>
+                    <span class="mb-1 text-sm">Not yet recorded.</span>
+                    {% endif %}
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="card p-0 mt-3 mb-2">
+    <div class="card-header bg-secondary pt-2 pr-1 pb-2 pl-1 text-center">
+      <h5 class="text-light p-0 m-0">Required Uploads <b>WHEN APPLYING for a LOAN</b></h5>
+      <p class="text-sm text-light p-0 m-0">You have to upload the documents marked with '*' everytime you apply for a loan.</p>
+    </div>
+    <div class="card-body p-2">
+      <div class="row">
+        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 mb-1">
+          <div class="card p-1">
+            <div class="card-body pt-2 p-1">
+              <ul class="list-group">
+                <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-0 pb-3 mb-2 bg-gray-100 border-radius-lg">
+                  <div class="d-flex flex-column">
+                    <h6 class="mb-1 text-md text-primary">Work Uploads<span><a class="btn btn-link text-dark px-3 mb-0" href="{% url 'edit_work_uploads_staff' user.id %}"><i class="material-icons text-sm me-2">edit</i>Edit</a></span></h6>
+                    <span class="mb-1 text-sm">Work Confirmation Letter: <span class="text-dark ms-sm-2 font-weight-bold"><a href="{{ loanfile.work_confirmation_letter_url }}" target="_blank">{% if loanfile.work_confirmation_letter_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View Confirmation Letter</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>
+                    <span class="mb-1 text-sm">Payslip 1: <span class="text-dark font-weight-bold ms-sm-2"><a href="{{ loanfile.payslip1_url }}" target="_blank">{% if loanfile.payslip2_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View Payslip 1</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>
+                    <span class="mb-1 text-sm">Payslip 2: <span class="text-dark ms-sm-2 font-weight-bold"><a href="{{ loanfile.payslip2_url }}" target="_blank">{% if loanfile.payslip2_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View Payslip 2</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>
+                    </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 mb-2">
+          <div class="card p-1">
+            <div class="card-body pt-2 p-1">
+              <ul class="list-group">
+                <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-0 pb-3 mb-2 bg-gray-100 border-radius-lg">
+                  <div class="d-flex flex-column">
+                    <h6 class="mb-1 text-md text-primary">Existing Loan Statements<span><a class="btn btn-link text-dark px-3 mb-0" href="{% url 'edit_loan_statement_uploads_staff' user.id %}"><i class="material-icons text-sm me-2">edit</i>Edit</a></span></h6>
+                    <span class="mb-1 text-sm">Loan Statement 1: <span class="text-dark ms-sm-2 font-weight-bold"><a href="{{ loanfile.loan_statement1_url }}" target="_blank">{% if loanfile.loan_statement1_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View Statement</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>
+                    <span class="mb-1 text-sm">Loan Statement 2: <span class="text-dark ms-sm-2 font-weight-bold"><a href="{{ loanfile.loan_statement2_url }}" target="_blank">{% if loanfile.loan_statement2_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View Statement</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>
+                    <span class="mb-1 text-sm">Loan Statement 3: <span class="text-dark ms-sm-2 font-weight-bold"><a href="{{ loanfile.loan_statement3_url }}" target="_blank">{% if loanfile.loan_statement3_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View Statement</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>
+                    <span class="mb-1 text-sm">BANK Statement: <span class="text-dark ms-sm-2 font-weight-bold"><a href="{{ loanfile.bank_statement_url }}" target="_blank">{% if loanfile.bank_statement_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View Statement</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>
+                    <span class="mb-1 text-sm">Super Statement URL: <span class="text-dark ms-sm-2 font-weight-bold"><a href="{{ loanfile.super_statement_url }}" target="_blank">{% if loanfile.super_statement_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View Super Statement</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>
+                    <span class="mb-1 text-sm">Bank Standing Order URL: <span class="text-dark ms-sm-2 font-weight-bold"><a href="{{ loanfile.bank_standing_order_url }}" target="_blank">{% if loanfile.bank_standing_order_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View Standing Order</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>
+                    
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 mb-2">
+          <div class="card p-1">
+            <div class="card-body pt-2 p-1">
+              <ul class="list-group">
+                <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-0 pb-3 mb-2 bg-gray-100 border-radius-lg">
+                  <div class="d-flex flex-column">
+                    <h6 class="mb-1 text-md text-primary">Required Documents<span><a class="btn btn-link text-dark px-3 mb-0" href="{% url 'edit_required_uploads_staff' user.id %}"><i class="material-icons text-sm me-2">edit</i>Edit</a></span></h6>
+                    <span class="mb-1 text-sm">Application Form: <span class="text-dark ms-sm-2 font-weight-bold"><a href="{{ loanfile.application_form_url }}" target="_blank">{% if loanfile.application_form_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View App. Form</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>
+                    <span class="mb-1 text-sm">Terms & Conditions: <span class="text-dark ms-sm-2 font-weight-bold"><a href="{{ loanfile.terms_conditions_url }}" target="_blank">{% if loanfile.terms_conditions_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View T&Cs</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>
+                    <span class="mb-1 text-sm">Statutory Declaration: <span class="text-dark ms-sm-2 font-weight-bold"><a href="{{ loanfile.stat_dec_url }}" target="_blank">{% if loanfile.stat_dec_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View Stat. Dec.</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>
+                    <span class="mb-1 text-sm">Irrevocable Salary Deduction Form:<span class="text-dark ms-sm-2 font-weight-bold"></span><a href="{{ loanfile.irr_sd_form_url }}" target="_blank">{% if loanfile.irr_sd_form_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View IR Deduction</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span>
+                  
+                    
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div><!-- row -->
+    </div><!-- card body -->
+  </div><!-- Container Card-->
+  
+  {% if user.has_sme == 1 %}
+            
+
+              <div class="card p-0 mt-2 mb-2">
+                <div class="card-header bg-secondary pt-2 pr-1 pb-2 pl-1 text-center">
+                  <h5 class="text-light p-0 m-0"><b>SME Information</b></h5>
+                </div>
+                <div class="card-body p-2">
+                  <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 mb-2">
+                      <div class="card p-1">
+                        <div class="card-body pt-2 p-1">
+                          <ul class="list-group">
+                            <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-0 pb-3 mb-2 bg-gray-100 border-radius-lg">
+                              <div class="d-flex flex-column">
+                                <h6 class="mb-3 text-md text-primary">Registration Details<span><a class="btn btn-link text-dark px-3 mb-0" href="{% url 'edit_sme_profile_staff' user.id %}"><i class="material-icons text-sm me-2">edit</i>Edit</a></span></h6>
+                                <span class="mb-2 text-sm">Trading Name: <span class="text-dark font-weight-bold ms-sm-2">
+                                  {{ smeprofile.trading_name}} 
+                                  </span></span>
+                                <span class="mb-2 text-sm">Registered Name: <span class="text-dark font-weight-bold ms-sm-2">{{ smeprofile.registered_name }}</span></span>
+                                <span class="mb-2 text-sm">IPA Registration Number: <span class="text-dark font-weight-bold ms-sm-2">{{ smeprofile.ipa_registration_number }}</span></span>
+                                <span class="mb-2 text-sm">TIN Number: <span class="text-dark font-weight-bold ms-sm-2">{{ smeprofile.tin_number }}</span></span>
+                                <hr class="p-0 mt-2 mb-2" style="border: solid 1px green">
+                                <span class="mb-2 text-sm">Business Address: <span class="text-dark font-weight-bold ms-sm-2">{{ smeprofile.business_address }}</span></span>
+                                <span class="mb-2 text-sm">Email: <span class="text-dark font-weight-bold ms-sm-2">{{ smeprofile.email }}</span></span>
+                                <span class="mb-2 text-sm">Phone: <span class="text-dark ms-sm-2 font-weight-bold">{{ smeprofile.phone }}</span></span>
+                                <span class="text-sm">Website: <span class="text-dark ms-sm-2 font-weight-bold">{{ smeprofile.website }}</span></span>
+                                
+                              </div>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+              
+                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 mb-1">
+                      <div class="card p-1">
+                        <div class="card-body pt-2 p-1">
+                          <ul class="list-group">                
+                            <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-0 pb-3 mb-2 bg-gray-100 border-radius-lg">
+                              <div class="d-flex flex-column">
+                                <h6 class="mb-3 text-md text-primary">SME Uploads<span><a class="btn btn-link text-dark px-3 mb-0" href="{% url 'edit_sme_profile_uploads_staff' user.id %}"><i class="material-icons text-sm me-2">edit</i>Edit</a></span></h6>
+                                
+                                <span class="mb-2 text-sm">IPA Certificate: <span class="text-dark ms-sm-2 font-weight-bold"><a href="{{ smeprofile.ipa_certificate_url }}" target="_blank">{% if smeprofile.ipa_certificate_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View IPA Certificate</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>
+                                <span class="mb-2 text-sm">Tin Certificate: <span class="text-dark ms-sm-2 font-weight-bold"><a href="{{ smeprofile.tin_certificate_url }}" target="_blank">{% if smeprofile.tin_certificate_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View TIN Certificate</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>
+                                <span class="mb-2 text-sm">Cash Flow: <span class="text-dark font-weight-bold ms-sm-2"><a href="{{ smeprofile.cash_flow_url }}" target="_blank">{% if smeprofile.cash_flow_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View Cash Flow</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>
+                                <span class="mb-2 text-sm">Bank Statement: <span class="text-dark font-weight-bold ms-sm-2"><a href="{{ smeprofile.sme_bank_statement_url }}" target="_blank">{% if smeprofile.sme_bank_statement_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View Bank Statement</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>
+                    
+                                <span class="mb-2 text-sm">Picture of Business Location: <span class="text-dark ms-sm-2 font-weight-bold"><a href="{{ smeprofile.location_pic_url }}" target="_blank">{% if smeprofile.location_pic_url %} <button type="button" class="btn btn-sm btn-success p-1 m-0">View Pic</button><i classs="fa fas fa-arrow"></i>{% endif %}</a></span></span>
+                              </div>
+                            </li>  
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+            
+                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 mb-1">
+                      <div class="card p-1">
+                      
+                      <div class="card-body pt-2 p-1">
+                        <ul class="list-group">
+              
+                          
+                          <li class="list-group-item border-0 d-flex pr-3 pl-3 pt-0 pb-3 mb-2 bg-gray-100 border-radius-lg">
+                            <div class="d-flex flex-column">
+                              <h6 class="mb-3 text-md text-primary">Primary Account<span><a class="btn btn-link text-dark px-3 mb-0" href="{% url 'edit_sme_profile_bank_staff' user.id %}"><i class="material-icons text-sm me-2">edit</i>Edit</a></span></h6>
+                              <span class="mb-2 text-sm">Bank: <span class="text-dark font-weight-bold ms-sm-2">{{ smeprofile.bank }}</span></span>
+                              <span class="mb-2 text-sm">Account Name: <span class="text-dark ms-sm-2 font-weight-bold">{{ smeprofile.bank_account_name }}</span></span>
+                              <span class="mb-2 text-sm">Account Number: <span class="text-dark ms-sm-2 font-weight-bold">{{ smeprofile.bank_account_number }}</span></span>
+                              <span class="mb-2 text-sm">Bank Branch: <span class="text-dark ms-sm-2 font-weight-bold">{{ smeprofile.bank_branch }}</span></span>
+                             </div>
+                          </li> 
+                        
+                
+                        </ul>
+                      </div>
+                      </div>
+              
+                    
+                    </div>
+                  </div><!-- row -->
+                </div><!-- card body -->
+              </div><!-- Container Card-->
+  
+              {% else %}
+              <div class="mt-3">
+              <p>{{ user.first_name }} has no SME Profile. You can add one if {% if user.gender == 'MALE' %}he{% elif user.gender == 'FEMALE' %}she{% else %}s/he{% endif %} has one.</p>
+              <a href="{% url 'edit_sme_profile_staff' user.id %}"><button class="btn btn-success mt-1">+ Add SME Profile</button></a>
+              </div>
+              
+            
+  {% endif %}
+
+
+
+  
+
+
+
+
+  <!-- Content Ends Here -->
+  
+
+
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "loan_base.html" %}
+
+{% load static %}
+
+{% load crispy_forms_tags %}
+
+{% block title %} Loan Application Form {% endblock %}
+
+{% block breadcrumb %} <a href="{% url 'dashboard' %}">Dashboard</a>  /  <a href="{% url 'profile' %}">Loans</a> {% endblock %}
+{% block breadcrumb_active %} Loan Application {% endblock %}
+{% block dashboard_title %} Loan Application Form {% endblock %}
+
+{% block css %}
+
+<!-- Range Slider -->
+<link rel="stylesheet" href="{% static 'thirdparty/css/rangeslider.css' %}" />
+
+{% endblock %}
+
+
+{% block content %}
+
+{% include 'custom/iLM_application_form.html' %}
+ 
+{% endblock %}
+
+{% block scripts %}
+
+<!-- Range Slider 
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>       
+<script src="https://cdnjs.cloudflare.com/ajax/libs/rangeslider.js/2.3.0/rangeslider.min.js"></script> -->
+<script type="text/javascript" src="{% static 'thirdparty/js/rangeslider.js' %}"></script>
+{% include 'custom/js/loan_calculator.js' %}
+
+<script>
+    document.getElementById('flexSwitchCheckDefault').addEventListener('change', function() {
+        var repaymentTable = document.getElementById('repaymentTable');
+        if (this.checked) {
+            repaymentTable.style.display = 'block';
+        } else {
+            repaymentTable.style.display = 'none';
+        }
+    });
+</script>
+
+<script>
+    document.getElementById('id_amount').addEventListener('change', function() {
+        
+    });
+</script>
+
+
+{% endblock %}

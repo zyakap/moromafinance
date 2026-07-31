@@ -1,0 +1,533 @@
+{% extends "dashboard_base.html" %}
+{% load static %}
+
+{% block title %} How to Use {% endblock %}
+{% block breadcrumb %}<a href="{% url 'dashboard' %}">Dashboard</a>{% endblock %}
+{% block breadcrumb_active %}How to Use{% endblock %}
+{% block dashboard_title %}How to Use Your Account{% endblock %}
+
+{% block css %}
+<style>
+/* ══════════ OUTER NAV ══════════ */
+.inst-nav { display: flex; gap: 4px; border-bottom: 2px solid #dee2e6; margin-bottom: 1.5rem; }
+.inst-nav .inst-tab {
+  padding: 10px 22px; font-weight: 600; font-size: 0.88rem; letter-spacing: 0.3px;
+  text-transform: uppercase; color: #6c757d; border: 2px solid transparent; border-bottom: none;
+  border-radius: 6px 6px 0 0; cursor: pointer; background: #f8f9fa; transition: all 0.15s; user-select: none;
+}
+.inst-nav .inst-tab:hover { background: #e9ecef; color: #344767; }
+.inst-nav .inst-tab.active { background: #fff; color: #344767; border-color: #dee2e6; margin-bottom: -2px; }
+.inst-pane { display: none; }
+.inst-pane.active { display: block; }
+
+/* ══════════ TWO-PANEL LAYOUT ══════════ */
+.guide-layout {
+  display: flex; gap: 0; background: #fff; border-radius: 12px;
+  box-shadow: 0 2px 14px rgba(0,0,0,.08); overflow: hidden;
+  height: calc(100vh - 220px); min-height: 520px;
+}
+.guide-sidebar { width: 220px; flex-shrink: 0; background: #f8f9fa; border-right: 1px solid #e9ecef; overflow-y: auto; padding: 8px 0; }
+.guide-sidebar-item {
+  display: flex; align-items: center; gap: 9px; padding: 10px 16px; font-size: 0.82rem;
+  font-weight: 600; color: #6c757d; cursor: pointer; border-left: 3px solid transparent;
+  transition: all 0.12s; user-select: none; white-space: nowrap;
+}
+.guide-sidebar-item:hover { background: #e9ecef; color: #344767; }
+.guide-sidebar-item.active { background: #fff; color: #344767; border-left-color: #4CAF50; }
+.guide-sidebar-item .si-icon { font-size: 0.95rem; opacity: .8; width: 18px; text-align: center; }
+.guide-sidebar-item.active .si-icon { color: #4CAF50; opacity: 1; }
+.guide-sidebar-divider { height: 1px; background: #e9ecef; margin: 6px 12px; }
+
+.guide-content { flex: 1; overflow-y: auto; padding: 24px 28px; }
+.guide-panel { display: none; }
+.guide-panel.active { display: block; }
+.guide-panel h5 { font-size: 1rem; font-weight: 700; color: #344767; margin-bottom: 0.3rem; }
+.guide-panel .panel-intro { font-size: 0.84rem; color: #6c757d; margin-bottom: 1.2rem; padding-bottom: 1rem; border-bottom: 1px solid #f0f2f5; }
+.guide-panel h6 { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: #344767; margin: 1.2rem 0 0.4rem; }
+.guide-panel h6:first-of-type { margin-top: 0; }
+.guide-panel p, .guide-panel ul, .guide-panel li { font-size: 0.86rem; color: #495057; line-height: 1.7; }
+.guide-panel ul { padding-left: 1.3rem; margin-bottom: 0.6rem; }
+.guide-panel ul li { margin-bottom: 3px; }
+
+.step { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 9px; padding: 9px 13px; background: #f8f9fa; border-radius: 8px; border-left: 3px solid #4CAF50; font-size: 0.86rem; color: #495057; }
+.step-num { background: #344767; color: #fff; border-radius: 50%; min-width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+.info-box { background: #f0f4ff; border-left: 3px solid #344767; border-radius: 0 8px 8px 0; padding: 10px 14px; font-size: 0.84rem; margin: 0.8rem 0; color: #344767; }
+.warn-box { background: #fff8e1; border-left: 3px solid #f57f17; border-radius: 0 8px 8px 0; padding: 10px 14px; font-size: 0.84rem; margin: 0.8rem 0; color: #5d4037; }
+.tip-box { background: #e8f5e9; border-left: 3px solid #2e7d32; border-radius: 0 8px 8px 0; padding: 10px 14px; font-size: 0.84rem; margin: 0.8rem 0; color: #1b5e20; }
+
+/* ══════════ FAQ ══════════ */
+.faq-item { background: #fff; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,.06); margin-bottom: 7px; overflow: hidden; }
+.faq-question { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; font-weight: 600; font-size: 0.855rem; color: #344767; cursor: pointer; user-select: none; gap: 10px; }
+.faq-question i.faq-icon { color: #4CAF50; font-size: 1rem; flex-shrink: 0; }
+.faq-question .faq-chevron { flex-shrink: 0; color: #aaa; transition: transform 0.2s; font-size: 0.88rem; }
+.faq-question.open .faq-chevron { transform: rotate(180deg); }
+.faq-answer { display: none; padding: 4px 16px 13px 42px; font-size: 0.83rem; color: #5a6a82; line-height: 1.7; border-top: 1px solid #f0f0f0; }
+.faq-answer ul { padding-left: 1.2rem; margin-top: 5px; }
+.faq-panel { display: none; }
+.faq-panel.active { display: block; }
+.faq-panel-title { display: flex; align-items: center; gap: 8px; font-size: 1rem; font-weight: 700; color: #344767; margin-bottom: 1.2rem; padding-bottom: 0.9rem; border-bottom: 1px solid #f0f2f5; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Outer navigation -->
+<div class="inst-nav mt-3" id="instNav">
+  <div class="inst-tab active" data-pane="pane-guide"><i class="fa-solid fa-book-open me-1"></i> Usage Guide</div>
+  <div class="inst-tab" data-pane="pane-faq"><i class="fa-solid fa-circle-question me-1"></i> FAQ</div>
+</div>
+
+<!-- ═══════════ PANE 1 – USAGE GUIDE ═══════════ -->
+<div class="inst-pane active" id="pane-guide">
+  <div class="guide-layout">
+
+    <!-- Sidebar -->
+    <nav class="guide-sidebar" id="guideSidebar">
+      <div class="guide-sidebar-item active" data-panel="g-start"><i class="fa-solid fa-flag-checkered si-icon"></i> Getting Started</div>
+      <div class="guide-sidebar-item" data-panel="g-dashboard"><i class="fa-solid fa-gauge si-icon"></i> Your Dashboard</div>
+      <div class="guide-sidebar-item" data-panel="g-profile"><i class="fa-solid fa-user si-icon"></i> Complete Your Profile</div>
+      <div class="guide-sidebar-item" data-panel="g-apply"><i class="fa-solid fa-paper-plane si-icon"></i> Apply for a Loan</div>
+      <div class="guide-sidebar-item" data-panel="g-loans"><i class="fa-solid fa-building-columns si-icon"></i> My Loans</div>
+      <div class="guide-sidebar-item" data-panel="g-statements"><i class="fa-solid fa-receipt si-icon"></i> Statements &amp; Repayments</div>
+      <div class="guide-sidebar-item" data-panel="g-documents"><i class="fa-solid fa-file-pdf si-icon"></i> Documents</div>
+      <div class="guide-sidebar-item" data-panel="g-requirements"><i class="fa-solid fa-clipboard-list si-icon"></i> Requirements &amp; Credit</div>
+      <div class="guide-sidebar-item" data-panel="g-sme"><i class="fa-solid fa-store si-icon"></i> SME / Business Profile</div>
+      <div class="guide-sidebar-item" data-panel="g-consent"><i class="fa-solid fa-file-signature si-icon"></i> Terms &amp; Credit Consent</div>
+      <div class="guide-sidebar-divider"></div>
+      <div class="guide-sidebar-item" data-panel="g-support"><i class="fa-solid fa-ticket si-icon"></i> Support &amp; Messages</div>
+      <div class="guide-sidebar-item" data-panel="g-security"><i class="fa-solid fa-shield-halved si-icon"></i> Security &amp; Notifications</div>
+    </nav>
+
+    <!-- Content -->
+    <div class="guide-content" id="guideContent">
+
+      <!-- Getting Started -->
+      <div class="guide-panel active" id="g-start">
+        <h5><i class="fa-solid fa-flag-checkered me-1"></i> Getting Started</h5>
+        <p class="panel-intro">Welcome to {{ appearance.brand_name }}. Your online account lets you apply for loans, track repayments, download documents, and get support — all in one place.</p>
+
+        <h6>Activating Your Account</h6>
+        <div class="step"><div class="step-num">1</div><div>When your account is created, an <strong>activation email</strong> is sent to the email address on file.</div></div>
+        <div class="step"><div class="step-num">2</div><div>Open the email and click the <strong>activation link</strong>. This confirms your address and activates your login.</div></div>
+        <div class="step"><div class="step-num">3</div><div>If you did not receive it, check your spam/junk folder, or raise a support ticket under <strong>Account Activation</strong>.</div></div>
+
+        <h6>Logging In</h6>
+        <ul>
+          <li>Go to the login page and enter your <strong>email</strong> and <strong>password</strong>.</li>
+          <li>Forgot your password? Click <strong>Forgot Password</strong> — a reset link is emailed to you.</li>
+        </ul>
+
+        <div class="info-box"><strong>First time in?</strong> Start by completing your profile (next section). A complete profile is required before you can apply for a loan.</div>
+      </div>
+
+      <!-- Dashboard -->
+      <div class="guide-panel" id="g-dashboard">
+        <h5><i class="fa-solid fa-gauge me-1"></i> Your Dashboard</h5>
+        <p class="panel-intro">The Dashboard is your home screen. It gives you a live snapshot of your loans and quick links to everything you need.</p>
+
+        <h6>What You'll See</h6>
+        <ul>
+          <li><strong>Total Repaid</strong> – how much you have paid across your funded loans.</li>
+          <li><strong>Outstanding Balance</strong> – how much you still owe.</li>
+          <li><strong>Arrears</strong> – any overdue amount that needs to be cleared.</li>
+          <li><strong>Next Payment Date</strong> – when your next repayment is due.</li>
+          <li><strong>Recent Statements</strong> – your latest transactions.</li>
+          <li><strong>Messages &amp; Support</strong> – recent notices and the status of your support ticket.</li>
+        </ul>
+
+        <h6>The Sidebar Menu</h6>
+        <ul>
+          <li><a href="{% url 'myloans' %}"><strong>My Loans</strong></a> – view all your loan applications and active loans.</li>
+          <li><a href="{% url 'mystatements' %}"><strong>My Statements</strong></a> – your full transaction history.</li>
+          <li><a href="{% url 'messages_user' %}"><strong>Messages</strong></a> – notices sent to you by the company.</li>
+          <li><a href="{% url 'user_support' %}"><strong>Support Ticket</strong></a> – ask for help and track your requests.</li>
+          <li><a href="{% url 'loan_requirements' %}">Requirements</a> / <a href="{% url 'credit_rating' %}">Credit Rating</a> – check what's needed and your standing.</li>
+          <li><a href="{% url 'profile' %}">Profile</a> / <a href="{% url 'sme_profile' %}">SME Profile</a> – manage your details.</li>
+          <li><a href="{% url 'loan_application' %}"><strong>Apply</strong></a> – the green button to start a new loan application.</li>
+        </ul>
+      </div>
+
+      <!-- Profile -->
+      <div class="guide-panel" id="g-profile">
+        <h5><i class="fa-solid fa-user me-1"></i> Complete Your Profile</h5>
+        <p class="panel-intro">Your profile holds the personal, employment, and banking details used to process your loans and generate your documents. Keep it accurate and up to date.</p>
+
+        <h6>Profile Sections</h6>
+        <ul>
+          <li><strong>Personal</strong> – full name, date of birth, gender, ID/NID number, marital status.</li>
+          <li><strong>Contact</strong> – email, work email, and mobile numbers.</li>
+          <li><strong>Employment</strong> – employer, job title, work ID, office address, start date.</li>
+          <li><strong>Banking</strong> – your bank, branch, account name, and account number (where your loan is paid and repayments are deducted).</li>
+          <li><strong>Residential</strong> – your current home address.</li>
+          <li><strong>Documents</strong> – upload your payslips, ID, and other supporting files.</li>
+        </ul>
+
+        <h6>Editing Your Profile</h6>
+        <div class="step"><div class="step-num">1</div><div>Click <a href="{% url 'profile' %}"><strong>Profile</strong></a> in the sidebar.</div></div>
+        <div class="step"><div class="step-num">2</div><div>Each section has an <strong>Edit</strong> button — click it, update your details, and save.</div></div>
+        <div class="step"><div class="step-num">3</div><div>For documents, use the <strong>Upload</strong> button in each slot. Accepted files are PDF or images (JPG/PNG), up to 15 MB each.</div></div>
+
+        <div class="tip-box"><strong>Tip:</strong> Accurate banking details are essential — your loan is paid into this account and your repayments are deducted from your salary against it.</div>
+        <div class="warn-box"><strong>Privacy:</strong> Your uploaded ID and payslips are stored securely and are only visible to you and authorised company staff. They are never shared publicly.</div>
+      </div>
+
+      <!-- Apply -->
+      <div class="guide-panel" id="g-apply">
+        <h5><i class="fa-solid fa-paper-plane me-1"></i> Apply for a Loan</h5>
+        <p class="panel-intro">Once your profile is complete, you can apply for a loan in a few steps directly from your account.</p>
+
+        <h6>Before You Apply</h6>
+        <ul>
+          <li>Your <strong>personal, employment, and banking</strong> details must be filled in.</li>
+          <li>At least one recent <strong>payslip</strong> should be uploaded.</li>
+          <li>You must agree to the <strong>Terms &amp; Credit Consent</strong> (see the T&amp;C Consent menu item).</li>
+        </ul>
+
+        <h6>How to Apply</h6>
+        <div class="step"><div class="step-num">1</div><div>Click the green <a href="{% url 'loan_application' %}"><strong>Apply</strong></a> button at the bottom of the sidebar.</div></div>
+        <div class="step"><div class="step-num">2</div><div>Choose your <strong>loan amount</strong> and <strong>number of fortnights</strong> to repay over. The system shows your repayment amount instantly.</div></div>
+        <div class="step"><div class="step-num">3</div><div>Review the figures, then <strong>submit</strong> your application.</div></div>
+        <div class="step"><div class="step-num">4</div><div>Your application documents (Loan Form, Terms &amp; Conditions, IRSDA, Statutory Declaration) are emailed to you automatically.</div></div>
+        <div class="step"><div class="step-num">5</div><div>Sign the documents and return them — upload the signed copies or hand them to staff — so your application can move to review.</div></div>
+
+        <div class="info-box"><strong>Already have a loan?</strong> If you have an active or pending loan, you cannot start a second standalone application — you may instead be able to get an <strong>additional loan</strong>, which combines your existing balance and recalculates a single repayment. Ask staff; note that if the company has switched refinancing off entirely, a new loan only becomes possible once your current one is fully repaid.</div>
+      </div>
+
+      <!-- Loans -->
+      <div class="guide-panel" id="g-loans">
+        <h5><i class="fa-solid fa-building-columns me-1"></i> My Loans</h5>
+        <p class="panel-intro">The My Loans page lists every loan you have applied for, with its current status and key figures.</p>
+
+        <h6>Understanding Loan Status</h6>
+        <ul>
+          <li><strong>Awaiting T&amp;C</strong> – your application is started; documents are being prepared/signed.</li>
+          <li><strong>Under Review</strong> – submitted and being assessed by the company.</li>
+          <li><strong>On Hold</strong> – paused while more information is gathered.</li>
+          <li><strong>Approved</strong> – approved and awaiting payout.</li>
+          <li><strong>Running</strong> – funded; repayments are in progress.</li>
+          <li><strong>Defaulted</strong> – a repayment was missed beyond the grace period (default interest may apply).</li>
+          <li><strong>Completed</strong> – fully repaid and closed. Well done!</li>
+        </ul>
+
+        <h6>Viewing a Loan</h6>
+        <div class="step"><div class="step-num">1</div><div>Click <a href="{% url 'myloans' %}"><strong>My Loans</strong></a> in the sidebar, then open a loan to view it.</div></div>
+        <div class="step"><div class="step-num">2</div><div>See the loan amount, repayment amount, number of fortnights, start date, and next payment date.</div></div>
+        <div class="step"><div class="step-num">3</div><div>Open the statement to see every payment and the running balance.</div></div>
+      </div>
+
+      <!-- Statements -->
+      <div class="guide-panel" id="g-statements">
+        <h5><i class="fa-solid fa-receipt me-1"></i> Statements &amp; Repayments</h5>
+        <p class="panel-intro">Your statement is the complete record of money in and out on your loan — every repayment, any default charge, and your running balance.</p>
+
+        <h6>How Repayments Work</h6>
+        <ul>
+          <li>Repayments are usually deducted from your salary each fortnight by your employer's payroll and sent to the company.</li>
+          <li>Each deduction is recorded against your loan and your <strong>outstanding balance</strong> goes down.</li>
+          <li>When your balance reaches zero, the loan is automatically marked <strong>Completed</strong> and you are notified.</li>
+        </ul>
+
+        <h6>Viewing Your Statement</h6>
+        <div class="step"><div class="step-num">1</div><div>Click <a href="{% url 'mystatements' %}"><strong>My Statements</strong></a> in the sidebar.</div></div>
+        <div class="step"><div class="step-num">2</div><div>Review each line: the date, description, amount, and the balance after that transaction.</div></div>
+        <div class="step"><div class="step-num">3</div><div>You can download a PDF statement to keep or share.</div></div>
+
+        <h6>Arrears &amp; Defaults</h6>
+        <ul>
+          <li><strong>Arrears</strong> is any amount that should have been paid but wasn't — clear it as soon as possible.</li>
+          <li>If a scheduled repayment is missed beyond the grace period, the loan is marked <strong>Defaulted</strong> and default interest may be added. You will receive an email when this happens.</li>
+        </ul>
+
+        <div class="warn-box"><strong>Notice a problem?</strong> If a payment you made is not showing, or an amount looks wrong, raise a support ticket under <strong>Loan Repayment</strong> with the date and amount, and staff will check it.</div>
+      </div>
+
+      <!-- Documents -->
+      <div class="guide-panel" id="g-documents">
+        <h5><i class="fa-solid fa-file-pdf me-1"></i> Documents</h5>
+        <p class="panel-intro">The system prepares your loan documents for you, pre-filled with your details.</p>
+
+        <h6>Documents You May Receive or Download</h6>
+        <ul>
+          <li><strong>Loan Application Form</strong> – your application details.</li>
+          <li><strong>Terms &amp; Conditions / Loan Agreement</strong> – the agreement you sign.</li>
+          <li><strong>IRSDA</strong> – the authority for your employer to deduct repayments from your salary.</li>
+          <li><strong>Statutory Declaration</strong> – for your signature.</li>
+          <li><strong>Loan Statement</strong> – your transaction history (available any time from My Statements).</li>
+        </ul>
+
+        <h6>Signing &amp; Returning Documents</h6>
+        <div class="step"><div class="step-num">1</div><div>When you apply, these documents are emailed to you automatically.</div></div>
+        <div class="step"><div class="step-num">2</div><div>Print and sign them (or sign electronically if available).</div></div>
+        <div class="step"><div class="step-num">3</div><div>Upload the signed copies to your profile or return them to staff so your application can proceed.</div></div>
+
+        <div class="info-box"><strong>Didn't get the email?</strong> Check your spam folder first. If it's still missing, raise a support ticket and staff can resend your documents.</div>
+      </div>
+
+      <!-- Requirements & Credit -->
+      <div class="guide-panel" id="g-requirements">
+        <h5><i class="fa-solid fa-clipboard-list me-1"></i> Requirements &amp; Credit Rating</h5>
+        <p class="panel-intro">These two pages help you understand what you need to qualify and where you stand.</p>
+
+        <h6>Requirements</h6>
+        <p>The <a href="{% url 'loan_requirements' %}"><strong>Requirements</strong></a> page shows a checklist of the documents and profile details needed for a loan. Use it to see at a glance what is still missing before you apply.</p>
+
+        <h6>Credit Rating</h6>
+        <ul>
+          <li>Your <strong>Credit Rating</strong> reflects your repayment history and current commitments with the company.</li>
+          <li>It shows your active loans, total outstanding balance, and current repayment commitments.</li>
+          <li>A strong record of on-time repayments helps keep your standing healthy and makes future applications smoother.</li>
+        </ul>
+
+        <div class="tip-box"><strong>Tip:</strong> Keeping repayments on time and avoiding defaults is the best way to protect your credit standing and stay eligible for future loans.</div>
+      </div>
+
+      <!-- SME / Business Profile -->
+      <div class="guide-panel" id="g-sme">
+        <h5><i class="fa-solid fa-store me-1"></i> SME / Business Profile</h5>
+        <p class="panel-intro">If you are applying for a business loan (Sole Trader, SME, or MSME), you need to complete an SME Profile in addition to your personal profile. This holds your business details and documents.</p>
+
+        <h6>What the SME Profile Contains</h6>
+        <ul>
+          <li><strong>Business Category</strong> &ndash; Sole Trader, SME, or MSME.</li>
+          <li><strong>Trading &amp; Registered Name</strong> &ndash; your business name as registered with IPA.</li>
+          <li><strong>Business Address, Email, Phone, Website</strong> &ndash; your business contact details.</li>
+          <li><strong>IPA Registration Number &amp; TIN Number</strong> &ndash; your official registration numbers.</li>
+          <li><strong>SME Bank Account</strong> &ndash; the business bank account where your loan will be paid.</li>
+        </ul>
+
+        <h6>Documents to Upload</h6>
+        <ul>
+          <li><strong>IPA Certificate</strong> &ndash; proof of business registration.</li>
+          <li><strong>TIN Certificate</strong> &ndash; your Tax Identification Number certificate.</li>
+          <li><strong>Cash Flow Statement</strong> &ndash; showing your business income and expenses.</li>
+          <li><strong>SME Bank Statement</strong> &ndash; recent business bank statements.</li>
+          <li><strong>Business Location Picture</strong> &ndash; a photo of your business premises.</li>
+        </ul>
+
+        <h6>How to Edit Your SME Profile</h6>
+        <div class="step"><div class="step-num">1</div><div>Click <a href="{% url 'sme_profile' %}"><strong>SME Profile</strong></a> in the sidebar to view your business profile.</div></div>
+        <div class="step"><div class="step-num">2</div><div>Use the <strong>Edit</strong> buttons in each section to update your business details, upload documents, or update your business bank account.</div></div>
+        <div class="step"><div class="step-num">3</div><div>Save each section after making changes.</div></div>
+
+        <div class="info-box"><strong>Tip:</strong> An SME profile is required before you can apply for an SME/business loan. Complete both your personal profile and your SME profile before applying.</div>
+      </div>
+
+      <!-- Terms & Credit Consent -->
+      <div class="guide-panel" id="g-consent">
+        <h5><i class="fa-solid fa-file-signature me-1"></i> Terms &amp; Credit Consent</h5>
+        <p class="panel-intro">Before you can apply for a loan, you must consent to the Terms &amp; Conditions and the Credit Data Policy. This page lets you view, agree to, or (under certain conditions) revoke your consent.</p>
+
+        <h6>What You Are Consenting To</h6>
+        <ul>
+          <li><strong>Terms &amp; Conditions</strong> &ndash; the general terms governing your use of the platform and your loan agreement.</li>
+          <li><strong>Credit Data Policy / Credit Consent</strong> &ndash; permission for the company to share your loan and repayment data with the credit bureau (DCC). This allows the company to check your credit history and report your loan performance.</li>
+        </ul>
+
+        <h6>How to Give Consent</h6>
+        <div class="step"><div class="step-num">1</div><div>Click <a href="{% url 'terms_credit_consent' %}"><strong>Terms &amp; Credit Consent</strong></a> in the sidebar.</div></div>
+        <div class="step"><div class="step-num">2</div><div>Read the Terms &amp; Conditions and Credit Data Policy carefully.</div></div>
+        <div class="step"><div class="step-num">3</div><div>Click <strong>I Agree</strong> to give your consent. A timestamp is recorded.</div></div>
+        <div class="step"><div class="step-num">4</div><div>Once consented, the <strong>Requirements</strong> checklist will show these items as complete, and you can proceed with your loan application.</div></div>
+
+        <h6>Revoking Consent</h6>
+        <ul>
+          <li>You can revoke your consent at any time &mdash; <strong>unless you have an active loan</strong>. While a loan is running, consent cannot be revoked because the company is legally required to report your loan data to the credit bureau.</li>
+          <li>To revoke, open the Terms &amp; Credit Consent page and click <strong>Revoke</strong>.</li>
+        </ul>
+
+        <div class="warn-box"><strong>Important:</strong> Without consent to both the Terms &amp; Conditions and the Credit Data Policy, you will not be able to submit a loan application. The system will show these as incomplete on your Requirements page.</div>
+      </div>
+
+      <!-- Support -->
+      <div class="guide-panel" id="g-support">
+        <h5><i class="fa-solid fa-ticket me-1"></i> Support &amp; Messages</h5>
+        <p class="panel-intro">Need help? Raise a support ticket and a staff member will respond. Important notices from the company appear under Messages.</p>
+
+        <h6>Raising a Support Ticket</h6>
+        <div class="step"><div class="step-num">1</div><div>Click <a href="{% url 'user_support' %}"><strong>Support Ticket</strong></a> in the sidebar.</div></div>
+        <div class="step"><div class="step-num">2</div><div>Choose a <strong>category</strong> and write your message with as much detail as possible.</div></div>
+        <div class="step"><div class="step-num">3</div><div>Submit. You'll get an email each time staff reply, with a link to view the conversation.</div></div>
+
+        <h6>Ticket Categories</h6>
+        <ul>
+          <li><strong>Loan Requirements</strong> – questions about what's needed to apply.</li>
+          <li><strong>Pending Loan</strong> – checking on an application in progress.</li>
+          <li><strong>Loan Repayment</strong> – payment not showing, or a balance query.</li>
+          <li><strong>Loan Issue</strong> – any problem with an existing loan.</li>
+          <li><strong>Account Activation</strong> – trouble activating or logging in.</li>
+          <li><strong>Web App Usage</strong> – help using a feature on the site.</li>
+        </ul>
+
+        <h6>Messages</h6>
+        <p>The <a href="{% url 'messages_user' %}"><strong>Messages</strong></a> page holds notices the company sends you — repayment reminders, funding alerts, completion notices, and announcements.</p>
+      </div>
+
+      <!-- Security & Notifications -->
+      <div class="guide-panel" id="g-security">
+        <h5><i class="fa-solid fa-shield-halved me-1"></i> Security &amp; Notifications</h5>
+        <p class="panel-intro">A few things that keep your account safe and keep you informed automatically.</p>
+
+        <h6>Automatic Notifications</h6>
+        <ul>
+          <li><strong>Repayment reminders</strong> are emailed automatically before your repayment is due.</li>
+          <li><strong>Funding alerts</strong> let you know when your loan has been paid out.</li>
+          <li><strong>Payment confirmations</strong> are sent when a repayment is recorded on your loan.</li>
+          <li><strong>Default notices</strong> are sent automatically if a repayment is missed beyond the grace period.</li>
+          <li><strong>Completion notices</strong> confirm when your loan is fully repaid.</li>
+        </ul>
+
+        <h6>Keeping Your Account Secure</h6>
+        <ul>
+          <li>Never share your password. Staff will never ask you for it.</li>
+          <li>For your protection, after several failed login attempts the login is temporarily blocked for a few minutes — just wait and try again, or reset your password.</li>
+          <li>Your documents and personal information are stored securely and only accessible to you and authorised staff.</li>
+        </ul>
+
+        <div class="info-box"><strong>Always keep your email and phone number current</strong> on your profile — that's how you receive reminders, alerts, and document copies.</div>
+      </div>
+
+    </div><!-- /guide-content -->
+  </div><!-- /guide-layout -->
+</div><!-- /pane-guide -->
+
+<!-- ═══════════ PANE 2 – FAQ ═══════════ -->
+<div class="inst-pane" id="pane-faq">
+  <div class="guide-layout">
+
+    <nav class="guide-sidebar" id="faqSidebar">
+      <div class="guide-sidebar-item active" data-faq="fq-account"><i class="fa-solid fa-user-lock si-icon"></i> Account &amp; Login</div>
+      <div class="guide-sidebar-item" data-faq="fq-loans"><i class="fa-solid fa-building-columns si-icon"></i> Loans</div>
+      <div class="guide-sidebar-item" data-faq="fq-repayments"><i class="fa-solid fa-receipt si-icon"></i> Repayments</div>
+      <div class="guide-sidebar-item" data-faq="fq-documents"><i class="fa-solid fa-file-pdf si-icon"></i> Documents &amp; Profile</div>
+      <div class="guide-sidebar-item" data-faq="fq-business"><i class="fa-solid fa-store si-icon"></i> Business &amp; Consent</div>
+      <div class="guide-sidebar-item" data-faq="fq-support"><i class="fa-solid fa-ticket si-icon"></i> Support</div>
+    </nav>
+
+    <div class="guide-content" id="faqContent">
+
+      <!-- Account -->
+      <div class="faq-panel active" id="fq-account">
+        <div class="faq-panel-title"><i class="fa-solid fa-user-lock"></i> Account &amp; Login</div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)"><i class="fa-solid fa-circle-question faq-icon"></i><span>I didn't get my activation email — what do I do?</span><i class="fa-solid fa-chevron-down faq-chevron"></i></div><div class="faq-answer">Check your spam/junk folder first. If it's not there, raise a support ticket under <strong>Account Activation</strong> and a staff member will help activate your account.</div></div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)"><i class="fa-solid fa-circle-question faq-icon"></i><span>I forgot my password.</span><i class="fa-solid fa-chevron-down faq-chevron"></i></div><div class="faq-answer">Click <strong>Forgot Password</strong> on the login page and enter your registered email. A reset link will be sent to you. Follow it to set a new password.</div></div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)"><i class="fa-solid fa-circle-question faq-icon"></i><span>The site says I've tried to log in too many times.</span><i class="fa-solid fa-chevron-down faq-chevron"></i></div><div class="faq-answer">For your security, login is temporarily blocked after several failed attempts. Wait a few minutes and try again. If you're unsure of your password, use <strong>Forgot Password</strong> to reset it.</div></div>
+      </div>
+
+      <!-- Loans -->
+      <div class="faq-panel" id="fq-loans">
+        <div class="faq-panel-title"><i class="fa-solid fa-building-columns"></i> Loans</div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)"><i class="fa-solid fa-circle-question faq-icon"></i><span>How do I apply for a loan?</span><i class="fa-solid fa-chevron-down faq-chevron"></i></div><div class="faq-answer">First make sure your profile is complete and you've uploaded a payslip. Then click the green <strong>Apply</strong> button in the sidebar, choose your amount and repayment term, and submit. Your documents are then emailed to you to sign.</div></div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)"><i class="fa-solid fa-circle-question faq-icon"></i><span>Can I apply for another loan while I still have one?</span><i class="fa-solid fa-chevron-down faq-chevron"></i></div><div class="faq-answer">In many cases yes — through an <strong>additional loan</strong>, which combines your existing balance with the new amount into a single new repayment. Ask staff, as this depends on the company's current lending policy — some periods the company may only allow one loan per client until the current one is fully repaid, in which case a new loan becomes available once yours reaches Completed.</div></div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)"><i class="fa-solid fa-circle-question faq-icon"></i><span>What does each loan status mean?</span><i class="fa-solid fa-chevron-down faq-chevron"></i></div><div class="faq-answer">In order: <strong>Awaiting T&amp;C</strong> (documents being signed), <strong>Under Review</strong> (being assessed), <strong>Approved</strong> (awaiting payout), <strong>Running</strong> (repaying), <strong>Defaulted</strong> (a repayment was missed), and <strong>Completed</strong> (fully repaid).</div></div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)"><i class="fa-solid fa-circle-question faq-icon"></i><span>How long does approval take?</span><i class="fa-solid fa-chevron-down faq-chevron"></i></div><div class="faq-answer">It depends on how quickly your signed documents are returned and reviewed. Keeping your profile complete and returning documents promptly is the fastest path. You can check progress any time on the <strong>My Loans</strong> page.</div></div>
+      </div>
+
+      <!-- Repayments -->
+      <div class="faq-panel" id="fq-repayments">
+        <div class="faq-panel-title"><i class="fa-solid fa-receipt"></i> Repayments</div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)"><i class="fa-solid fa-circle-question faq-icon"></i><span>How are my repayments made?</span><i class="fa-solid fa-chevron-down faq-chevron"></i></div><div class="faq-answer">Repayments are normally deducted from your salary each fortnight by your employer's payroll and forwarded to the company. Each deduction is recorded on your loan and reduces your outstanding balance.</div></div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)"><i class="fa-solid fa-circle-question faq-icon"></i><span>A payment I made isn't showing on my statement.</span><i class="fa-solid fa-chevron-down faq-chevron"></i></div><div class="faq-answer">Payments are posted once received and reconciled, which can take a short time. If it still doesn't appear, raise a support ticket under <strong>Loan Repayment</strong> with the date and amount, and staff will investigate.</div></div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)"><i class="fa-solid fa-circle-question faq-icon"></i><span>What happens if I miss a repayment?</span><i class="fa-solid fa-chevron-down faq-chevron"></i></div><div class="faq-answer">If a repayment is missed beyond the grace period, the loan is marked <strong>Defaulted</strong> and default interest may be added. You'll get an email. Clear the arrears as soon as you can and contact support if you need help.</div></div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)"><i class="fa-solid fa-circle-question faq-icon"></i><span>How do I know when my next payment is due?</span><i class="fa-solid fa-chevron-down faq-chevron"></i></div><div class="faq-answer">Your <strong>Next Payment Date</strong> is shown on your Dashboard and on the loan page. You'll also receive an automatic email reminder before it's due.</div></div>
+      </div>
+
+      <!-- Documents & Profile -->
+      <div class="faq-panel" id="fq-documents">
+        <div class="faq-panel-title"><i class="fa-solid fa-file-pdf"></i> Documents &amp; Profile</div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)"><i class="fa-solid fa-circle-question faq-icon"></i><span>What documents do I need to upload?</span><i class="fa-solid fa-chevron-down faq-chevron"></i></div><div class="faq-answer">Typically a recent <strong>payslip</strong> and a valid <strong>ID</strong>, plus your signed loan documents. Check the <strong>Requirements</strong> page for the exact checklist. Files can be PDF or images up to 15 MB each.</div></div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)"><i class="fa-solid fa-circle-question faq-icon"></i><span>Are my ID and payslips kept private?</span><i class="fa-solid fa-chevron-down faq-chevron"></i></div><div class="faq-answer">Yes. Your uploaded documents are stored securely and only accessible to you and authorised company staff. They are not publicly accessible.</div></div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)"><i class="fa-solid fa-circle-question faq-icon"></i><span>My employer or bank details changed. How do I update them?</span><i class="fa-solid fa-chevron-down faq-chevron"></i></div><div class="faq-answer">Open <strong>Profile</strong>, go to the relevant section (Employment or Banking), click <strong>Edit</strong>, update the details, and save. Keep these current so repayments and documents are correct.</div></div>
+      </div>
+
+      <!-- Business & Consent -->
+      <div class="faq-panel" id="fq-business">
+        <div class="faq-panel-title"><i class="fa-solid fa-store"></i> Business Loans &amp; Consent</div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)"><i class="fa-solid fa-circle-question faq-icon"></i><span>I want a business loan &mdash; do I need a separate profile?</span><i class="fa-solid fa-chevron-down faq-chevron"></i></div><div class="faq-answer">Yes. In addition to your personal profile, you need to complete an <strong>SME Profile</strong> with your business details (trading name, IPA registration, TIN, business bank account) and upload business documents (IPA certificate, TIN certificate, cash flow statement, bank statement, business location photo). Complete both profiles before applying.</div></div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)"><i class="fa-solid fa-circle-question faq-icon"></i><span>What is Credit Consent and why do I need it?</span><i class="fa-solid fa-chevron-down faq-chevron"></i></div><div class="faq-answer">Credit Consent gives the company permission to check your credit history with the credit bureau (DCC) and report your loan repayment performance. It is a legal requirement for obtaining a loan &mdash; you cannot apply without it. Go to <strong>Terms &amp; Credit Consent</strong> in the sidebar to agree.</div></div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)"><i class="fa-solid fa-circle-question faq-icon"></i><span>I tried to revoke my consent but the button is disabled &mdash; why?</span><i class="fa-solid fa-chevron-down faq-chevron"></i></div><div class="faq-answer">Consent cannot be revoked while you have an active (running) loan, because the company is legally required to continue reporting your loan data to the credit bureau. Once your loan is fully repaid and completed, you will be able to revoke consent again.</div></div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)"><i class="fa-solid fa-circle-question faq-icon"></i><span>Where does my business loan get paid?</span><i class="fa-solid fa-chevron-down faq-chevron"></i></div><div class="faq-answer">Business (SME) loan disbursements are paid into the <strong>SME bank account</strong> you specify in your SME Profile &mdash; not your personal bank account. Make sure your SME bank details are correct before applying.</div></div>
+      </div>
+
+      <!-- Support -->
+      <div class="faq-panel" id="fq-support">
+        <div class="faq-panel-title"><i class="fa-solid fa-ticket"></i> Support</div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)"><i class="fa-solid fa-circle-question faq-icon"></i><span>How do I contact support?</span><i class="fa-solid fa-chevron-down faq-chevron"></i></div><div class="faq-answer">Use the <strong>Support Ticket</strong> menu item, pick the category that best fits, and describe your issue. Staff reply by email and in your ticket thread.</div></div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)"><i class="fa-solid fa-circle-question faq-icon"></i><span>Will I be notified when staff reply?</span><i class="fa-solid fa-chevron-down faq-chevron"></i></div><div class="faq-answer">Yes. Every reply sends you an email with the response and a link to view the full conversation in your account.</div></div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)"><i class="fa-solid fa-circle-question faq-icon"></i><span>Where do I see company announcements?</span><i class="fa-solid fa-chevron-down faq-chevron"></i></div><div class="faq-answer">Open the <strong>Messages</strong> page in the sidebar. Reminders, funding alerts, and announcements are all kept there.</div></div>
+      </div>
+
+    </div><!-- /faqContent -->
+  </div><!-- /guide-layout -->
+</div><!-- /pane-faq -->
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Outer tab switching
+  document.querySelectorAll('#instNav .inst-tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('#instNav .inst-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.inst-pane').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.pane).classList.add('active');
+    });
+  });
+
+  // FAQ sidebar switching
+  document.querySelectorAll('#faqSidebar .guide-sidebar-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+      document.querySelectorAll('#faqSidebar .guide-sidebar-item').forEach(i => i.classList.remove('active'));
+      document.querySelectorAll('#faqContent .faq-panel').forEach(p => p.classList.remove('active'));
+      item.classList.add('active');
+      var panel = document.getElementById(item.dataset.faq);
+      if (panel) panel.classList.add('active');
+      document.getElementById('faqContent').scrollTop = 0;
+      document.querySelectorAll('#faqContent .faq-question.open').forEach(function(q) {
+        q.classList.remove('open');
+        q.nextElementSibling.style.display = 'none';
+      });
+    });
+  });
+
+  // Inner guide sidebar switching
+  document.querySelectorAll('#guideSidebar .guide-sidebar-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+      document.querySelectorAll('#guideSidebar .guide-sidebar-item').forEach(i => i.classList.remove('active'));
+      document.querySelectorAll('#guideContent .guide-panel').forEach(p => p.classList.remove('active'));
+      item.classList.add('active');
+      var panel = document.getElementById(item.dataset.panel);
+      if (panel) panel.classList.add('active');
+      document.getElementById('guideContent').scrollTop = 0;
+    });
+  });
+
+  // FAQ accordion
+  function toggleFaq(question) {
+    var answer = question.nextElementSibling;
+    var isOpen = question.classList.contains('open');
+    document.querySelectorAll('.faq-question.open').forEach(function(q) {
+      q.classList.remove('open');
+      q.nextElementSibling.style.display = 'none';
+    });
+    if (!isOpen) { question.classList.add('open'); answer.style.display = 'block'; }
+  }
+
+  // URL hash deep-linking: #faq, #guide-support, etc.
+  var hash = window.location.hash.replace('#', '');
+  if (hash === 'faq') {
+    document.querySelectorAll('#instNav .inst-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.inst-pane').forEach(p => p.classList.remove('active'));
+    document.querySelector('[data-pane="pane-faq"]').classList.add('active');
+    document.getElementById('pane-faq').classList.add('active');
+  } else if (hash.startsWith('guide-')) {
+    var panelId = 'g-' + hash.replace('guide-', '');
+    document.querySelectorAll('#guideSidebar .guide-sidebar-item').forEach(i => i.classList.remove('active'));
+    document.querySelectorAll('#guideContent .guide-panel').forEach(p => p.classList.remove('active'));
+    var sideItem = document.querySelector('[data-panel="' + panelId + '"]');
+    var panel = document.getElementById(panelId);
+    if (sideItem) sideItem.classList.add('active');
+    if (panel) panel.classList.add('active');
+  }
+</script>
+{% endblock %}

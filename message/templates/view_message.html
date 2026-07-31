@@ -1,0 +1,19 @@
+{% extends 'staff_base.html' %}
+{% block content %}
+
+<div class="card p-3 mt-3">
+<br >
+<p>Category: <span class="badge bg-success">{{ message.category }}</span></p>
+<h5>Subject: <span class="text-primary">{{ message.subject }}</span></h5>
+
+<hr style="border: 1px solid #0cf;">
+{{ message.content|safe }}
+<hr style="border: 1px solid #0cf;">
+{% if message.attachment_url %}
+<p class="p-0 m-0">Attachment: <a href="{{ message.attachment_url }}" target="_blank" class="text-primary">{{ message.attachment_name }}</a></p>
+      <hr style="border: 1px solid #0cf;">
+{% endif %}
+<p>Sent by: {{ message.sender }}</p>
+
+</div>
+{% endblock %}

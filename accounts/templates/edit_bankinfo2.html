@@ -1,0 +1,86 @@
+{% extends "dashboard_base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %} My Profile {% endblock %}
+
+{% block breadcrumb %} <a href="{% url 'dashboard' %}">Dashboard</a>  /  <a href="{% url 'profile' %}">Profile</a> {% endblock %}
+{% block breadcrumb_active %} Bank Information {% endblock %}
+{% block dashboard_title %} Edit Secondary Bank Information {% endblock %}
+
+{% block content %}
+
+
+  <!-- Content Goes Here -->
+  <div class="row">
+    <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12 col-xs-12">
+      <div class="card mt-2 p-1">
+        <div class="card-header bg-secondary m-0 pt-2 pr-1 pb-0 pl-2">
+          <h5 class="text-light"> Secondary Bank Information </h5>
+        </div>
+        <div class="card-body m-0 p-2">
+          <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <br>
+            <button type="submit" class="btn btn-primary">UPDATE</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Content Ends Here -->
+
+ 
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const bankSelect = document.querySelector('.bank-select');
+    const branchSelect = document.querySelector('.bank-branch-select');
+
+    if (!bankSelect || !branchSelect) {
+      return;
+    }
+
+    const options = Array.from(branchSelect.options).map(function (option) {
+      return {
+        value: option.value,
+        text: option.text,
+        bank: option.getAttribute('data-bank') || '',
+        selected: option.selected
+      };
+    });
+
+    function filterBranches() {
+      const selectedBank = bankSelect.value;
+      const selectedValue = branchSelect.value;
+
+      branchSelect.innerHTML = '';
+
+      options.forEach(function (optionData) {
+        if (!optionData.value || optionData.bank === selectedBank || optionData.selected) {
+          const option = document.createElement('option');
+          option.value = optionData.value;
+          option.text = optionData.text;
+          if (optionData.bank) {
+            option.setAttribute('data-bank', optionData.bank);
+          }
+          branchSelect.appendChild(option);
+        }
+      });
+
+      if (Array.from(branchSelect.options).some(function (option) { return option.value === selectedValue; })) {
+        branchSelect.value = selectedValue;
+      }
+    }
+
+    bankSelect.addEventListener('change', function () {
+      branchSelect.value = '';
+      filterBranches();
+    });
+    filterBranches();
+  });
+</script>
+{% endblock %}

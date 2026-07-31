@@ -1,0 +1,99 @@
+{% extends 'website/website_base.html' %}
+{% load static %}
+
+{% block title %}Our Loans — Personal Loans &amp; Refinancing | Moroma Finance{% endblock %}
+{% block meta_desc %}Explore Moroma Finance loan services: personal loans from K500 to K3,000, refinancing to consolidate what you owe, and special offers for trusted clients.{% endblock %}
+
+{% block hero %}
+<section class="page-hero">
+  <div class="container">
+    <span class="eyebrow"><i class="bi bi-wallet2"></i> Loan Services</span>
+    <h1>Loans built around your pay</h1>
+    <p>Simple products, clear terms and repayments that fit your fortnight. Choose what suits you and apply from your phone.</p>
+  </div>
+</section>
+{% endblock %}
+
+{% block content %}
+
+<section class="section">
+  <div class="container">
+    <div class="grid grid-2">
+
+      <div class="card reveal">
+        <div class="ic"><i class="bi bi-cash-coin"></i></div>
+        <h3>Personal Loan</h3>
+        <p>Cash for school fees, medical costs, travel, funerals or any of life's unexpected moments. Apply online, get a decision fast and receive funds straight to your bank account.</p>
+        <ul class="checklist">
+          <li><i class="bi bi-check-circle-fill"></i> Borrow from <strong>K500 up to K3,000</strong></li>
+          <li><i class="bi bi-check-circle-fill"></i> Repayment set by our published repayment schedule</li>
+          <li><i class="bi bi-check-circle-fill"></i> Fortnightly repayments matched to your pay</li>
+          <li><i class="bi bi-check-circle-fill"></i> Same-day approval for eligible clients</li>
+        </ul>
+        <a href="{% url 'register' %}" class="btn-d btn-orange" style="margin-top:1.5rem;">Apply for a Personal Loan <i class="bi bi-arrow-right"></i></a>
+      </div>
+
+      <div class="card reveal">
+        <div class="ic"><i class="bi bi-arrow-repeat"></i></div>
+        <h3>Refinancing</h3>
+        <p>Juggling more than one loan? Refinance with Moroma Finance to combine what you owe into a single, manageable fortnightly repayment — and free up your pay.</p>
+        <ul class="checklist">
+          <li><i class="bi bi-check-circle-fill"></i> Consolidate existing loans into one</li>
+          <li><i class="bi bi-check-circle-fill"></i> One repayment, one due date, less stress</li>
+          <li><i class="bi bi-check-circle-fill"></i> Free up room in your fortnightly budget</li>
+          <li><i class="bi bi-check-circle-fill"></i> Talk to our team about your options</li>
+        </ul>
+        <a href="{% url 'contact' %}" class="btn-d btn-green" style="margin-top:1.5rem;">Talk to us about refinancing <i class="bi bi-arrow-right"></i></a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Special offers -->
+<section class="section bg-soft">
+  <div class="container split">
+    <div class="reveal">
+      <span class="eyebrow"><i class="bi bi-gift-fill"></i> Special Offers</span>
+      <h2 style="font-size:clamp(1.8rem,3.6vw,2.5rem); margin:1rem 0 .8rem;">Become a trusted client, unlock more</h2>
+      <p class="text-muted2">At Moroma Finance, loyalty counts. Repay well and you become a <strong>trusted client</strong> — which opens the door to our best offers.</p>
+      <ul class="checklist">
+        <li><i class="bi bi-star-fill" style="color:var(--d-orange)"></i> Priority approval on your next loan</li>
+        <li><i class="bi bi-star-fill" style="color:var(--d-orange)"></i> Access to higher borrowing limits</li>
+        <li><i class="bi bi-star-fill" style="color:var(--d-orange)"></i> Exclusive seasonal offers for repeat clients</li>
+        <li><i class="bi bi-star-fill" style="color:var(--d-orange)"></i> A dedicated point of contact</li>
+      </ul>
+      <p class="text-muted2" style="margin-top:1rem; font-size:.86rem;"><em>Terms &amp; conditions apply. Offers are at the discretion of Moroma Finance Ltd.</em></p>
+    </div>
+    <div class="reveal">
+      <div class="rateband">
+        <span class="eyebrow on-orange">Trusted client benefits</span>
+        <h2 style="color:#fff; margin:1rem 0 .6rem;">"Become a trusted Client to benefit from our special offers."</h2>
+        <p style="opacity:.92; margin:0 0 1.6rem;">It starts with your first loan. Apply today and build your history with us.</p>
+        <a href="{% url 'register' %}" class="btn-d btn-white">Get started <i class="bi bi-arrow-right"></i></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Eligibility -->
+<section class="section">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow"><i class="bi bi-clipboard-check"></i> Eligibility</span>
+      <h2>What you'll need to apply</h2>
+      <p>Have these ready and your application will move quickly.</p>
+    </div>
+    <div class="grid grid-4">
+      <div class="card reveal"><div class="ic"><i class="bi bi-person-badge"></i></div><h3>Valid ID</h3><p>A current photo ID confirming who you are.</p></div>
+      <div class="card reveal"><div class="ic"><i class="bi bi-briefcase"></i></div><h3>Employment</h3><p>Proof you are employed with a regular income.</p></div>
+      <div class="card reveal"><div class="ic"><i class="bi bi-receipt"></i></div><h3>Recent payslip</h3><p>So we can confirm your repayment capacity.</p></div>
+      <div class="card reveal"><div class="ic"><i class="bi bi-bank"></i></div><h3>Bank account</h3><p>Where we'll pay your approved funds.</p></div>
+    </div>
+    <div style="text-align:center; margin-top:2.5rem;">
+      <a href="{% url 'register' %}" class="btn-d btn-orange btn-lg">Apply Now <i class="bi bi-arrow-right"></i></a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

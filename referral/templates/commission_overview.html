@@ -1,0 +1,147 @@
+{% extends "admin_base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Commission Overview – {{ month_label }}{% endblock %}
+{% block breadcrumb %}<a href="{% url 'admin_dashboard' %}">Dashboard</a> / <a href="{% url 'referrers_list' %}">Referrers</a>{% endblock %}
+{% block breadcrumb_active %}Commission Overview{% endblock %}
+{% block dashboard_title %}Referral Commission Overview{% endblock %}
+
+{% block css %}
+<style>
+  .page-nav { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:1.5rem; }
+  .month-selector { display:flex; align-items:center; gap:8px; background:#fff; border-radius:8px; padding:6px 12px; box-shadow:0 2px 8px rgba(0,0,0,.07); }
+  .month-selector select { border:none; font-size:.88rem; font-weight:600; color:#344767; outline:none; }
+
+  .stats-row { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:1.5rem; }
+  .stat-card { flex:1; min-width:120px; background:#fff; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,.07); padding:12px 16px; text-align:center; }
+  .stat-card .n { font-size:1.6rem; font-weight:800; }
+  .stat-card .l { font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#888; }
+
+  .referrer-block { background:#fff; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,.07); margin-bottom:1rem; overflow:hidden; }
+  .rb-header { display:flex; align-items:center; gap:12px; padding:12px 18px; border-bottom:1px solid #f0f2f5; }
+  .rb-name { font-weight:700; font-size:.92rem; color:#344767; flex:1; }
+  .rb-total { font-size:.9rem; font-weight:700; }
+  .rb-actions { display:flex; gap:8px; align-items:center; }
+
+  .clients-table { width:100%; border-collapse:collapse; }
+  .clients-table th { padding:8px 14px; font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#6c757d; background:#f8f9fa; }
+  .clients-table td { padding:8px 14px; font-size:.83rem; border-bottom:1px solid #f8f9fa; }
+  .clients-table tr:last-child td { border-bottom:none; }
+
+  .paid-badge { background:#e8f5e9; color:#2e7d32; padding:2px 8px; border-radius:20px; font-size:.7rem; font-weight:700; }
+  .unpaid-badge { background:#fff8e1; color:#f57f17; padding:2px 8px; border-radius:20px; font-size:.7rem; font-weight:700; }
+
+  .empty-state { text-align:center; padding:50px; color:#aaa; }
+  .empty-state i { font-size:2.5rem; display:block; margin-bottom:8px; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Sub-nav -->
+<div class="page-nav mt-3">
+  <a href="{% url 'referrers_list' %}" class="btn btn-sm btn-outline-secondary">
+    <i class="material-icons-round align-middle" style="font-size:.85rem;">people</i> Referrers
+  </a>
+  <a href="{% url 'commission_overview' %}" class="btn btn-sm btn-primary">
+    <i class="material-icons-round align-middle" style="font-size:.85rem;">payments</i> Commission Overview
+  </a>
+  <a href="{% url 'referral_settings' %}" class="btn btn-sm btn-outline-secondary">
+    <i class="material-icons-round align-middle" style="font-size:.85rem;">settings</i> Settings
+  </a>
+  <div class="month-selector ms-auto">
+    <i class="material-icons-round" style="font-size:1rem;color:#aaa;">calendar_month</i>
+    <form method="get" style="display:inline-flex;gap:6px;align-items:center;">
+      <input type="date" name="start" value="{{ start|date:'Y-m-d' }}"
+             style="border:1px solid #e3e6ec;border-radius:6px;font-size:.85rem;padding:3px 6px;">
+      <span class="text-secondary" style="font-size:.8rem;">to</span>
+      <input type="date" name="end" value="{{ end|date:'Y-m-d' }}"
+             style="border:1px solid #e3e6ec;border-radius:6px;font-size:.85rem;padding:3px 6px;">
+      <button type="submit" class="btn btn-sm btn-primary mb-0 py-1 px-2">Apply</button>
+    </form>
+  </div>
+</div>
+
+<!-- Header -->
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <h5 class="mb-0">Commission for <strong>{{ month_label }}</strong></h5>
+  {% if payment_day %}<div class="text-secondary" style="font-size:.78rem;">Commissions are paid on day {{ payment_day }} of each month (set in Referral Settings).</div>{% endif %}
+  <span style="font-size:.82rem;color:#888;">Rate: K {{ commission_rate|floatformat:2 }} per referral</span>
+</div>
+
+<!-- Stats -->
+<div class="stats-row">
+  <div class="stat-card"><div class="n" style="color:#344767;">{{ grouped|length }}</div><div class="l">Referrers with Referrals</div></div>
+  <div class="stat-card"><div class="n" style="color:#344767;">{{ paid_count|add:unpaid_count }}</div><div class="l">Total Referrals</div></div>
+  <div class="stat-card"><div class="n" style="color:#f57f17;">K {{ unpaid_month|floatformat:2 }}</div><div class="l">Unpaid In Range</div></div>
+  <div class="stat-card"><div class="n" style="color:#2e7d32;">K {{ total_month|default:0|floatformat:2 }}</div><div class="l">Total Commission</div></div>
+  <div class="stat-card"><div class="n" style="color:#888;">{{ paid_count }}</div><div class="l">Paid Records</div></div>
+  <div class="stat-card"><div class="n" style="color:#f57f17;">{{ unpaid_count }}</div><div class="l">Unpaid Records</div></div>
+</div>
+
+<!-- Referrer blocks -->
+{% if grouped %}
+  {% for grp in grouped %}
+  <div class="referrer-block">
+    <div class="rb-header">
+      <div>
+        <div class="rb-name">{{ grp.referrer.name }}</div>
+        <div style="font-size:.75rem;color:#aaa;">{{ grp.referrer.phone|default:"" }} {{ grp.referrer.bank_account_name|default:"" }}</div>
+      </div>
+      <div class="rb-total {% if grp.all_paid %}text-success{% else %}text-warning{% endif %}">
+        K {{ grp.total|floatformat:2 }}
+      </div>
+      <div class="rb-actions">
+        {% if not grp.all_paid %}
+        <a href="{% url 'mark_month_paid' grp.referrer.id range_key %}"
+           class="btn btn-sm btn-success px-3"
+           onclick="return confirm('Mark all unpaid referrals for {{ grp.referrer.name }} in {{ month_label }} as paid?')">
+          <i class="material-icons-round align-middle" style="font-size:.85rem;">check_circle</i>
+          Mark Paid ({{ grp.unpaid_count }})
+        </a>
+        {% else %}
+        <span class="paid-badge">✓ All Paid</span>
+        {% endif %}
+        <a href="{% url 'view_referrer' grp.referrer.id %}" class="btn btn-sm btn-outline-secondary px-3">View</a>
+      </div>
+    </div>
+    <table class="clients-table">
+      <thead>
+        <tr>
+          <th>Client</th>
+          <th>Date Referred</th>
+          <th>Commission (K)</th>
+          <th>Status</th>
+          <th>Paid By / Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for rec in grp.records %}
+        <tr>
+          <td>
+            <a href="{% url 'view_client' rec.client.id %}">{{ rec.client.first_name }} {{ rec.client.last_name }}</a>
+          </td>
+          <td>{{ rec.date_referred|date:"d M Y" }}</td>
+          <td><strong>{{ rec.commission_amount|floatformat:2 }}</strong></td>
+          <td>
+            {% if rec.paid %}<span class="paid-badge">Paid</span>
+            {% else %}<span class="unpaid-badge">Pending</span>{% endif %}
+          </td>
+          <td style="font-size:.75rem;color:#888;">
+            {% if rec.paid %}{{ rec.paid_by }} · {{ rec.paid_date|date:"d M Y" }}{% else %}—{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endfor %}
+{% else %}
+  <div class="empty-state">
+    <i class="material-icons-round">receipt_long</i>
+    No referrals recorded for {{ month_label }}.
+  </div>
+{% endif %}
+
+{% endblock %}

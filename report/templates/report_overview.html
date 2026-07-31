@@ -1,0 +1,660 @@
+{% extends "report_base.html" %}
+{% load static %}
+{% load humanize %}
+{% load finance_formats %}
+
+
+{% block title %} Report Overview {% endblock %}
+
+{% block breadcrumb %} <a href="{% url 'admin_dashboard' %}">Admin Dashboard</a> {% endblock %}
+{% block dashboard_title %} Report Overview {% endblock %}
+
+{% block css %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'DataTables/datatables.min.css' %}"/>
+<!-- Font Awesome Icons -->
+<script src="{% static 'fontawesomefree/js/all.min.js' %}"></script>
+
+{% endblock %}
+
+{% block content %}
+     
+  <!-- Content Goes Here -->
+
+  <div class="row mt-5">
+    <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+      <div class="card mb-0">
+        <div class="card-header p-2" style="padding-bottom: 0; margin-bottom: 0;">
+            <h5 style="color: blue;">Repayments</h5>
+            <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+        </div>
+        <div class="card-body m-0 pt-1 pb-1">
+            <p><span class="text-success display-6">K<b>{{ repayments|default_if_none:"0"|currency }}</b></span> per fortnight</p>
+            
+            <div class="row">
+                <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+                <div class="col-xl-6 col-sm-12 m-0 p-1">
+                    <h6>Private Sector ({{ pri_sec_percent|floatformat:0|intcomma }}%)</h6>
+                    <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+                    <p><span class="text-lg text-success font-weight-bolder">K<b>{{ pri_sec_rpay|default_if_none:"0"|currency }}</b></span><br> per fortnight</p>
+                    
+                </div>
+                <div class="col-xl-6 col-sm-12 m-0 p-1">
+                    <h6>Public Sector ({{ pub_sec_percent|floatformat:0|intcomma }}%)</h6>
+                    <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+                    <p><span class="text-success font-weight-bolder">K<b>{{ pub_sec_rpay|default_if_none:"0"|currency }}</b></span><br> per fortnight</p>
+                    
+                </div>
+            </div>
+         
+        </div>
+       
+      </div>
+    </div>
+    
+    <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+        <div class="card mb-0">
+          <div class="card-header p-2" style="padding-bottom: 0; margin-bottom: 0;">
+              <h5 style="color: blue;">Loans Status</h5>
+              <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+          </div>
+          <div class="card-body m-0 pt-1 pb-1">
+              <p><span class="text-success display-6">K<b>{{ loans_total|default_if_none:"0"|currency }}</b></span> in total</p>
+              
+              <div class="row">
+                  <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+                  <div class="col-xl-6 col-sm-12 m-0 p-1">
+                      <h6>Active Loans ({{ active_loans_total_percent|floatformat:0|intcomma }}%)</h6>
+                      <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+                      <p><span class="text-lg text-success font-weight-bolder">K<b>{{ active_loans_total|default_if_none:"0"|currency }}</b></span><br> running</p>
+                      
+                  </div>
+                  <div class="col-xl-6 col-sm-12 m-0 p-1">
+                      <h6>In Recovery ({{ recovery_loans_total_percent|floatformat:0|intcomma }}%)</h6>
+                      <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+                      <p><span class="text-success font-weight-bolder">K<b>{{ recovery_loans_total|default_if_none:"0"|currency }}</b></span><br> in recovery</p>
+                      
+                  </div>
+              </div>
+           
+          </div>
+         
+        </div>
+    </div>
+
+      <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+        <div class="card mb-0">
+          <div class="card-header p-2" style="padding-bottom: 0; margin-bottom: 0;">
+              <h5 style="color: blue;">System Balance</h5>
+              <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+          </div>
+          <div class="card-body m-0 pt-1 pb-1">
+              <p><span class="text-success display-6">K<b>{{ loans_total|default_if_none:"0"|currency }}</b></span> outstanding</p>
+              
+              <div class="row">
+                  <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+                  <div class="col-xl-6 col-sm-12 m-0 p-1">
+                      <h6>Loan Capital ({{ loans_capital_percent|floatformat:0|intcomma }}%)</h6>
+                      <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+                      <p><span class="text-lg text-success font-weight-bolder">K<b>{{ loans_capital|default_if_none:"0"|currency }}</b></span><br> loaned</p>
+                      
+                  </div>
+                  <div class="col-xl-6 col-sm-12 m-0 p-1">
+                      <h6>Interest Generated ({{ interest_generated_percent|floatformat:0|intcomma }}%)</h6>
+                      <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+                      <p><span class="text-success font-weight-bolder">K<b>{{ interest_generated|default_if_none:"0"|currency }}</b></span><br> in interest</p>
+                      
+                  </div>
+              </div>
+           
+          </div>
+         
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+        <div class="card mb-0">
+          <div class="card-header p-2" style="padding-bottom: 0; margin-bottom: 0;">
+              <h5 style="color: blue;">Clients</h5>
+              <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+          </div>
+          <div class="card-body m-0 pt-1 pb-1">
+              <p><span class="text-dark display-6"><b>{{ total_registered }}</b></span> Registered  |  <span class="text-success display-6"><b>{{ active_clients_count }}</b></span> Active | <span class="text-secondary display-6"><b>{{ inactive_clients_count }}</b></span> Inactive</p>
+              
+              <div class="row">
+                  <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+                  <div class="col-xl-6 col-sm-12 m-0 p-1">
+                      <h6>With Loans ({{ active_percent|floatformat:0|intcomma }}%)</h6>
+                      <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+                      <p><span class="text-lg text-success font-weight-bolder"><b>{{ active_clients_with_loan }}</b></span><br> clients</p>
+                      
+                  </div>
+                  <div class="col-xl-6 col-sm-12 m-0 p-1">
+                      <h6>Without Loans ({{ inactive_percent|floatformat:0|intcomma }}%)</h6>
+                      <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+                      <p><span class="text-success font-weight-bolder"><b>{{ inactive_clients_without_loan }}</b></span><br> clients</p>
+                      
+                  </div>
+
+                
+              </div>
+           
+          </div>
+         
+        </div>
+      </div>
+
+     
+
+  </div>
+
+
+  <div class="row mt-4">
+
+    
+
+
+    
+      <div class="col-lg-3 col-md-6 mt-4 mb-4">
+        <div class="card z-index-2 ">
+          
+  
+          <div class="card-body pb-1">
+            <!-- PENDING LOANS BREAKUP -->
+            <div class="chart">
+              <h6 class="text-primary text-sm">Pending Loans Breakup</h5>
+                <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+              <canvas id="loanbreakupdj" class="chart-canvas" height="100"></canvas>
+            </div><!-- PENDING LOANS BREAKUP ENDS -->
+  
+            <hr class="dark horizontal">
+            
+              <p>View all <a style="color:blue;" href="{% url 'userloans_pending' %}" target="_blank">Pending Loan Applications</a></p>
+            
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6 mt-4 mb-4">
+        <div class="card z-index-2 ">
+          
+  
+          <div class="card-body pb-1">
+            <!-- PENDING LOANS BREAKUP -->
+            <div class="chart">
+              <h6 class="text-primary text-sm">Running Loans Breakup</h5>
+                <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+              <canvas id="runningloanbreakupdj" class="chart-canvas" height="100"></canvas>
+            </div><!-- PENDING LOANS BREAKUP ENDS -->
+  
+            <hr class="dark horizontal">
+            
+              <p>View all <a style="color:blue;" href="{% url 'userloans_all' %}" target="_blank">Running Loans</a></p>
+            
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6 mt-4 mb-4">
+        <div class="card z-index-2 ">
+          
+  
+          <div class="card-body pb-1">
+            <!-- PENDING LOANS BREAKUP -->
+            <div class="chart">
+              <h6 class="text-primary text-sm">Interest Breakup</h5>
+                <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+              <canvas id="interestbreakupdj" class="chart-canvas" height="100"></canvas>
+            </div><!-- PENDING LOANS BREAKUP ENDS -->
+  
+            <hr class="dark horizontal">
+            
+              <p>Represents all interest generated by business.</p>
+            
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6 mt-4 mb-4">
+        <div class="card z-index-2 ">
+          
+  
+          <div class="card-body pb-1">
+            <!-- PENDING LOANS BREAKUP -->
+            <div class="chart">
+              <h6 class="text-primary text-sm">Transactions Breakup</h5>
+                <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+              <canvas id="runningloanbreakupdj" class="chart-canvas" height="100"></canvas>
+            </div><!-- PENDING LOANS BREAKUP ENDS -->
+  
+            <hr class="dark horizontal">
+            
+              <p>View all <a style="color:blue;" href="#" target="_blank">Transactions</a></p>
+            
+          </div>
+        </div>
+      </div>
+   
+  </div>
+
+  
+  
+  
+
+
+
+  <!-- Content Ends Here -->
+  
+
+ 
+{% endblock %}
+
+
+
+{% block scripts %}
+
+<script type="text/javascript" src="{% static 'DataTables/datatables.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'DataTables/jquery360.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'DataTables/pdfmake.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'DataTables/pdfmake_vfsfonts.min.js' %}"></script>
+
+<script>
+  $(document).ready( function () {
+    $('#table_id').DataTable({
+      dom: 'B<"clear">lfrtip',
+      buttons: {
+        name: 'primary',
+        buttons: [ 'copy', 'csv', 'excel', 'pdf' ]
+      }
+    });
+  });
+</script>
+
+<!-- CHART JS -->
+<!-- script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.8.2/chart.min.js" integrity="sha512-zjlf0U0eJmSo1Le4/zcZI51ks5SjuQXkU0yOdsOBubjSmio9iCUp8XPLkEAADZNBdR9crRy3cniZ65LF2w8sRA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script -->
+<script src="{% static 'thirdparty/js/chartjs.min.js' %}"></script>
+
+<!--script src="{% static 'assets/js/plugins/chartjs.min.js' %}"></script-->
+
+  <!-- CHART JS -->
+  <script>
+    var ctx = document.getElementById("chart-bars").getContext("2d");
+
+    new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: {{ weekdays|safe }},
+        datasets: [{
+          label: "Sales",
+          tension: 0.4,
+          borderWidth: 0,
+          borderRadius: 4,
+          borderSkipped: false,
+          backgroundColor: "rgba(255, 255, 255, .8)",
+          data: {{ pays|safe }},
+          maxBarThickness: 6
+        }, ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false,
+          }
+        },
+        interaction: {
+          intersect: false,
+          mode: 'index',
+        },
+        scales: {
+          y: {
+            grid: {
+              drawBorder: false,
+              display: true,
+              drawOnChartArea: true,
+              drawTicks: false,
+              borderDash: [5, 5],
+              color: 'rgba(255, 255, 255, .2)'
+            },
+            ticks: {
+              suggestedMin: 0,
+              suggestedMax: 500,
+              beginAtZero: true,
+              padding: 10,
+              font: {
+                size: 14,
+                weight: 300,
+                family: "Roboto",
+                style: 'normal',
+                lineHeight: 2
+              },
+              color: "#fff"
+            },
+          },
+          x: {
+            grid: {
+              drawBorder: false,
+              display: true,
+              drawOnChartArea: true,
+              drawTicks: false,
+              borderDash: [5, 5],
+              color: 'rgba(255, 255, 255, .2)'
+            },
+            ticks: {
+              display: true,
+              color: '#f8f9fa',
+              padding: 10,
+              font: {
+                size: 14,
+                weight: 300,
+                family: "Roboto",
+                style: 'normal',
+                lineHeight: 2
+              },
+            }
+          },
+        },
+      },
+    });
+
+
+    var ctx2 = document.getElementById("chart-line").getContext("2d");
+
+    new Chart(ctx2, {
+      type: "line",
+      data: {
+        labels: {{ weekdays|safe }},
+        datasets: [{
+          label: "Mobile apps",
+          tension: 0,
+          borderWidth: 0,
+          pointRadius: 5,
+          pointBackgroundColor: "rgba(255, 255, 255, .8)",
+          pointBorderColor: "transparent",
+          borderColor: "rgba(255, 255, 255, .8)",
+          borderColor: "rgba(255, 255, 255, .8)",
+          borderWidth: 4,
+          backgroundColor: "transparent",
+          fill: true,
+          data: {{ apps|safe }},
+          maxBarThickness: 6
+
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false,
+          }
+        },
+        interaction: {
+          intersect: false,
+          mode: 'index',
+        },
+        scales: {
+          y: {
+            grid: {
+              drawBorder: false,
+              display: true,
+              drawOnChartArea: true,
+              drawTicks: false,
+              borderDash: [5, 5],
+              color: 'rgba(255, 255, 255, .2)'
+            },
+            ticks: {
+              display: true,
+              color: '#f8f9fa',
+              padding: 10,
+              font: {
+                size: 14,
+                weight: 300,
+                family: "Roboto",
+                style: 'normal',
+                lineHeight: 2
+              },
+            }
+          },
+          x: {
+            grid: {
+              drawBorder: false,
+              display: false,
+              drawOnChartArea: false,
+              drawTicks: false,
+              borderDash: [5, 5]
+            },
+            ticks: {
+              display: true,
+              color: '#f8f9fa',
+              padding: 10,
+              font: {
+                size: 14,
+                weight: 300,
+                family: "Roboto",
+                style: 'normal',
+                lineHeight: 2
+              },
+            }
+          },
+        },
+      },
+    });
+
+    var ctx3 = document.getElementById("chart-line-tasks").getContext("2d");
+
+    new Chart(ctx3, {
+      type: "line",
+      data: {
+        labels: {{ weekdays|safe }},
+        datasets: [{
+          label: "Mobile apps",
+          tension: 0,
+          borderWidth: 0,
+          pointRadius: 5,
+          pointBackgroundColor: "rgba(255, 255, 255, .8)",
+          pointBorderColor: "transparent",
+          borderColor: "rgba(255, 255, 255, .8)",
+          borderWidth: 4,
+          backgroundColor: "transparent",
+          fill: true,
+          data: {{ logs|safe }},
+          maxBarThickness: 6
+
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false,
+          }
+        },
+        interaction: {
+          intersect: false,
+          mode: 'index',
+        },
+        scales: {
+          y: {
+            grid: {
+              drawBorder: false,
+              display: true,
+              drawOnChartArea: true,
+              drawTicks: false,
+              borderDash: [5, 5],
+              color: 'rgba(255, 255, 255, .2)'
+            },
+            ticks: {
+              display: true,
+              padding: 10,
+              color: '#f8f9fa',
+              font: {
+                size: 14,
+                weight: 300,
+                family: "Roboto",
+                style: 'normal',
+                lineHeight: 2
+              },
+            }
+          },
+          x: {
+            grid: {
+              drawBorder: false,
+              display: false,
+              drawOnChartArea: false,
+              drawTicks: false,
+              borderDash: [5, 5]
+            },
+            ticks: {
+              display: true,
+              color: '#f8f9fa',
+              padding: 10,
+              font: {
+                size: 14,
+                weight: 300,
+                family: "Roboto",
+                style: 'normal',
+                lineHeight: 2
+              },
+            }
+          },
+        },
+      },
+    });
+  </script>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+  
+  <!-- CHART JS -->
+
+
+<script>
+  const lb_data = {
+    labels: {{ pendingloanlabels|safe }},
+    datasets: [{
+      label: 'Loan Breakup',
+      //data: [{{ awaiting_tc_loans }},{{ under_review_loans }} ,{{ on_hold_loans }},{{ approved_loans }}, {{ funding_loans }}],
+      data: {{ pendingloansdata|safe }},
+      backgroundColor: [
+        'rgb(25, 123, 252)',
+        'rgb(252, 40, 252)',
+        'rgb(255, 192, 35)',
+        'rgb(8, 214, 8)',
+        'rgb(23, 114, 80)',
+
+      ],
+      hoverOffset: 4
+    }]
+  };
+
+ 
+
+  const options15 = {
+    plugins: {
+      legend: {
+        labels:{
+              boxWidth: 10,
+        }
+      }
+    }
+  }
+
+  const lb_config = {
+    type: 'doughnut',
+    data: lb_data,
+    options: options15,
+  };
+
+  const loanbreakupdj = new Chart(
+    document.getElementById('loanbreakupdj'),
+    lb_config
+  );
+
+</script>
+
+<script>
+  const rlb_data = {
+    labels: {{ arfloanslabels|safe }},
+    datasets: [{
+      label: 'Running Loan Breakup',
+      //data: [{{ awaiting_tc_loans }},{{ under_review_loans }} ,{{ on_hold_loans }},{{ approved_loans }}, {{ funding_loans }}],
+      data: {{ arfloansdata|safe }},
+      backgroundColor: [
+        'rgb(20, 255, 20)',
+        'rgb(255, 0, 0)',
+        'rgb(255, 192, 35)',
+        'rgb(0, 0, 0)',
+
+      ],
+      hoverOffset: 4
+    }]
+  };
+  
+
+  const options16 = {
+    plugins: {
+      legend: {
+        labels:{
+              boxWidth: 10,
+        }
+      }
+    }
+  }
+
+  const rlb_config = {
+    type: 'pie',
+    data: rlb_data,
+    options: options16,
+  };
+
+  const runningloanbreakupdj = new Chart(
+    document.getElementById('runningloanbreakupdj'),
+    rlb_config
+  );
+
+</script>
+      
+<!-- Interst Breakup Chart -->
+<script>
+  const ibc_data = {
+    labels: ['Loan Interest', 'Default Interest'],
+    datasets: [{
+      label: 'Running Loan Breakup',
+      //data: [{{ awaiting_tc_loans }},{{ under_review_loans }} ,{{ on_hold_loans }},{{ approved_loans }}, {{ funding_loans }}],
+      data: ['{{ generated_interest }}', '{{ default_interest_receivable }}'],
+      backgroundColor: [
+        'rgb(20, 255, 120)',
+        'rgb(255, 192, 135)',
+      ],
+      hoverOffset: 4
+    }]
+  };
+  
+
+  const options17 = {
+    plugins: {
+      legend: {
+        labels:{
+              boxWidth: 10,
+        }
+      }
+    }
+  }
+
+  const ibc_config = {
+    type: 'pie',
+    data: ibc_data,
+    options: options17,
+  };
+
+  const interestbreakupdj = new Chart(
+    document.getElementById('interestbreakupdj'),
+    ibc_config
+  );
+
+</script>
+
+{% endblock %}

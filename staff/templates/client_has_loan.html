@@ -1,0 +1,185 @@
+{% extends "staff_base.html" %}
+{% load humanize %}
+{% load finance_formats %}
+
+{% block title %}Client Has Existing Loan{% endblock %}
+{% block breadcrumb %}<a href="{% url 'staff_dashboard' %}">Dashboard</a> / <a href="{% url 'userloans' %}">Loans</a>{% endblock %}
+{% block breadcrumb_active %}Existing Loan{% endblock %}
+{% block dashboard_title %}Client Already Has a Loan{% endblock %}
+
+{% block css %}
+<style>
+  .loan-card {
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,.08);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+  }
+  .loan-card-header {
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .loan-card-header.funded  { background: linear-gradient(135deg,#1a6230 0%,#28a745 100%); }
+  .loan-card-header.pending { background: linear-gradient(135deg,#856404 0%,#ffc107 100%); }
+  .loan-card-header h5 { color:#fff; margin:0; font-size:.93rem; font-weight:700; }
+  .loan-card-body { background:#fff; padding:20px 24px; }
+  .info-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px; }
+  .info-item label { font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; color:#888; display:block; margin-bottom:2px; }
+  .info-item span  { font-size:.92rem; font-weight:600; color:#344767; }
+  .badge-status { display:inline-block; padding:3px 10px; border-radius:20px; font-size:.75rem; font-weight:700; }
+  .badge-ACTIVE    { background:#d4edda; color:#155724; }
+  .badge-RECOVERY  { background:#fff3cd; color:#856404; }
+  .badge-BAD       { background:#f8d7da; color:#721c24; }
+  .badge-WOFF      { background:#e2e3e5; color:#383d41; }
+  .badge-DEFAULTED { background:#f8d7da; color:#721c24; }
+  .badge-RUNNING   { background:#d4edda; color:#155724; }
+  .badge-pending   { background:#fff3cd; color:#856404; }
+  .alert-block {
+    background:#fff8e1;
+    border-left:5px solid #ffc107;
+    border-radius:8px;
+    padding:16px 20px;
+    margin-bottom:1.5rem;
+    font-size:.9rem;
+    color:#5a4000;
+  }
+  .action-row { display:flex; gap:12px; flex-wrap:wrap; margin-top:1.5rem; }
+  .btn-additional {
+    background: linear-gradient(135deg,#1a6230 0%,#28a745 100%);
+    color:#fff; border:none; border-radius:8px;
+    padding:11px 26px; font-size:.88rem; font-weight:700;
+    display:inline-flex; align-items:center; gap:7px;
+    text-decoration:none; cursor:pointer;
+    transition:opacity .15s;
+  }
+  .btn-additional:hover { opacity:.88; color:#fff; }
+  .btn-back {
+    background:#f4f6f9; color:#555; border:none; border-radius:8px;
+    padding:11px 22px; font-size:.88rem; font-weight:600;
+    display:inline-flex; align-items:center; gap:7px;
+    text-decoration:none; transition:background .15s;
+  }
+  .btn-back:hover { background:#e2e6ea; color:#344767; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mt-2">
+  <div class="col-xl-10 col-lg-11 col-12 mx-auto">
+
+    <div class="alert-block">
+      <i class="material-icons-round align-middle" style="font-size:1.1rem;">warning</i>
+      <strong>{{ client_name }}</strong> already has active or pending loan(s) on record.
+      A new standalone loan cannot be created until all existing loans are completed.
+      If you intended to process an <strong>Additional Loan</strong> on top of the existing balance, use the button below.
+    </div>
+
+    <!-- Funded / Running loans -->
+    {% for loan in active_funded %}
+    <div class="loan-card">
+      <div class="loan-card-header funded">
+        <i class="material-icons-round" style="color:rgba(255,255,255,.8);font-size:1.1rem;">account_balance_wallet</i>
+        <h5>Active Loan &mdash; {{ loan.ref }}</h5>
+      </div>
+      <div class="loan-card-body">
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Loan Ref</label>
+            <span>{{ loan.ref }}</span>
+          </div>
+          <div class="info-item">
+            <label>Loan Amount</label>
+            <span>K{{ loan.amount|currency }}</span>
+          </div>
+          <div class="info-item">
+            <label>Total Outstanding</label>
+            <span>K{{ loan.total_outstanding|currency }}</span>
+          </div>
+          <div class="info-item">
+            <label>Repayment</label>
+            <span>K{{ loan.repayment_amount|currency }}</span>
+          </div>
+          <div class="info-item">
+            <label>Next Payment</label>
+            <span>{{ loan.next_payment_date|default:"—" }}</span>
+          </div>
+          <div class="info-item">
+            <label>Fortnights Remaining</label>
+            <span>{{ loan.number_of_fortnights }}</span>
+          </div>
+          <div class="info-item">
+            <label>Category</label>
+            <span class="badge-status badge-{{ loan.funded_category }}">{{ loan.funded_category }}</span>
+          </div>
+          <div class="info-item">
+            <label>Status</label>
+            <span class="badge-status badge-{{ loan.status|cut:' ' }}">{{ loan.status }}</span>
+          </div>
+        </div>
+        <div class="mt-3">
+          <a href="{% url 'view_loan_staff' loan.ref %}" class="btn-back" style="font-size:.82rem;">
+            <i class="material-icons-round" style="font-size:.9rem;">open_in_new</i> View Full Loan
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+
+    <!-- Pending loans -->
+    {% for loan in active_pending %}
+    <div class="loan-card">
+      <div class="loan-card-header pending">
+        <i class="material-icons-round" style="color:rgba(255,255,255,.85);font-size:1.1rem;">hourglass_top</i>
+        <h5>Pending Loan &mdash; {{ loan.ref }}</h5>
+      </div>
+      <div class="loan-card-body">
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Loan Ref</label>
+            <span>{{ loan.ref }}</span>
+          </div>
+          <div class="info-item">
+            <label>Loan Amount</label>
+            <span>K{{ loan.amount|currency }}</span>
+          </div>
+          <div class="info-item">
+            <label>Status</label>
+            <span class="badge-status badge-pending">{{ loan.status }}</span>
+          </div>
+          <div class="info-item">
+            <label>Fortnights</label>
+            <span>{{ loan.number_of_fortnights }}</span>
+          </div>
+        </div>
+        <div class="mt-3">
+          <a href="{% url 'view_loan_staff' loan.ref %}" class="btn-back" style="font-size:.82rem;">
+            <i class="material-icons-round" style="font-size:.9rem;">open_in_new</i> View Full Loan
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+
+    <div class="action-row">
+      {% if refinance_allowed %}
+      <a href="{% url 'add_additional_loan' %}" class="btn-additional">
+        <i class="material-icons-round" style="font-size:1rem;">add_circle</i>
+        Get Additional Loan
+      </a>
+      {% else %}
+      <span class="btn-additional" style="opacity:.6;cursor:not-allowed;" title="Refinance Type is set to Refinance Not Allowed">
+        <i class="material-icons-round" style="font-size:1rem;">block</i>
+        Additional Loan Unavailable — Existing Loan Must Complete First
+      </span>
+      {% endif %}
+      <a href="{% url 'create_loan' %}" class="btn-back">
+        <i class="material-icons-round" style="font-size:.9rem;">arrow_back</i>
+        Back to Create Loan
+      </a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

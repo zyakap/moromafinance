@@ -1,0 +1,438 @@
+
+{% extends "staff_base.html" %}
+{% load static %}
+{% load humanize %}
+{% load finance_formats %}
+
+{% block title %} Loans | Pending {% endblock %}
+
+{% block breadcrumb %} <a href="{% url 'admin_dashboard' %}">Admin Dashboard</a>  /  <a href="{% url 'loans' %}">Loans</a> {% endblock %}
+{% block breadcrumb_active %} All {% endblock %}
+{% block dashboard_title %} All Loans {% endblock %}
+
+{% block css %}
+
+<!-- DataTables LOCAL CSS -->
+<link rel="stylesheet" type="text/css" href="{% static 'DataTables/datatables.min.css' %}"/>   
+
+<style>
+  .flex-container {
+    display: flex;
+  }
+  
+  .flex-child {
+    flex: 1;
+  }  
+  
+  .flex-child:first-child {
+    margin-right: 5px;
+  } 
+  .flex-child:last-child {
+    margin-left: 5px;
+  } 
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+
+  <!-- Content Goes Here -->
+  <div class="row mt-3">
+    <div class="col-xl-2 col-lg-2 col-md-4 col-sm-6 col-xs-6 mb-1">
+      <div>
+        <div class="card p-0 mt-2 text-center btn-sm bg-success">
+          <a href="{% url 'create_loan' %}">
+            <h6 class="p-2 m-0 text-light text-sm"><i class="fa-solid fa-briefcase text-xs"></i><i class="fa-solid fa-plus"></i> Add Loan &nbsp;</h6>
+          </a> 
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-2 col-lg-2 col-md-4 col-sm-6 col-xs-6 mb-1">
+      <div>
+        <div class="card p-0 mt-2 text-center button button2 btn-sm">
+          <a href="{% url 'userloans_unfinished' %}">
+            <h6 class="p-0 m-0 text-light text-xs">Unfinished &nbsp;<span style="font-size: 14px; margin-top: 2px; margin-bottom: 2px; padding-top: 2px; padding-bottom: 2px;" class="badge bg-dark ">{% if  unfinished_loans.count %}{{ unfinished_loans.count }}{% else %}0{% endif %}</span></h6>
+          </a> 
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-2 col-lg-2 col-md-4 col-sm-6 col-xs-6 mb-1">
+      <div>
+        <div class="card p-0 mt-2 text-center button button2 btn-sm">
+          <a href="{% url 'userloans_review' %}">
+            <h6 class="p-0 m-0 text-light text-xs">Under Review &nbsp;<span style="font-size: 14px; margin-top: 2px; margin-bottom: 2px; padding-top: 2px; padding-bottom: 2px;" class="badge bg-warning ">{% if  review_loans.count %}{{ review_loans.count }}{% else %}0{% endif %}</span></h6>
+          </a> 
+        </div>
+      </div>
+    </div>
+
+   
+
+    <div class="col-xl-2 col-lg-2 col-md-4 col-sm-6 col-xs-6 mb-1">
+      <div>
+        <div class="card p-0 mt-2 text-center btn-sm">
+          <a href="{% url 'userloans_pending' %}">
+            <h6 class="p-0 m-0 text-primary text-sm">All Pending&nbsp;<span style="font-size: 14px; margin-top: 2px; margin-bottom: 2px; padding-top: 2px; padding-bottom: 2px;" class="badge bg-info ">{% if  pending_loans.count %}{{ pending_loans.count }}{% else %}0{% endif %}</span></h6>
+          </a> 
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="col-xl-2 col-lg-2 col-md-4 col-sm-6 col-xs-6 mb-1">
+      <div>
+        <div class="card p-0 mt-2 text-center button button2 btn-sm">
+          <a href="{% url 'userloans_all' %}">
+            <h6 class="p-0 m-0 text-light text-xs">All Loans &nbsp;<span style="font-size: 14px; margin-top: 2px; margin-bottom: 2px; padding-top: 2px; padding-bottom: 2px;" class="badge bg-success ">{% if  all_loans.count %}{{ all_loans.count }}{% else %}0{% endif %}</span></h6>
+          </a> 
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-1">
+    <div class="table-responsive p-2">
+      <table class="table table-dark table-striped table-sm p-0 m-0" style="border-radius: 10px;">
+        <thead>
+          <tr>
+            <th class="text-center">Loans</th>
+            <th class="text-center">Total Amount</th>
+            <th class="text-center">Expected Interest</th>
+            <th class="text-center">Total Expected</th>
+            <th class="text-center">Total Repayments</th>
+           
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="text-center">{% if all_loans_filtered.count %}{{ all_loans_filtered.count }}{% else %}No Loans{% endif %}</td>
+            <td class="text-center">{% if funded_sum %}K{{ funded_sum|default_if_none:"0"|currency }}{% else %}0{% endif %}</td>
+            <td class="text-center">{% if interests_sum %}K{{ interests_sum|default_if_none:"0"|currency }}{% else %}0{% endif %}</td>
+            <td class="text-center">{% if totalloan_sum %}K{{ totalloan_sum|default_if_none:"0"|currency }}{% else %}0{% endif %}</td>
+            <td class="text-center">{% if repayments_sum %}K{{ repayments_sum|default_if_none:"0"|currency }}{% else %}0{% endif %}</td>
+
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="accordion" id="accordionExample" style="background-color: #fdfdfd; border-radius: 10px; padding-left: 5px; padding-right: 5px; margin-bottom: 10px;">
+    <div class="accordion-item">
+      <h3 class="accordion-header" id="headingOne">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <span class="pl-3">&nbsp;&nbsp;Filter all Loans (click to show/hide filter) {% if filter == 'on' %}<span class="badge text-info" style="border: solid 1px #0cf">Filter ON</span> <a href="{{ referrer }}"><span class="badge bg-success">Reset Filter &nbsp;<i class="fa-solid fa-close"></i></span></a>{% endif %}</span>
+        </button>
+      </h3>
+      <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+        <div class="accordion-body p-2 m-0">
+          <div class="row">
+            <div class="col-12">
+              <div class="card p-0 mb-1">
+                <div class="card-header bg-secondary pt-2 pr-2 pb-0 pl-2">
+                  <h4 class="text-light">Filter All Loans</h4>
+                </div>
+                <div class="card-body pt-3 pr-1 pb-1 pl-2">
+                  <p class="text-secondary">Select Loan Type or Member Category or Timeframe or any combination to filter</p>
+                  <form method="POST">
+                    {% csrf_token %}
+                    <div class="row">
+                      <div class="col-xl-2 col-lg-2 col-md-4 col-sm-6 col-xs-6">
+                        <div class="input-group mb-2">
+                          <select name="loantype" class="form-select" aria-label="Default select">
+                            <option value="">Select Loan Type</option>
+                            <option value="PERSONAL">PERSONAL</option>
+                            <option value="SME">SME</option>
+
+                          </select>
+                        </div>
+                      </div>
+                      
+                      <div class="col-xl-2 col-lg-2 col-md-4 col-sm-6 col-xs-6">
+                        <div class="input-group mb-2">
+                          <select name="cuscat" class="form-select" aria-label="Default select">
+                            <option value="">Client Category</option>
+                            <option value="MEMBER">Members (Existing)</option>
+                            <option value="NON-MEMBER">Non-Members (New)</option>
+                            <option value="STAFF">Staff</option>
+                          </select>
+                        </div>
+                      </div>
+                      
+                      <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6 col-xs-6">
+                        <div class="input-group">
+                          <table class="p-0 m-0">
+                            <tr class="p-0 m-0">
+                              <td class="p-0 m-0">
+                                <p class="text-secondary">Start:&nbsp;</p>
+                              </td>
+                              <td class="p-0 m-0">
+                                <input id="startdate" type="text" name="startdate" class="form-control flatpickr-date" placeholder="Start dd/mm/yyyy" aria-label="startdate" aria-describedby="startdate">  
+                              </td>
+                            </tr>
+                          </table>  
+                        </div>
+                      </div>
+                      <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6 col-xs-6">
+                        <div class="input-group">
+                          <table class="p-0 m-0">
+                            <tr class="p-0 m-0">
+                              <td class="p-0 m-0">
+                                <p class="text-secondary">End:&nbsp;&nbsp;</p>
+                              </td>
+                              <td class="p-0 m-0">
+                                <input type="text" name="enddate" class="form-control flatpickr-date" placeholder="dd/mm/yyyy" aria-label="enddate" aria-describedby="enddate" style="width: 100%;"> 
+                              </td>
+                            </tr>
+                          </table> 
+                        </div>
+                      </div>
+                      <div class="col-xl-2 col-lg-2 col-md-4 col-sm-6 col-xs-6">
+                        <div class="p-0 mt-2">
+                          <button type="submit" class="btn btn-sm btn-primary m-0 text-center" style="width: 100%">Filter</button>
+                        </div>
+                      </div>
+                      
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div> 
+  </div>
+
+  <div class="row">
+    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+      <!-- ALL LOANS -->
+      <div class="card my-3">
+          <div class="card-header bg-secondary p-0 position-relative mt-n2 mx-3 z-index-2">
+              <h6 class="text-white text-center pt-3 pb-1">
+                {% if loantype %}<span class="badge bg-primary text-md" style="color:yellow;">{{ loantype }}</span>{% endif %}
+              LOANS 
+              {% if cuscat %}of <span class="badge bg-primary text-md" style="color:yellow;">{{ cuscat }}{% if cuscat != "STAFF" %}S{% endif %}</span>{% endif %}
+              {% if startdate and enddate %}- Funded from <span class="badge bg-primary text-md" style="color:yellow;">{{ startdate }}</span> to <span class="badge bg-primary text-md" style="color:yellow;">{{ enddate }}</span>{% endif %}
+              </h6>
+          </div>
+        <div class="card-body px-0 p-1">
+          <div class="table-responsive p-1">
+            <table id="allLoansTable" class="table table-striped table-hover align-items-center justify-content-center mb-0">
+              <thead>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Loan Ref</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">First Name</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Last Name</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Type</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Amount</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Repayment</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">FNs</th>
+                  
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Interest</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Total</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Status</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Review</th>
+
+                </tr>
+              </thead>
+              <tbody>
+                {% for loan in all_loans_filtered %}
+                <tr>
+                  <TD>
+                      <div class="d-flex px-1">
+                          <div>
+                         {% if loan.owner.propic_url %}<img src="{{ loan.owner.propic_url }}" class="avatar avatar-xs rounded-circle me-1" alt="invision">{% else %}<img src="{% static 'img/profilepicture.png' %}" class="avatar avatar-xs rounded-circle me-1" alt="invision">{% endif %}
+                          </div>
+                          <div class="my-auto">
+                          <h6 class="mb-0 text-xs"><a href="{% url 'view_loan_staff' loan.ref %}" class="text-primary">{{ loan.ref }}</a></h6>
+                          </div>
+                      </div>
+                  </TD>
+                  <TD>
+                    <a href="{% url 'view_member' loan.owner.id %}">
+                      <span class="text-xs font-weight-bold">{{ loan.owner.first_name}} 
+                      {% if loan.owner.middle_name != None %}
+                        {{ loan.owner.middle_name}} 
+                      {% endif %} 
+                      
+                    </span>
+                    </a>
+                  </TD>
+                  <TD>
+                    <a href="{% url 'view_member' loan.owner.id %}">
+                      <span class="text-xs font-weight-bold">
+                      {{ loan.owner.last_name}}
+                      </span>
+                    </a>
+                  </TD>
+                  <TD>
+                    <span class="text-xs font-weight-bold">{{ loan.loan_type }}</span>
+                  </TD>
+                  <TD>
+                    <p class="text-xs font-weight-bold mb-0">{{ loan.amount|default_if_none:"0"|currency }}</p>
+                  </TD>
+                  
+                  <TD>
+                    <span class="text-xs font-weight-bold">{{ loan.repayment_amount|default_if_none:"0"|currency }}</span>
+                  </TD>
+                  <TD>
+                    <span class="text-xs font-weight-bold">{{ loan.number_of_fortnights }}</span>
+                  </TD>
+                  
+                  <TD>
+                    <span class="text-xs font-weight-bold">{{ loan.interest|default_if_none:"0"|currency }}</span>
+                  </TD>
+                  <TD>
+                    <span class="text-xs font-weight-bold">{{ loan.total_outstanding|default_if_none:"0"|currency }}</span>
+                  </TD>
+                  <TD class="align-middle text-xs">
+                   <span class="badge badge-sm bg-gradient-{% if loan.status == 'RUNNING' %}success{% elif loan.status == 'DEFAULTED' %}danger{% else %}info{% endif %}">{{ loan.status }}</span>
+                  </TD>
+                  <TD class="align-middle">
+                    {% if loan.officer %}
+                      {{ loan.officer }}
+                    {% else %}
+                    <a href="{{domain}}/staff/userloans/review_loan/{{ loan.ref }}/">
+                    <button class="btn btn-lg bg-primary text-light m-0 pt-0 pb-0 pl-2 pr-2" >
+                      <i class="fa-solid fa-hourglass"></i>
+                    </button>
+                    </a>
+                    {% endif %}
+                  </TD>
+                
+                </tr>
+                {% endfor %}
+                
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+  <!-- Content Ends Here -->
+
+  
+
+ 
+{% endblock %}
+
+
+
+{% block scripts %}
+
+
+
+
+<!-- DATATables LOCAL JS -->
+<script defer type="text/javascript" src="{% static 'DataTables/datatables.min.js' %}"></script>   
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/v/bs5/jq-3.6.0/jszip-2.5.0/dt-1.12.1/b-2.2.3/b-colvis-2.2.3/b-html5-2.2.3/b-print-2.2.3/cr-1.5.6/kt-2.7.0/sp-2.0.2/datatables.min.js"></script>
+
+<script>
+    $("#allLoansTable").DataTable({
+        // DataTable configurations
+        paging: true,
+        pageLength: 10,
+        lengthChange: true,
+        autoWidth: true,
+        searching: true,
+        bInfo: true,
+        bSort: true,
+
+        dom: 'lBfrtip',
+        buttons: [
+            {
+                extend: 'copy',
+                text: '<i class="fa fa-solid fa-copy"></i>',
+                className: 'btn btn-secondary',
+                titleAttr: 'Copy Data',
+                // Choose Columns
+                exportOptions: {
+                  columns: [0,1,2,3,4,5,6,7,8,9]
+                }
+            },
+            {
+              extend: 'excel',
+              text: '<i class="fa fa-solid fa-file-excel"></i>',
+              className: 'btn btn-secondary',
+              titleAttr: 'Export to Excel',
+              // Choose Columns
+              exportOptions: {
+                columns: [0,1,2,3,4,5,6,7,8,9]
+              }
+            },
+            {
+              extend: 'print',
+              text: '<i class="fa fa-solid fa-print"></i>',
+              className: 'btn btn-secondary',
+              titleAttr: 'Print Table',
+              // Choose Columns
+              exportOptions: {
+                columns: [0,1,2,3,4,5,6,7,8,9]
+              },
+              // Font size when printing
+              customize: function ( win ) {
+                $(win.document.body).css('font-size', '10pt')
+                $(win.document.body).find('table')
+                  .addClass('compact')
+                  .css('font-size', 'inherit');
+              }
+            },
+            {
+              extend: 'pdf',
+              text: '<i class="fa fa-solid fa-file-pdf"></i>',
+              className: 'btn btn-secondary',
+              titleAttr: 'Export to PDF',
+              orientation: 'landscape',
+              pageSize: 'A4',
+              
+              // Choose Columns
+              exportOptions: {
+                columns: []
+              },
+              
+              // center the table
+              tableHeader: {
+                alignment: 'left'
+              },
+              // Font size & Customization
+              customize: function (doc) {
+              //      doc.style.tableHeader.alignment = 'center'; // Header position 
+                   // doc.style.tableBodyOdd.alignment = 'center';
+                  // doc.style.tableBodyEven.alignment = 'center';
+              //      doc.style.tableHeader.fontSize = 7;
+               //     doc.defaultStyle.fontSize = 6;
+              //      // TO GET 100% width on table
+                   doc.content[1].table.widths = Array(doc.content[1].table.body[1].length + 1).join('*').split('');
+              },
+              
+            },
+            {
+              extend: 'collection',
+              className: 'custom-html-collection',
+              buttons: [
+                  '<h6>Export</h6>',
+                  'csv',
+                  '<h6 class="not-top-heading">Hide/Show Columns</h6>',
+                  'colvis',
+              ]
+          }
+
+        ]
+    });
+</script>
+
+
+
+{% endblock %}

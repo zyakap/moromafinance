@@ -1,0 +1,174 @@
+{% extends "admin_base.html" %}
+{% load humanize %}
+
+{% block title %} DCC Credit Check {% endblock %}
+
+{% block breadcrumb %} <a href="{% url 'clients_all' %}">Clients</a> / <a href="{% url 'view_client' client.id %}">{{ client.first_name }} {{ client.last_name }}</a> {% endblock %}
+{% block breadcrumb_active %} DCC Credit Check {% endblock %}
+{% block dashboard_title %} DCC Credit Check — {{ client.first_name }} {{ client.last_name }} {% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+
+    {% if not dcc_enabled %}
+      <div class="alert alert-warning">
+        DCC credit checks are disabled (searches are not billed). The data feed to DCC stays on.
+        Enable pay-per-view checks in <a href="{% url 'admin_settings_dcc' %}">Settings &rarr; DCC</a>.
+      </div>
+
+    {% elif result.error %}
+      <div class="alert alert-danger">{{ result.error }}</div>
+
+    {% elif result.not_found %}
+      <div class="alert alert-info">
+        <strong>{{ client.first_name }} {{ client.last_name }}</strong> (UID <code>{{ client.uid }}</code>)
+        has no record in the DCC Credit Database ({{ dcc_endpoint }}). Nothing has been billed.
+      </div>
+
+    {% elif dcc_locked %}
+      <!-- PAY-PER-VIEW OVERLAY -->
+      <div class="card mb-3">
+        <div class="card-body p-0">
+          <div style="position: relative; min-height: 320px; overflow: hidden;">
+            <div aria-hidden="true" style="filter: blur(7px); user-select: none; pointer-events: none; padding: 24px;">
+              <h5>Credit Summary</h5>
+              <p>Benchmark Score: &#9608;&#9608;&#9608;/1000 &nbsp; Grade: &#9608;&#9608;</p>
+              <p>Total Loans: &#9608;&#9608; &nbsp; Running: &#9608; &nbsp; Defaulted: &#9608; &nbsp; Outstanding: K&#9608;,&#9608;&#9608;&#9608;.&#9608;&#9608;</p>
+              <p>Loan records, repayment history and bureau comments are included in the full report.</p>
+            </div>
+            <div style="position: absolute; inset: 0; background: rgba(33,37,41,.55); display: flex; align-items: center; justify-content: center;">
+              <div class="text-center bg-white p-4" style="border-radius: 12px; max-width: 440px; box-shadow: 0 10px 30px rgba(0,0,0,.35);">
+                <i class="fa-solid fa-lock text-secondary" style="font-size: 1.6rem;"></i>
+                <h5 class="mt-2 mb-1">Credit data available</h5>
+                <p class="text-muted mb-1" style="font-size:.85rem;">
+                  A DCC record was found for
+                  <strong>{{ dcc_report.client.first_name }} {{ dcc_report.client.last_name }}</strong>.
+                  Viewing is billed per view.
+                </p>
+                <p class="text-muted mb-3" style="font-size:.8rem;">
+                  {% if dcc_access.price_per_view %}Price: <strong>{{ dcc_access.currency }} {{ dcc_access.price_per_view }}</strong> &middot;{% endif %}
+                  access stays open for <strong>{{ dcc_access.window_hours|default:12 }} hours</strong> after unlocking.
+                </p>
+                <form method="post" action="{% url 'dcc_unlock' client.id %}">
+                  {% csrf_token %}
+                  <input type="hidden" name="next" value="{% url 'dcc_credit_check' client.id %}">
+                  <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fa-solid fa-eye"></i>&nbsp; View Data
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    {% elif report %}
+      {% if dcc_access.expires_at %}
+      <div class="alert alert-success pt-2 pb-2">
+        <i class="fa-solid fa-lock-open"></i>
+        Paid view is open — access ends <strong>{{ dcc_access.expires_at }}</strong>.
+      </div>
+      {% endif %}
+
+      <div class="card mb-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <strong>Credit Summary</strong>
+          <span>
+            {% if report.summary.dcc_flagged %}
+              <span class="badge bg-danger">FLAGGED — {{ report.summary.dcc_status }}</span>
+            {% else %}
+              <span class="badge bg-success">{{ report.summary.dcc_status|default:"CLEAR" }}</span>
+            {% endif %}
+          </span>
+        </div>
+        <div class="card-body">
+          <div class="row text-center">
+            <div class="col-md-2 col-6 mb-2"><div class="text-muted small">Benchmark Score</div><h4>{{ report.summary.score }} <small class="text-muted">/1000</small></h4><span class="badge bg-info">{{ report.summary.grade }}</span></div>
+            <div class="col-md-2 col-6 mb-2"><div class="text-muted small">Credit Rating</div><h4>{{ report.summary.credit_rating|default:"—" }}</h4></div>
+            <div class="col-md-2 col-6 mb-2"><div class="text-muted small">Total Loans</div><h4>{{ report.summary.total_loans }}</h4></div>
+            <div class="col-md-2 col-6 mb-2"><div class="text-muted small">Defaulted</div><h4 class="{% if report.summary.defaulted_loans %}text-danger{% endif %}">{{ report.summary.defaulted_loans }}</h4></div>
+            <div class="col-md-2 col-6 mb-2"><div class="text-muted small">Outstanding</div><h4>{{ report.summary.total_outstanding|floatformat:2|intcomma }}</h4></div>
+            <div class="col-md-2 col-6 mb-2"><div class="text-muted small">Arrears</div><h4 class="{% if report.summary.total_arrears %}text-danger{% endif %}">{{ report.summary.total_arrears|floatformat:2|intcomma }}</h4></div>
+          </div>
+          <div class="row text-center border-top pt-2">
+            <div class="col-md-3 col-6"><div class="text-muted small">Lenders reporting</div><strong>{{ report.summary.tenants_reporting }}</strong></div>
+            <div class="col-md-3 col-6"><div class="text-muted small">Months with repayments</div><strong>{{ report.summary.months_active }}</strong></div>
+            <div class="col-md-3 col-6"><div class="text-muted small">Past bad episodes</div><strong>{{ report.summary.status_events }}</strong></div>
+            <div class="col-md-3 col-6"><div class="text-muted small">Identity changes</div><strong>{{ report.summary.identity_changes }}</strong></div>
+          </div>
+          {% if report.client.dcc_comment %}
+            <p class="mb-0 mt-2"><strong>Bureau comment:</strong> {{ report.client.dcc_comment }}</p>
+          {% endif %}
+        </div>
+      </div>
+
+      {% if report.loans is not None %}
+      <div class="card mb-3">
+        <div class="card-header"><strong>Loans on record ({{ report.loans|length }})</strong></div>
+        <div class="card-body table-responsive">
+          <table class="table table-sm table-striped align-middle mb-0">
+            <thead><tr>
+              <th>Ref</th><th>Lender</th><th>Status</th><th class="text-end">Amount</th>
+              <th class="text-end">Outstanding</th><th class="text-end">Arrears</th>
+              <th class="text-end">Defaults</th><th>Aging</th>
+            </tr></thead>
+            <tbody>
+              {% for loan in report.loans %}
+              <tr>
+                <td><code>{{ loan.ref }}</code></td>
+                <td>{{ loan.LUID }}</td>
+                <td>{{ loan.status|default:loan.funded_category }}</td>
+                <td class="text-end">{{ loan.amount|floatformat:2|intcomma }}</td>
+                <td class="text-end">{{ loan.total_outstanding|floatformat:2|intcomma }}</td>
+                <td class="text-end">{{ loan.total_arrears|floatformat:2|intcomma }}</td>
+                <td class="text-end">{{ loan.number_of_defaults|default:0 }}</td>
+                <td>{{ loan.aging_category|default:"—" }}</td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="8" class="text-center text-muted">No loans on record.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% else %}
+      <div class="alert alert-secondary">Loan detail is not included in this tenant's DCC plan.</div>
+      {% endif %}
+
+      {% if report.transactions is not None %}
+      <div class="card mb-3">
+        <div class="card-header"><strong>Recent transactions ({{ report.transactions|length }})</strong></div>
+        <div class="card-body table-responsive">
+          <table class="table table-sm table-striped align-middle mb-0">
+            <thead><tr>
+              <th>Date</th><th>Loan</th><th>Type</th><th>Statement</th>
+              <th class="text-end">Debit</th><th class="text-end">Credit</th><th class="text-end">Balance</th>
+            </tr></thead>
+            <tbody>
+              {% for txn in report.transactions %}
+              <tr>
+                <td>{{ txn.date }}</td>
+                <td><code>{{ txn.loanref }}</code></td>
+                <td>{{ txn.type|default:"—" }}</td>
+                <td>{{ txn.statement|default:"—" }}</td>
+                <td class="text-end">{{ txn.debit|floatformat:2|intcomma }}</td>
+                <td class="text-end">{{ txn.credit|floatformat:2|intcomma }}</td>
+                <td class="text-end">{{ txn.balance|floatformat:2|intcomma }}</td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="7" class="text-center text-muted">No transactions on record.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% endif %}
+
+      <p class="text-muted"><small>Source: DCC Credit Database ({{ dcc_endpoint }}) — plan: {{ report.plan }}.</small></p>
+    {% endif %}
+
+    <a href="{% url 'view_client' client.id %}" class="btn btn-secondary">&larr; Back to client</a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,230 @@
+{% extends "admin_base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}{{ referrer.name }}{% endblock %}
+{% block breadcrumb %}<a href="{% url 'admin_dashboard' %}">Dashboard</a> / <a href="{% url 'referrers_list' %}">Referrers</a>{% endblock %}
+{% block breadcrumb_active %}{{ referrer.name }}{% endblock %}
+{% block dashboard_title %}Referrer Profile{% endblock %}
+
+{% block css %}
+<style>
+  .profile-header {
+    background: linear-gradient(135deg,#344767 0%,#21315c 100%);
+    border-radius:12px; padding:22px 26px; margin-bottom:1.5rem;
+    display:flex; align-items:center; gap:18px; flex-wrap:wrap;
+  }
+  .profile-avatar {
+    width:54px; height:54px; border-radius:50%; background:rgba(255,255,255,.15);
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.4rem; font-weight:800; color:#fff; flex-shrink:0;
+  }
+  .profile-name { color:#fff; font-size:1.15rem; font-weight:700; margin:0; }
+  .profile-sub { color:rgba(255,255,255,.7); font-size:.82rem; }
+  .profile-actions { margin-left:auto; display:flex; gap:8px; flex-wrap:wrap; }
+
+  .stat-row { display:flex; gap:10px; margin-bottom:1.5rem; flex-wrap:wrap; }
+  .stat-box { flex:1; min-width:110px; background:#fff; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,.07); padding:12px 16px; text-align:center; }
+  .stat-box .n { font-size:1.5rem; font-weight:800; }
+  .stat-box .l { font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#888; }
+
+  .meta-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+  .meta-item { }
+  .meta-label { font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#aaa; }
+  .meta-value { font-size:.88rem; color:#344767; font-weight:600; }
+
+  .month-block { margin-bottom:1.2rem; }
+  .month-header {
+    display:flex; align-items:center; justify-content:space-between;
+    background:#f8f9fa; padding:9px 14px; border-radius:8px 8px 0 0;
+    border-bottom:2px solid #e9ecef;
+  }
+  .month-title { font-weight:700; font-size:.85rem; color:#344767; }
+  .month-total { font-size:.85rem; font-weight:700; color:#344767; }
+  .paid-badge { background:#e8f5e9; color:#2e7d32; padding:3px 10px; border-radius:20px; font-size:.7rem; font-weight:700; }
+  .unpaid-badge { background:#fff8e1; color:#f57f17; padding:3px 10px; border-radius:20px; font-size:.7rem; font-weight:700; }
+
+  .clients-table { width:100%; border-collapse:collapse; }
+  .clients-table th { padding:8px 12px; font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#6c757d; border-bottom:1px solid #f0f2f5; }
+  .clients-table td { padding:8px 12px; font-size:.83rem; border-bottom:1px solid #f8f9fa; }
+  .clients-table tr:last-child td { border-bottom:none; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Profile header -->
+<div class="profile-header mt-3">
+  <div class="profile-avatar">{{ referrer.name|first|upper }}</div>
+  <div>
+    <p class="profile-name">{{ referrer.name }}</p>
+    <p class="profile-sub mb-0">
+      {% if referrer.phone %}📞 {{ referrer.phone }}{% endif %}
+      {% if referrer.email %}&nbsp;·&nbsp; ✉ {{ referrer.email }}{% endif %}
+    </p>
+  </div>
+  <div class="profile-actions">
+    <a href="{% url 'allocate_clients' referrer.id %}" class="btn btn-sm btn-success">
+      <i class="material-icons-round align-middle" style="font-size:.85rem;">person_add</i> Allocate Clients
+    </a>
+    {% if referrer.total_commission_unpaid %}
+    <a href="{% url 'pay_all_outstanding' referrer.id %}"
+       class="btn btn-sm btn-warning text-dark"
+       onclick="return confirm('Mark ALL outstanding commission (K{{ referrer.total_commission_unpaid|floatformat:2 }}) for {{ referrer.name }} as paid?')">
+      <i class="material-icons-round align-middle" style="font-size:.85rem;">payments</i>
+      Pay All (K{{ referrer.total_commission_unpaid|floatformat:2 }})
+    </a>
+    {% endif %}
+    <a href="{% url 'edit_referrer' referrer.id %}" class="btn btn-sm btn-light">
+      <i class="material-icons-round align-middle" style="font-size:.85rem;">edit</i> Edit
+    </a>
+    <a href="{% url 'toggle_referrer_status' referrer.id %}"
+       class="btn btn-sm {% if referrer.status == 'ACTIVE' %}btn-outline-warning{% else %}btn-outline-success{% endif %}"
+       onclick="return confirm('Toggle status for {{ referrer.name }}?')">
+      {% if referrer.status == 'ACTIVE' %}Deactivate{% else %}Activate{% endif %}
+    </a>
+    <a href="{% url 'referrers_list' %}" class="btn btn-sm btn-outline-light">← Back</a>
+  </div>
+</div>
+
+<div class="row g-3">
+
+  <!-- Left: stats + details -->
+  <div class="col-xl-4 col-lg-4 col-md-12">
+
+    <!-- Stats -->
+    <div class="stat-row">
+      <div class="stat-box"><div class="n" style="color:#344767;">{{ referrer.total_referrals }}</div><div class="l">Referred</div></div>
+      <div class="stat-box"><div class="n" style="color:#f57f17;">K{{ referrer.total_commission_unpaid|floatformat:2 }}</div><div class="l">Unpaid</div></div>
+      <div class="stat-box"><div class="n" style="color:#888;">K{{ referrer.total_commission_paid|floatformat:2 }}</div><div class="l">Paid Out</div></div>
+    </div>
+
+    <!-- Details card -->
+    <div class="card shadow p-3 mb-3" style="border-radius:10px;">
+      <h6 class="fw-bold mb-3" style="font-size:.78rem;text-transform:uppercase;letter-spacing:.6px;color:#aaa;">Details</h6>
+      <div class="meta-grid">
+        <div class="meta-item">
+          <div class="meta-label">Status</div>
+          <div class="meta-value">
+            {% if referrer.status == 'ACTIVE' %}<span style="color:#2e7d32;">● Active</span>
+            {% else %}<span style="color:#888;">● Inactive</span>{% endif %}
+          </div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Rate per Referral</div>
+          <div class="meta-value">K {{ commission_rate|floatformat:2 }}</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Bank</div>
+          <div class="meta-value">{{ referrer.bank|default:"—" }}</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Branch</div>
+          <div class="meta-value">{{ referrer.bank_branch|default:"—" }}</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Account Name</div>
+          <div class="meta-value">{{ referrer.bank_account_name|default:"—" }}</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Account Number</div>
+          <div class="meta-value">{{ referrer.bank_account_number|default:"—" }}</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Registered</div>
+          <div class="meta-value">{{ referrer.created_at|date:"d M Y" }}</div>
+        </div>
+      </div>
+      {% if referrer.notes %}
+      <div class="mt-3 pt-2" style="border-top:1px solid #eee;">
+        <div class="meta-label">Notes</div>
+        <div style="font-size:.83rem;color:#344767;margin-top:3px;">{{ referrer.notes }}</div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Right: referred clients by month -->
+  <div class="col-xl-8 col-lg-8 col-md-12">
+    <div class="card shadow p-3" style="border-radius:10px;">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h6 class="fw-bold mb-0" style="font-size:.85rem;">Referred Clients</h6>
+        <span class="badge bg-secondary">{{ records.count }} total</span>
+      </div>
+
+      {% if monthly %}
+        {% for block in monthly %}
+        <div class="month-block">
+          <div class="month-header">
+            <span class="month-title">{{ block.month }}</span>
+            <div class="d-flex align-items-center gap-2">
+              <span class="month-total">K {{ block.total|floatformat:2 }}</span>
+              {% if block.all_paid %}
+                <span class="paid-badge">✓ Paid</span>
+              {% else %}
+                <span class="unpaid-badge">Unpaid</span>
+                <a href="{% url 'mark_month_paid' referrer.id block.key %}"
+                   class="btn btn-xs btn-success py-0 px-2"
+                   style="font-size:.72rem;"
+                   onclick="return confirm('Mark {{ block.month }} commissions as paid for {{ referrer.name }}?')">
+                  Mark Paid
+                </a>
+              {% endif %}
+            </div>
+          </div>
+          <table class="clients-table">
+            <thead>
+              <tr>
+                <th>Client</th>
+                <th>Date Referred</th>
+                <th>Commission (K)</th>
+                <th>Status</th>
+                <th>Paid By / Date</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for rec in block.records %}
+              <tr>
+                <td>
+                  <a href="{% url 'view_client' rec.client.id %}">
+                    {{ rec.client.first_name }} {{ rec.client.last_name }}
+                  </a>
+                </td>
+                <td>{{ rec.date_referred|date:"d M Y" }}</td>
+                <td><strong>{{ rec.commission_amount|floatformat:2 }}</strong></td>
+                <td>
+                  {% if rec.paid %}<span class="paid-badge">Paid</span>
+                  {% else %}<span class="unpaid-badge">Pending</span>{% endif %}
+                </td>
+                <td style="font-size:.75rem;color:#888;">
+                  {% if rec.paid %}{{ rec.paid_by }} · {{ rec.paid_date|date:"d M Y" }}{% else %}—{% endif %}
+                </td>
+                <td>
+                  {% if not rec.paid %}
+                  <a href="{% url 'remove_allocation' referrer.id rec.id %}"
+                     class="btn btn-xs btn-outline-danger py-0 px-1"
+                     style="font-size:.68rem;"
+                     onclick="return confirm('Remove {{ rec.client.first_name }} {{ rec.client.last_name }} from {{ referrer.name }}?')">
+                    Remove
+                  </a>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div style="text-align:center;padding:30px;color:#aaa;">
+          <i class="material-icons-round" style="font-size:2rem;display:block;margin-bottom:6px;">people_outline</i>
+          No clients referred yet.
+        </div>
+      {% endif %}
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}

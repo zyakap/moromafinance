@@ -1,0 +1,56 @@
+{% load humanize %}
+{% load finance_formats %}
+<div class="table-responsive p-1">
+    <table id="collectionStatement" class="table table-striped table-hover align-items-center justify-content-center mb-0">
+        <thead>
+            <tr style="text-align: left;">
+                <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Date</th>
+                <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Type</th>
+                <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Statement</th>
+                <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Debit</th>
+                <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Credit</th>
+                <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Default</th>
+                <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Balance</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for transaction in statements %}
+                <tr>
+                <td>
+                    <div class="d-flex">
+                    <div class="my-auto">
+                        
+                        <h6 class="mb-0 text-xs">{{ transaction.date|date:'d/m/Y' }}</h6>
+                        
+                    </div>
+                    </div>
+                </td>
+                
+                <td>
+                    <h6 class="text-xs">{{ transaction.type }}</h6>
+                    </td>
+                <td>
+                    <h6 class="text-xs">{{ transaction.statement }}</h6>
+                </td>
+                
+                <td>
+                    <h6 class="text-xs">{{ transaction.debit }}</h6>
+                </td>
+                <td>
+                    <h6 class="text-xs">{{ transaction.credit }}</h6>
+                </td>
+                <td>
+                    <h6 class="text-xs">{{ transaction.default_amount }}</h6>
+                </td>
+                
+                <td>
+                    <h6 class="text-xs">{{ transaction.balance|default_if_none:"0"|currency }}</h6>
+                </td>
+                
+                </tr>
+
+            {% endfor %}
+            
+            </tbody>
+    </table>
+</div>

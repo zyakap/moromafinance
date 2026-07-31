@@ -1,0 +1,115 @@
+{% extends "loan_base.html" %}
+{% load humanize %}
+{% load finance_formats %}
+
+{% block title %}You Already Have a Loan{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10 col-12">
+
+      <!-- Alert banner -->
+      <div style="background:#fff8e1;border-left:5px solid #ffc107;border-radius:8px;padding:18px 22px;margin-bottom:1.5rem;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+          <span class="material-icons" style="color:#f59e0b;font-size:1.3rem;">warning</span>
+          <strong style="font-size:1rem;color:#5a4000;">You Already Have an Active Loan</strong>
+        </div>
+        <p style="margin:0;font-size:.9rem;color:#6b5000;">
+          Our records show you already have an active or pending loan. A new separate loan application cannot be submitted at this time.
+          If you would like to access additional funds on top of your existing balance, please use the <strong>Get Additional Loan</strong> option below.
+        </p>
+      </div>
+
+      <!-- Funded / Running loans -->
+      {% for loan in active_funded %}
+      <div style="border-radius:12px;box-shadow:0 4px 18px rgba(0,0,0,.08);overflow:hidden;margin-bottom:1.2rem;">
+        <div style="background:linear-gradient(135deg,#1a6230 0%,#28a745 100%);padding:14px 20px;display:flex;align-items:center;gap:10px;">
+          <span class="material-icons" style="color:rgba(255,255,255,.8);font-size:1.1rem;">account_balance_wallet</span>
+          <span style="color:#fff;font-weight:700;font-size:.94rem;">Active Loan &mdash; {{ loan.ref }}</span>
+        </div>
+        <div style="background:#fff;padding:20px 24px;">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;">
+            <div>
+              <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;color:#888;margin-bottom:2px;">Loan Ref</div>
+              <div style="font-weight:600;color:#344767;">{{ loan.ref }}</div>
+            </div>
+            <div>
+              <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;color:#888;margin-bottom:2px;">Loan Amount</div>
+              <div style="font-weight:600;color:#344767;">K{{ loan.amount|currency }}</div>
+            </div>
+            <div>
+              <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;color:#888;margin-bottom:2px;">Outstanding Balance</div>
+              <div style="font-weight:600;color:#344767;">K{{ loan.total_outstanding|currency }}</div>
+            </div>
+            <div>
+              <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;color:#888;margin-bottom:2px;">Repayment</div>
+              <div style="font-weight:600;color:#344767;">K{{ loan.repayment_amount|currency }}</div>
+            </div>
+            <div>
+              <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;color:#888;margin-bottom:2px;">Next Payment Date</div>
+              <div style="font-weight:600;color:#344767;">{{ loan.next_payment_date|default:"—" }}</div>
+            </div>
+            <div>
+              <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;color:#888;margin-bottom:2px;">Status</div>
+              <div style="font-weight:600;color:#344767;">{{ loan.status }}</div>
+            </div>
+          </div>
+          <div style="margin-top:14px;">
+            <a href="{% url 'viewmyloan' loan.ref %}" style="font-size:.82rem;color:#344767;text-decoration:none;display:inline-flex;align-items:center;gap:5px;">
+              <span class="material-icons" style="font-size:.9rem;">open_in_new</span> View Loan Details
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+
+      <!-- Pending loans -->
+      {% for loan in active_pending %}
+      <div style="border-radius:12px;box-shadow:0 4px 18px rgba(0,0,0,.08);overflow:hidden;margin-bottom:1.2rem;">
+        <div style="background:linear-gradient(135deg,#856404 0%,#ffc107 100%);padding:14px 20px;display:flex;align-items:center;gap:10px;">
+          <span class="material-icons" style="color:rgba(255,255,255,.85);font-size:1.1rem;">hourglass_top</span>
+          <span style="color:#fff;font-weight:700;font-size:.94rem;">Pending Loan &mdash; {{ loan.ref }}</span>
+        </div>
+        <div style="background:#fff;padding:20px 24px;">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;">
+            <div>
+              <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;color:#888;margin-bottom:2px;">Loan Ref</div>
+              <div style="font-weight:600;color:#344767;">{{ loan.ref }}</div>
+            </div>
+            <div>
+              <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;color:#888;margin-bottom:2px;">Loan Amount</div>
+              <div style="font-weight:600;color:#344767;">K{{ loan.amount|currency }}</div>
+            </div>
+            <div>
+              <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;color:#888;margin-bottom:2px;">Status</div>
+              <div style="font-weight:600;color:#344767;">{{ loan.status }}</div>
+            </div>
+          </div>
+          <div style="margin-top:14px;">
+            <a href="{% url 'viewmyloan' loan.ref %}" style="font-size:.82rem;color:#344767;text-decoration:none;display:inline-flex;align-items:center;gap:5px;">
+              <span class="material-icons" style="font-size:.9rem;">open_in_new</span> View Loan Details
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+
+      <!-- Actions -->
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:1.5rem;">
+        <a href="{% url 'register_additional_loan' %}"
+           style="background:linear-gradient(135deg,#1a6230 0%,#28a745 100%);color:#fff;border-radius:8px;padding:11px 26px;font-size:.88rem;font-weight:700;display:inline-flex;align-items:center;gap:7px;text-decoration:none;">
+          <span class="material-icons" style="font-size:1rem;">add_circle</span>
+          Get Additional Loan
+        </a>
+        <a href="{% url 'myloans' %}"
+           style="background:#f4f6f9;color:#555;border-radius:8px;padding:11px 22px;font-size:.88rem;font-weight:600;display:inline-flex;align-items:center;gap:7px;text-decoration:none;">
+          <span class="material-icons" style="font-size:.9rem;">list</span>
+          View My Loans
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

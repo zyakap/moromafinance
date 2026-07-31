@@ -1,0 +1,141 @@
+{% extends "admin_base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %} Bank Settings {% endblock %}
+
+{% block breadcrumb %} <a href="{% url 'admin_dashboard' %}">Admin</a> / <a href="{% url 'admin_settings_general' %}">Settings</a> {% endblock %}
+{% block breadcrumb_active %} Banks {% endblock %}
+{% block dashboard_title %} Settings {% endblock %}
+
+{% block content %}
+
+  <div class="sx-wrap">
+    <div>
+      {% include "settings_nav.html" %}
+
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      <div class="row">
+        <div class="col-md-5">
+          <div class="card sx-card">
+            <div class="card-header sx-head">
+              <div class="sx-ico"><i class="fa fa-building-columns"></i></div>
+              <div><h5>{% if edit_bank %}Edit{% else %}Add{% endif %} Bank</h5><p>Banks available for client account details.</p></div>
+            </div>
+            <div class="card-body pt-3 p-3">
+              <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="{% if edit_bank %}edit_bank{% else %}add_bank{% endif %}">
+                {% if edit_bank %}<input type="hidden" name="bank_id" value="{{ edit_bank.id }}">{% endif %}
+                {{ bank_form|crispy }}
+                <button type="submit" class="btn btn-primary">{% if edit_bank %}UPDATE{% else %}ADD BANK{% endif %}</button>
+                {% if edit_bank %}<a href="{% url 'admin_settings_banks' %}" class="btn btn-secondary">CANCEL</a>{% endif %}
+              </form>
+            </div>
+          </div>
+
+          <div class="card sx-card mt-4">
+            <div class="card-header sx-head">
+              <div class="sx-ico"><i class="fa fa-code-branch"></i></div>
+              <div><h5>{% if edit_branch %}Edit{% else %}Add{% endif %} Branch</h5><p>Branches with BSB numbers, grouped under a bank.</p></div>
+            </div>
+            <div class="card-body pt-3 p-3">
+              <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="{% if edit_branch %}edit_branch{% else %}add_branch{% endif %}">
+                {% if edit_branch %}<input type="hidden" name="branch_id" value="{{ edit_branch.id }}">{% endif %}
+                {{ branch_form|crispy }}
+                <button type="submit" class="btn btn-primary">{% if edit_branch %}UPDATE{% else %}ADD BRANCH{% endif %}</button>
+                {% if edit_branch %}<a href="{% url 'admin_settings_banks' %}" class="btn btn-secondary">CANCEL</a>{% endif %}
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-7">
+          <div class="card sx-card">
+            <div class="card-header sx-head">
+              <div class="sx-ico"><i class="fa fa-list"></i></div>
+              <div><h5>Banks &amp; Branches</h5><p>All registered banks and their branches.</p></div>
+            </div>
+            <div class="card-body pt-3 p-3">
+              {% for bank in banks %}
+                <div class="card mb-3 {% if not bank.active %}border-danger{% endif %}">
+                  <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                      <strong>{{ bank.name }}</strong>
+                      {% if bank.swift_code %}<span class="text-muted">(SWIFT: {{ bank.swift_code }})</span>{% endif %}
+                      {% if bank.bsb_prefix %}<span class="text-muted">(BSB Prefix: {{ bank.bsb_prefix }})</span>{% endif %}
+                      {% if not bank.active %}<span class="badge bg-danger">Inactive</span>{% endif %}
+                    </div>
+                    <div>
+                      <a href="?edit_bank={{ bank.id }}" class="btn btn-sm btn-warning">Edit</a>
+                      <form method="post" class="d-inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="toggle_bank">
+                        <input type="hidden" name="bank_id" value="{{ bank.id }}">
+                        <button type="submit" class="btn btn-sm {% if bank.active %}btn-danger{% else %}btn-success{% endif %}">
+                          {% if bank.active %}Deactivate{% else %}Activate{% endif %}
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                  <div class="card-body p-0">
+                    <table class="table table-sm table-bordered mb-0">
+                      <thead class="table-light">
+                        <tr>
+                          <th>Branch</th>
+                          <th>BSB</th>
+                          <th>City</th>
+                          <th>Province</th>
+                          <th>Status</th>
+                          <th class="text-center">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for branch in bank.branches.all %}
+                          <tr {% if not branch.active %}class="table-danger"{% endif %}>
+                            <td>{{ branch.name }}</td>
+                            <td>{{ branch.bsb_number|default:"—" }}</td>
+                            <td>{{ branch.city|default:"—" }}</td>
+                            <td>{{ branch.province|default:"—" }}</td>
+                            <td>{% if branch.active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-danger">Inactive</span>{% endif %}</td>
+                            <td class="text-center">
+                              <a href="?edit_branch={{ branch.id }}" class="btn btn-sm btn-warning">Edit</a>
+                              <form method="post" class="d-inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="toggle_branch">
+                                <input type="hidden" name="branch_id" value="{{ branch.id }}">
+                                <button type="submit" class="btn btn-sm {% if branch.active %}btn-danger{% else %}btn-success{% endif %}">
+                                  {% if branch.active %}Deactivate{% else %}Activate{% endif %}
+                                </button>
+                              </form>
+                            </td>
+                          </tr>
+                        {% empty %}
+                          <tr>
+                            <td colspan="6" class="text-center text-muted">No branches found.</td>
+                          </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              {% empty %}
+                <div class="alert alert-info">No banks found. Add a bank to get started.</div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}

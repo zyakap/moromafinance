@@ -1,0 +1,243 @@
+{% extends "admin_base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %} Loan Settings {% endblock %}
+
+{% block breadcrumb %} <a href="{% url 'dashboard' %}">Dashboard</a>  /  <a href="{% url 'profile' %}">Loan Admin</a> {% endblock %}
+{% block breadcrumb_active %} Loan Settings {% endblock %}
+{% block dashboard_title %} Loan Settings {% endblock %}
+
+{% block css %}
+  <style>
+    .tier-table th, .tier-table td { vertical-align: middle; }
+    .badge-active   { background: #28a745; color: #fff; padding: 3px 8px; border-radius: 4px; font-size: 12px; }
+    .badge-inactive { background: #6c757d; color: #fff; padding: 3px 8px; border-radius: 4px; font-size: 12px; }
+  </style>
+{% endblock css %}
+
+{% block content %}
+<div class="sx-wrap">
+  <div>
+
+    {% include "settings_nav.html" %}
+
+    <!-- Loan Settings (interest, amounts, fortnights, modes) -->
+    <div class="card sx-card mb-4">
+      <div class="card-header sx-head">
+        <div class="sx-ico"><i class="fa fa-file-invoice-dollar"></i></div>
+        <div>
+          <h5>Loan Settings</h5>
+          <p>Interest, amount and fortnight limits, processing modes, documents and notifications.</p>
+        </div>
+      </div>
+      <div class="card-body pt-3 p-3">
+        <p class="text-muted mb-3" style="font-size:.88rem;">
+          Interest type and rate, loan amount range, fortnight limits, and document/notification modes.
+        </p>
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="update_loan_settings">
+
+          <h6 class="sx-sec">Interest</h6>
+          <div class="row g-2 mb-3">
+            <div class="col-md-4">{{ loan_form.interest_type|as_crispy_field }}</div>
+            <div class="col-md-4">{{ loan_form.interest_rate|as_crispy_field }}</div>
+          </div>
+          <p class="text-muted" style="font-size:.8rem;margin-bottom:1rem;">
+            <span class="material-icons align-middle" style="font-size:.9rem;">info</span>
+            Default interest rate, mercy period, and automatic default classification settings have moved to
+            <a href="{% url 'admin_settings_credit' %}">Credit Check Settings</a>.
+          </p>
+
+          <h6 class="sx-sec">Loan Amount Limits</h6>
+          <div class="row g-2 mb-3">
+            <div class="col-md-4">{{ loan_form.loan_min_amount|as_crispy_field }}</div>
+            <div class="col-md-4">{{ loan_form.loan_max_amount|as_crispy_field }}</div>
+            <div class="col-md-4">{{ loan_form.increment_amount|as_crispy_field }}</div>
+          </div>
+
+          <h6 class="sx-sec">Fortnight Limits</h6>
+          <div class="row g-2 mb-3">
+            <div class="col-md-4">{{ loan_form.min_fn|as_crispy_field }}</div>
+            <div class="col-md-4">{{ loan_form.max_fn|as_crispy_field }}</div>
+            <div class="col-md-4">{{ loan_form.increment_fn|as_crispy_field }}</div>
+          </div>
+
+          <h6 class="sx-sec">Processing &amp; Application Modes</h6>
+          <div class="row g-2 mb-3">
+            <div class="col-md-4">{{ loan_form.processing_fee|as_crispy_field }}</div>
+            <div class="col-md-4">{{ loan_form.processing_fee_collection_mode|as_crispy_field }}</div>
+            <div class="col-md-4">{{ loan_form.user_loan_application_mode|as_crispy_field }}</div>
+            <div class="col-md-4">{{ loan_form.staff_loan_creation_mode|as_crispy_field }}</div>
+            <div class="col-md-4">{{ loan_form.refinance_type|as_crispy_field }}</div>
+          </div>
+
+          <h6 class="sx-sec">Document &amp; Notification Options</h6>
+          <div class="row g-2 mb-3">
+            <div class="col-md-4">{{ loan_form.send_cash_disbursement_notice|as_crispy_field }}</div>
+            <div class="col-md-4">{{ loan_form.cdn_send_to_payroll_officer|as_crispy_field }}</div>
+            <div class="col-md-4">{{ loan_form.send_loan_amortization_schedule|as_crispy_field }}</div>
+            <div class="col-md-4">{{ loan_form.display_referrer_on_loan|as_crispy_field }}</div>
+          </div>
+
+          <h6 class="sx-sec">Loan Application Documents</h6>
+          <p class="text-muted" style="font-size:.8rem;margin-bottom:.5rem;">
+            <span class="material-icons align-middle" style="font-size:.9rem;">info</span>
+            Controls the prefilled application PDFs emailed when a loan application is generated. Turn the master switch off to disable sending entirely, or choose the recipients and exactly which documents to attach.
+          </p>
+          <div class="row g-2 mb-2">
+            <div class="col-md-12">{{ loan_form.send_application_documents|as_crispy_field }}</div>
+          </div>
+          <div class="row g-2 mb-2">
+            <div class="col-12"><small class="text-secondary fw-bold">Recipients</small></div>
+            <div class="col-md-4">{{ loan_form.appdoc_send_to_user|as_crispy_field }}</div>
+            <div class="col-md-4">{{ loan_form.appdoc_send_to_staff|as_crispy_field }}</div>
+            <div class="col-md-4">{{ loan_form.appdoc_bcc_admin|as_crispy_field }}</div>
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col-12"><small class="text-secondary fw-bold">Documents to Send</small></div>
+            <div class="col-md-3">{{ loan_form.appdoc_include_application|as_crispy_field }}</div>
+            <div class="col-md-3">{{ loan_form.appdoc_include_terms|as_crispy_field }}</div>
+            <div class="col-md-3">{{ loan_form.appdoc_include_stat_dec|as_crispy_field }}</div>
+            <div class="col-md-3">{{ loan_form.appdoc_include_irsda|as_crispy_field }}</div>
+          </div>
+
+          <h6 class="sx-sec">Alesco Payroll Update</h6>
+          <div class="row g-2 mb-3">
+            <div class="col-md-12">{{ loan_form.send_alesco_pay_update_email|as_crispy_field }}</div>
+          </div>
+
+          <h6 class="sx-sec">Amortization Schedule Columns</h6>
+          <div class="row g-2 mb-3">
+            <div class="col-md-3">{{ loan_form.las_col_period|as_crispy_field }}</div>
+            <div class="col-md-3">{{ loan_form.las_col_date|as_crispy_field }}</div>
+            <div class="col-md-3">{{ loan_form.las_col_opening|as_crispy_field }}</div>
+            <div class="col-md-3">{{ loan_form.las_col_interest|as_crispy_field }}</div>
+            <div class="col-md-3">{{ loan_form.las_col_principal|as_crispy_field }}</div>
+            <div class="col-md-3">{{ loan_form.las_col_repayment|as_crispy_field }}</div>
+            <div class="col-md-3">{{ loan_form.las_col_closing|as_crispy_field }}</div>
+          </div>
+
+          <button type="submit" class="btn btn-primary"><i class="fa fa-save me-1"></i> Save Loan Settings</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Processing Fee Tiers -->
+    <div class="card sx-card mb-4">
+      <div class="card-header sx-head">
+        <div class="sx-ico"><i class="fa fa-layer-group"></i></div>
+        <div>
+          <h5>Processing Fee Tiers</h5>
+          <p>Tiered processing fees by loan amount — tiers override the flat fee above when active.</p>
+        </div>
+      </div>
+      <div class="card-body p-3">
+
+        {% if tiers %}
+        <div class="table-responsive mb-4">
+          <table class="table table-sm table-hover tier-table align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Min Amount (K)</th>
+                <th>Max Amount (K)</th>
+                <th>Processing Fee (K)</th>
+                <th>Status</th>
+                <th style="width:220px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for tier in tiers %}
+              <tr>
+                <td>{{ tier.min_amount|floatformat:2 }}</td>
+                <td>{% if tier.max_amount %}{{ tier.max_amount|floatformat:2 }}{% else %}<em class="text-muted">No limit</em>{% endif %}</td>
+                <td><strong>{{ tier.fee|floatformat:2 }}</strong></td>
+                <td>
+                  {% if tier.active %}
+                    <span class="badge-active">Active</span>
+                  {% else %}
+                    <span class="badge-inactive">Inactive</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <a href="{% url 'admin_settings_loans' %}?edit_tier={{ tier.id }}"
+                     class="btn btn-sm btn-outline-primary py-0 px-2">Edit</a>
+
+                  <form method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="toggle_tier">
+                    <input type="hidden" name="tier_id" value="{{ tier.id }}">
+                    <button type="submit" class="btn btn-sm btn-outline-secondary py-0 px-2">
+                      {% if tier.active %}Deactivate{% else %}Activate{% endif %}
+                    </button>
+                  </form>
+
+                  <form method="post" style="display:inline;"
+                        onsubmit="return confirm('Delete this tier?');">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="delete_tier">
+                    <input type="hidden" name="tier_id" value="{{ tier.id }}">
+                    <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-2">Delete</button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p class="text-muted mb-3">No processing fee tiers defined yet. Add one below.</p>
+        {% endif %}
+
+        <!-- Add / Edit tier form -->
+        <div class="card border-primary">
+          <div class="card-header bg-primary text-white py-2">
+            {% if edit_tier %}Edit Tier{% else %}Add New Tier{% endif %}
+          </div>
+          <div class="card-body p-3">
+            <form method="post">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="{% if edit_tier %}edit_tier{% else %}add_tier{% endif %}">
+              {% if edit_tier %}<input type="hidden" name="tier_id" value="{{ edit_tier.id }}">{% endif %}
+              <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                  <label class="form-label fw-bold">Min Loan Amount (K)</label>
+                  {{ tier_form.min_amount }}
+                  {% if tier_form.min_amount.errors %}
+                    <div class="text-danger small">{{ tier_form.min_amount.errors|join:", " }}</div>
+                  {% endif %}
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label fw-bold">Max Loan Amount (K)</label>
+                  {{ tier_form.max_amount }}
+                  <div class="form-text">Leave blank for no upper limit.</div>
+                  {% if tier_form.max_amount.errors %}
+                    <div class="text-danger small">{{ tier_form.max_amount.errors|join:", " }}</div>
+                  {% endif %}
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label fw-bold">Processing Fee (K)</label>
+                  {{ tier_form.fee }}
+                  {% if tier_form.fee.errors %}
+                    <div class="text-danger small">{{ tier_form.fee.errors|join:", " }}</div>
+                  {% endif %}
+                </div>
+                <div class="col-md-3 d-flex gap-2">
+                  <button type="submit" class="btn btn-primary mt-3">
+                    {% if edit_tier %}Update Tier{% else %}Add Tier{% endif %}
+                  </button>
+                  {% if edit_tier %}
+                  <a href="{% url 'admin_settings_loans' %}" class="btn btn-secondary mt-3">Cancel</a>
+                  {% endif %}
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+
+      </div><!-- card-body -->
+    </div><!-- card -->
+
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends 'website/website_base.html' %}
+{% load static %}
+
+{% block title %}Trusted Clients &amp; Special Offers | Moroma Finance{% endblock %}
+{% block meta_desc %}Become a trusted Moroma Finance client and benefit from special offers — priority approval, higher limits and exclusive deals for loyal clients. T&C apply.{% endblock %}
+
+{% block hero %}
+<section class="page-hero">
+  <div class="container">
+    <span class="eyebrow"><i class="bi bi-gift-fill"></i> Trusted Clients</span>
+    <h1>Become a trusted client</h1>
+    <p>"Become a trusted Client to benefit from our special offers." Repay well, and Moroma Finance opens the door to more.</p>
+  </div>
+</section>
+{% endblock %}
+
+{% block content %}
+
+<!-- How you become trusted -->
+<section class="section">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow"><i class="bi bi-award-fill"></i> How it works</span>
+      <h2>Loyalty that pays you back</h2>
+      <p>There's no secret to it. Borrow, repay on time, and your standing with us grows.</p>
+    </div>
+    <div class="grid grid-3 steps">
+      <div class="step reveal">
+        <h4>Take your first loan</h4>
+        <p>Apply online and receive your funds. Every client starts here — it's the first step in building your history with us.</p>
+      </div>
+      <div class="step reveal">
+        <h4>Repay on time</h4>
+        <p>Keep your fortnightly repayments on track. A clean repayment record is what makes you a trusted client.</p>
+      </div>
+      <div class="step reveal">
+        <h4>Unlock special offers</h4>
+        <p>Enjoy priority approval, higher limits and offers reserved for our most loyal clients.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Benefits -->
+<section class="section bg-soft">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow"><i class="bi bi-star-fill"></i> Your benefits</span>
+      <h2>What trusted clients get</h2>
+    </div>
+    <div class="grid grid-4">
+      <div class="card reveal"><div class="ic"><i class="bi bi-lightning-charge-fill"></i></div><h3>Priority approval</h3><p>Your application goes to the front of the queue.</p></div>
+      <div class="card reveal"><div class="ic"><i class="bi bi-graph-up-arrow"></i></div><h3>Higher limits</h3><p>Qualify to borrow more as your history with us grows.</p></div>
+      <div class="card accent reveal"><div class="ic"><i class="bi bi-tag-fill"></i></div><h3>Exclusive offers</h3><p>Seasonal deals available only to repeat clients.</p></div>
+      <div class="card reveal"><div class="ic"><i class="bi bi-person-hearts"></i></div><h3>Personal service</h3><p>A dedicated contact who knows your situation.</p></div>
+    </div>
+    <p class="text-muted2" style="text-align:center; margin-top:2rem; font-size:.86rem;">
+      <em>Terms &amp; conditions apply. Special offers are granted at the discretion of Moroma Finance Ltd and are subject to assessment and eligibility.</em>
+    </p>
+  </div>
+</section>
+
+<!-- Testimonials -->
+<section class="section">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow"><i class="bi bi-chat-quote-fill"></i> Client stories</span>
+      <h2>What our clients say</h2>
+    </div>
+    <div class="grid grid-3">
+      <div class="card reveal">
+        <i class="bi bi-quote" style="font-size:2rem; color:var(--d-orange);"></i>
+        <p style="margin-bottom:1.2rem;">"I applied from my phone during my lunch break and had my money the same day. No queues, no stress."</p>
+        <div style="font-family:var(--font-head); font-weight:600;">Personal Loan client</div>
+        <div class="text-muted2" style="font-size:.85rem;">Port Moresby</div>
+      </div>
+      <div class="card reveal">
+        <i class="bi bi-quote" style="font-size:2rem; color:var(--d-orange);"></i>
+        <p style="margin-bottom:1.2rem;">"Refinancing with MOROMA put all my loans into one repayment. My fortnight finally makes sense again."</p>
+        <div style="font-family:var(--font-head); font-weight:600;">Refinancing client</div>
+        <div class="text-muted2" style="font-size:.85rem;">NCD</div>
+      </div>
+      <div class="card reveal">
+        <i class="bi bi-quote" style="font-size:2rem; color:var(--d-orange);"></i>
+        <p style="margin-bottom:1.2rem;">"They told me exactly what I'd repay before I signed. That honesty is why I keep coming back."</p>
+        <div style="font-family:var(--font-head); font-weight:600;">Trusted client</div>
+        <div class="text-muted2" style="font-size:.85rem;">Papua New Guinea</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="cta reveal">
+      <h2>Start building your trusted status</h2>
+      <p>Your first loan is the first step. Apply today and unlock what comes next.</p>
+      <div class="hero-actions">
+        <a href="{% url 'register' %}" class="btn-d btn-white btn-lg">Apply Now <i class="bi bi-arrow-right"></i></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

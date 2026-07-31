@@ -1,0 +1,41 @@
+{% extends "staff_base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %} Upload Loan Statement {% endblock %}
+
+{% block breadcrumb %} <a href="{% url 'dashboard' %}">Dashboard</a>  /  <a href="{% url 'userloans' %}">Loan</a> {% endblock %}
+{% block breadcrumb_active %} {{ loan.ref }} {% endblock %}
+{% block dashboard_title %} Upload Existing Statement for {{ loan.owner.first_name }} {{ loan.owner.last_name }} {% endblock %}
+
+{% block content %}
+
+
+ 
+
+  <!-- Content Goes Here -->
+  <div class="row">
+    <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12 col-xs-12">
+      <div class="card mt-2 p-1">
+        <div class="card-header bg-secondary m-0 pt-2 pr-1 pb-0 pl-2">
+          <h5 class="text-light">Upload Statement for Loan - {{ loan.ref }}</h5>
+        </div>
+        <div class="card-body m-0 p-2">
+            <div class="card-body m-0 p-2">
+                <form method="POST" enctype="multipart/form-data">
+                  {% csrf_token %}
+                  <div class="mb-3">
+                    <label for="formFile" class="form-label">Select Excel(.xlsx) with Statement Data for Loan - {{ loan.ref }}</label>
+                    <input class="form-control" type="file" id="formFile" name="uploadedstatement">
+                  </div>
+                  <br>
+                  <button type="submit" class="btn btn-primary">UPLOAD</button>
+                </form>
+              </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Content Ends Here -->
+
+ 
+{% endblock %}

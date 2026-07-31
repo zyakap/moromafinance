@@ -1,0 +1,59 @@
+{% extends "admin_base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ action }} Referrer{% endblock %}
+{% block breadcrumb %}<a href="{% url 'admin_dashboard' %}">Dashboard</a> / <a href="{% url 'referrers_list' %}">Referrers</a>{% endblock %}
+{% block breadcrumb_active %}{{ action }} Referrer{% endblock %}
+{% block dashboard_title %}{{ action }} Referrer{% endblock %}
+
+{% block content %}
+<div class="row mt-3">
+  <div class="col-xl-8 col-lg-10 col-md-12">
+    <div class="card shadow" style="border-radius:12px;overflow:hidden;">
+      <div class="card-header py-3" style="background:linear-gradient(135deg,#344767 0%,#21315c 100%);">
+        <h5 class="text-white mb-0">
+          <i class="material-icons-round align-middle me-1">person_add</i>
+          {{ action }} Referrer
+        </h5>
+      </div>
+      <div class="card-body p-4">
+        <form method="post">
+          {% csrf_token %}
+
+          <h6 class="text-uppercase text-muted fw-bold mb-3" style="font-size:.75rem;letter-spacing:.7px;">Personal Details</h6>
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">{{ form.name|as_crispy_field }}</div>
+            <div class="col-md-6">{{ form.phone|as_crispy_field }}</div>
+            <div class="col-md-6">{{ form.email|as_crispy_field }}</div>
+            <div class="col-md-6">{{ form.status|as_crispy_field }}</div>
+          </div>
+
+          <h6 class="text-uppercase text-muted fw-bold mb-3" style="font-size:.75rem;letter-spacing:.7px;border-top:1px solid #eee;padding-top:1rem;">Bank Account (for Commission Payments)</h6>
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">{{ form.bank|as_crispy_field }}</div>
+            <div class="col-md-6">{{ form.bank_branch|as_crispy_field }}</div>
+            <div class="col-md-6">{{ form.bank_account_name|as_crispy_field }}</div>
+            <div class="col-md-6">{{ form.bank_account_number|as_crispy_field }}</div>
+          </div>
+
+          <h6 class="text-uppercase text-muted fw-bold mb-3" style="font-size:.75rem;letter-spacing:.7px;border-top:1px solid #eee;padding-top:1rem;">Notes</h6>
+          {{ form.notes|as_crispy_field }}
+
+          <div class="d-flex gap-3 mt-4">
+            <button type="submit" class="btn btn-primary px-4">
+              <i class="material-icons-round align-middle me-1" style="font-size:.9rem;">save</i>
+              {{ action }} Referrer
+            </button>
+            {% if referrer %}
+            <a href="{% url 'view_referrer' referrer.id %}" class="btn btn-light px-4">Cancel</a>
+            {% else %}
+            <a href="{% url 'referrers_list' %}" class="btn btn-light px-4">Cancel</a>
+            {% endif %}
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

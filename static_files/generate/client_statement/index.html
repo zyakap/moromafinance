@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Loan Account Statement</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="doc-page">
+
+  <!-- Header -->
+  <div class="doc-header">
+    <img src="../../img/logo.png" class="doc-logo" alt="Company Logo">
+    <div>
+      <div class="doc-title">Loan Account Statement</div>
+      <div class="doc-subtitle">Generated: DD/MM/YYYY</div>
+    </div>
+  </div>
+  <hr class="doc-divider">
+
+  <!-- Summary -->
+  <div class="summary-grid">
+    <div class="summary-item">
+      <div class="summary-label">Client</div>
+      <div class="summary-value neutral">Full Name</div>
+    </div>
+    <div class="summary-item">
+      <div class="summary-label">ID Number</div>
+      <div class="summary-value neutral">__________</div>
+    </div>
+    <div class="summary-item">
+      <div class="summary-label">Loan Reference</div>
+      <div class="summary-value neutral">__________</div>
+    </div>
+    <div class="summary-item">
+      <div class="summary-label">Loan Amount</div>
+      <div class="summary-value">K 0.00</div>
+    </div>
+    <div class="summary-item">
+      <div class="summary-label">Loan Term</div>
+      <div class="summary-value neutral">__ fortnights</div>
+    </div>
+    <div class="summary-item">
+      <div class="summary-label">Total Paid to Date</div>
+      <div class="summary-value">K 0.00</div>
+    </div>
+    <div class="summary-item">
+      <div class="summary-label">Total Outstanding</div>
+      <div class="summary-value">K 0.00</div>
+    </div>
+    <div class="summary-item">
+      <div class="summary-label">Total Arrears</div>
+      <div class="summary-value arrears">K 0.00</div>
+    </div>
+  </div>
+
+  <!-- Transaction table -->
+  <table class="stmt-table">
+    <thead>
+      <tr>
+        <th class="col-date">Date</th>
+        <th>Statement</th>
+        <th class="col-num">Debit (K)</th>
+        <th class="col-num">Credit (K)</th>
+        <th class="col-num">Default (K)</th>
+        <th class="col-balance">Balance (K)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="col-date">01/01/2024</td>
+        <td>Loan Disbursement</td>
+        <td class="col-num">5,000.00</td>
+        <td class="col-num">—</td>
+        <td class="col-num">—</td>
+        <td class="col-balance">5,000.00</td>
+      </tr>
+      <tr>
+        <td class="col-date">15/01/2024</td>
+        <td>Fortnightly Repayment</td>
+        <td class="col-num">—</td>
+        <td class="col-num">250.00</td>
+        <td class="col-num">—</td>
+        <td class="col-balance">4,750.00</td>
+      </tr>
+      <tr>
+        <td class="col-date">29/01/2024</td>
+        <td>Fortnightly Repayment</td>
+        <td class="col-num">—</td>
+        <td class="col-num">250.00</td>
+        <td class="col-num">—</td>
+        <td class="col-balance">4,500.00</td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>
+</body>
+</html>

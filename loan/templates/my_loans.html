@@ -1,0 +1,321 @@
+{% extends "loan_base.html" %}
+{% load static %}
+{% load humanize %}
+{% load finance_formats %}
+{% block title %} My Loans {% endblock %}
+
+{% block breadcrumb %} Dashboard {% endblock %}
+{% block breadcrumb_active %} Loans {% endblock %}
+{% block dashboard_title %} All My Loans {% endblock %}
+
+{% block css %}
+<!-- DataTables LOCAL CSS -->
+<link rel="stylesheet" type="text/css" href="{% static 'DataTables/datatables.min.css' %}"/>
+<!-- Font Awesome Icons -->
+<script defer src="{% static 'fontawesomefree/js/all.min.js' %}"></script>
+
+
+{% endblock %}
+
+{% block content %}
+
+  <!-- Content Goes Here -->
+
+  <div class="row mt-3 p-0">
+    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+      <div class="card">
+        <div class="card-header bg-secondary pt-2 pr-2 pb-0 pl-2">
+          <h4 class="text-light">All Active Loans</h4>
+        </div>
+        <div class="card-body mt-0 pt-0">
+          <div class="table-responsive p-2">
+            <table id="allLoansTable" class="table table-striped table-hover align-items-center justify-content-center mb-0">
+              <thead>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Loan Ref</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Amount</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Repayment</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">FNs</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Interest</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">TOTAL LOAN</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Status</th>
+                  
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Action</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Download</th>
+  
+                </tr>
+              </thead>
+              <tbody>
+                {% for loan in all_loans %}
+                <tr>
+                  <TD>
+                    <div class="d-flex px-2">
+                      <div>
+                       {% if loan.owner.propic_url %}<img src="{{ loan.owner.propic_url }}" class="avatar avatar-xs rounded-circle me-1" alt="invision">{% else %}<img src="{% static 'img/profilepicture.png' %}" class="avatar avatar-xs rounded-circle me-1" alt="invision">{% endif %}
+                        </div>
+                      <div class="my-auto">
+                        <h6 class="m-0 p-0 text-xs"><a href="{{domain}}/loan/myloan/{{ loan.ref }}/"><span class="text-primary">{{ loan.ref }}</span></a></h6>
+                      </div>
+                    </div>
+                    
+                  </TD>
+                  <TD>
+                    <p class="text-xs font-weight-bold m-0 p-0">{{ loan.amount|default_if_none:"0"|currency }}</p>
+                  </TD>
+                  <TD>
+                    <span class="text-xs font-weight-bold m-0 p-0">{{ loan.repayment_amount|default_if_none:"0"|currency }}</span>
+                  </TD>
+                  <TD>
+                    <span class="text-xs font-weight-bold m-0 p-0">{{ loan.number_of_fortnights }}</span>
+                  </TD>
+                  <TD>
+                    <span class="text-xs font-weight-bold m-0 p-0">{{ loan.interest|default_if_none:"0"|currency }}</span>
+                  </TD>
+                  <TD>
+                    <span class="text-xs font-weight-bold m-0 p-0">{{ loan.total_outstanding|default_if_none:"0"|currency }}</span>
+                  </TD>
+                  <TD class="align-middle text-md m-0 p-0">
+
+                    {% if loan.category == 'PENDING' or loan.status == 'AWAITING T&C' %}
+                    <span class="badge badge-sm bg-gradient-info">{{ loan.category }}</span>
+                    <span class="badge badge-sm bg-gradient-warning">{{ loan.status }}</span>
+
+                    {% elif loan.category == 'PENDING' and loan.status == 'UNDER REVIEW' %}
+                    <span class="badge badge-sm bg-gradient-info">{{ loan.category }}</span>
+                    <span class="badge badge-sm bg-gradient-primary">{{ loan.status }}</span>
+                    {% elif loan.category == 'PENDING' and loan.status == 'APPROVED' %}
+                    <span class="badge badge-sm bg-gradient-info">{{ loan.category }}</span>
+                    <span class="badge badge-sm bg-gradient-info">{{ loan.status }}</span>
+                    {% elif loan.category == 'FUNDED' and loan.funded_category == 'ACTIVE' and loan.status == 'RUNNING' %}
+                    <span class="badge badge-sm bg-gradient-success">{{ loan.status }}</span>
+                    {% elif loan.category == 'FUNDED' and loan.funded_category == 'ACTIVE' and loan.status == 'DEFAULTED' %}
+                    <span class="badge badge-sm bg-gradient-danger">{{ loan.status }}</span>
+                    {% endif %}
+                  </TD>
+                  
+                  <TD class="align-middle text-md m-0 p-0">
+                    {% if loan.category == 'PENDING' %}
+                    <a href="{{domain}}/loan/cancel_loan/{{ loan.ref }}/" style="color: white">
+                    <button type="button" class="btn btn-lg btn-secondary pl-1 pr-1 pt-0 pb-0 m-0">Cancel Application</span>
+                    </a>
+                    {% elif loan.category == 'PENDING' and loan.status == 'APPROVED' %}
+                    <span class="badge badge-sm bg-gradient-primary">Waiting FUNDING</span>
+                    {% elif loan.category == 'FUNDED' and loan.funded_category == 'ACTIVE' and loan.status == 'RUNNING' or loan.status == 'DEFAULTED' %}
+                      <a href="{% url 'upload_payment' loan.ref %}" style="color: white">
+                      <button type="button" class="btn btn-lg btn-info pl-1 pr-1 pt-0 pb-0 m-0" style="color: white">Upload Payment</span>
+                      </a> 
+                    {% endif %}
+                  </TD>
+                  <TD class="align-middle m-0 p-0">
+              
+                    {% if loan.category == 'PENDING' %}
+                   
+                      {% if loan.files.application_form_url %}
+                      <a href="{{domain}}{{loan.files.application_form_url}}">
+                        
+                      {% else %}
+                      <a href="{{domain}}/loan/dla/{{ loan.ref }}/">
+                        
+                      {% endif %}
+                    {% else %}
+                      <a href="{{domain}}/loan/dls/{{ loan.ref }}/">
+                    {% endif %}
+
+                    <button class="btn btn-lg bg-primary text-light pl-2 pr-2 pt-0 pb-0 m-0">
+                      <i class="fa-solid fa-download"></i>
+                    </button>
+                    </a>
+                  </TD>
+                 
+                </tr>
+                {% endfor %}
+                
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+  <div class="row mt-3 p-0 mb-5">
+    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12">
+        <div class="card mb-3">
+            <div class="card-header bg-secondary pt-2 pr-2 pb-0 pl-2">
+              <h4 class="text-light">Completed Loans</h4>
+            </div>
+            <div class="card-body mt-0 pt-0">
+              <div class="table-responsive p-2">
+                <table id="allLoansTable" class="table table-striped table-hover align-items-center justify-content-center mb-0">
+                  <thead>
+                    <tr>
+                      <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Loan Ref</th>
+                      <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Amount</th>
+                      <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">End date</th>
+                      <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Download</th>
+      
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for loan in completed_loans %}
+                    <tr>
+                      <TD>
+                        <div class="d-flex px-2">
+                          <div>
+                           {% if loan.owner.propic_url %}<img src="{{ loan.owner.propic_url }}" class="avatar avatar-xs rounded-circle me-1" alt="invision">{% else %}<img src="{% static 'img/profilepicture.png' %}" class="avatar avatar-xs rounded-circle me-1" alt="invision">{% endif %}
+                            </div>
+                          <div class="my-auto">
+                            <h6 class="m-0 p-0 text-xs"><a href="{{domain}}/loan/myloan/{{ loan.ref }}/"><span class="text-primary">{{ loan.ref }}</span></a></h6>
+                          </div>
+                        </div>
+                        
+                      </TD>
+                      <TD>
+                        <p class="text-xs font-weight-bold m-0 p-0">{{ loan.amount|default_if_none:"0"|currency }}</p>
+                      </TD>
+                      <TD>
+                        <span class="text-xs font-weight-bold m-0 p-0">{{ loan.last_repayment_date }}</span>
+                      </TD>
+
+                      <TD class="align-middle m-0 p-0">
+                        {% if loan.category == 'PENDING' %}
+                   
+                          {% if loan.files.application_form_url %}
+                          <a href="{{domain}}{{loan.files.application_form_url}}">
+                            
+                          {% else %}
+                          <a href="{{domain}}/loan/dla/{{ loan.ref }}/">
+                            
+                          {% endif %}
+                        {% else %}
+                          <a href="{{domain}}/loan/dls/{{ loan.ref }}/">
+                        {% endif %}
+                        <button class="btn btn-lg bg-primary text-light pl-2 pr-2 pt-0 pb-0 m-0">
+                          <i class="fa-solid fa-download"></i>
+                        </button>
+                        </a>
+                      </TD>
+                     
+                    </tr>
+                    {% endfor %}
+                    
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+    </div>
+    {% if bad_loans.count != 0 %}
+    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12">
+      <div class="card">
+          <div class="card-header bg-secondary pt-2 pr-2 pb-0 pl-2">
+            <h4 class="text-light">Bad Loans</h4>
+          </div>
+          <div class="card-body mt-0 pt-0">
+            <div class="table-responsive p-2">
+              <table id="allLoansTable" class="table table-striped table-hover align-items-center justify-content-center mb-0">
+                <thead>
+                  <tr>
+                    <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Loan Ref</th>
+                    <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Amount</th>
+                    <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">End date</th>
+                    <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">Download</th>
+    
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for loan in bad_loans %}
+                  <tr>
+                    <TD>
+                      <div class="d-flex px-2">
+                        <div>
+                         {% if loan.owner.propic_url %}<img src="{{ loan.owner.propic_url }}" class="avatar avatar-xs rounded-circle me-1" alt="invision">{% else %}<img src="{% static 'img/profilepicture.png' %}" class="avatar avatar-xs rounded-circle me-1" alt="invision">{% endif %}
+                          </div>
+                        <div class="my-auto">
+                          <h6 class="m-0 p-0 text-xs"><a href="{{domain}}/loan/myloan/{{ loan.ref }}/"><span class="text-primary">{{ loan.ref }}</span></a></h6>
+                        </div>
+                      </div>
+                      
+                    </TD>
+                    <TD>
+                      <p class="text-xs font-weight-bold m-0 p-0">{{ loan.amount|default_if_none:"0"|currency }}</p>
+                    </TD>
+                    <TD>
+                      <span class="text-xs font-weight-bold m-0 p-0">{{ loan.last_repayment_date }}</span>
+                    </TD>
+
+                    <TD class="align-middle m-0 p-0">
+                      {% if loan.category == 'PENDING' %}
+                   
+                      {% if loan.files.application_form_url %}
+                      <a href="{{domain}}{{loan.files.application_form_url}}">
+                        
+                      {% else %}
+                      <a href="{{domain}}/loan/dla/{{ loan.ref }}/">
+                        
+                      {% endif %}
+                      {% else %}
+                        <a href="{{domain}}/loan/dls/{{ loan.ref }}/">
+                      {% endif %}
+                      <button class="btn btn-lg bg-primary text-light pl-2 pr-2 pt-0 pb-0 m-0">
+                        <i class="fa-solid fa-download"></i>
+                      </button>
+                      </a>
+                    </TD>
+                   
+                  </tr>
+                  {% endfor %}
+                  
+                </tbody>
+              </table>
+            </div>
+          </div>
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+
+  <!-- Content Ends Here -->
+
+{% endblock %}
+
+{% block scripts %}
+
+
+<script src="{% static 'assets/js/plugins/chartjs.min.js' %}"></script>
+
+
+<!-- Chart JS  paidamount -->
+<script>
+
+  const pa_data = {
+    labels: [
+      'Paid',
+      'Outstanding'
+    ],
+    datasets: [{
+      label: 'Loan Payment',
+      data: [ {{ repaid }}, {{ outstanding }}],
+      backgroundColor: [
+        'rgb(10, 255, 10)',
+        'rgb(255, 10, 10)',
+      ],
+      hoverOffset: 4
+    }]
+  };
+
+  const pa_config = {
+    type: 'doughnut',
+    data: pa_data,
+  };
+
+  const paidamount = new Chart(
+    document.getElementById('paidamount'),
+    pa_config
+  );
+
+</script>
+
+
+{% endblock %}

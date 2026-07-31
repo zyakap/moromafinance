@@ -1,0 +1,36 @@
+{% extends "staff_base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %} SME Profile {% endblock %}
+
+{% block breadcrumb %} <a href="{% url 'dashboard' %}">Dashboard</a>  /  <a href="{% url 'profile' %}">Profile</a> {% endblock %}
+{% block breadcrumb_active %} SME {% endblock %}
+{% block dashboard_title %} Edit SME Profile Information {% endblock %}
+
+{% block content %}
+
+
+  <!-- Content Goes Here -->
+  <div class="row">
+    <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12 col-xs-12">
+      <div class="card mt-2 p-1">
+        <div class="card-header bg-secondary m-0 pt-2 pr-1 pb-0 pl-2">
+          <h5 class="text-light"> Business Information </h5>
+        </div>
+        <div class="card-body m-0 p-2">
+          <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ profileform|crispy }}
+            <br>
+            <button type="submit" class="btn btn-primary">UPDATE</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    
+    
+  </div>
+  <!-- Content Ends Here -->
+
+ 
+{% endblock %}

@@ -1,0 +1,66 @@
+{% autoescape off %}
+{% load site_filter %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>TC - EMAIL</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+</head>
+
+<body>
+
+    <div class="row mt-3 mb-2">
+        <div class="container text-center">
+            <img src="{{domain}}/static/clientfiles/brandlogo.png">  
+        </div>
+    </div>
+
+    <div class="row bg-danger">
+        <div class="container ">
+            <div class="text-center text-light p-3">
+                <h2>LOAN - {{ loan.ref }} - DECLINED</h2>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="row bg-light mt-1 pb-3">
+        <div class="container ">
+            <div class="container ">
+            <p> We are sorry to advise you that your loan was declined.</p>
+            </div>
+            
+        </div>
+    </div>
+
+    <hr>
+
+<!-- FOOTER -->
+    <div class="row bg-dark p-2">
+        <div class="container text-center">
+            
+            <span><a class="navbar-brand" href="#">{{ ''|sitename }}</a></span> |
+            <span><a class="navbar-brand" href="#">A Zacq Industries Company</a></span> |
+            <span><a class="navbar-brand" href="#">A Zacq Industries Company</a></span>
+
+
+        </div>
+    </div>
+<!-- end FOOTER -->
+
+
+</body>
+</html>
+
+
+{% endautoescape %}  

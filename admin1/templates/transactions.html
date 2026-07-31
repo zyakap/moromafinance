@@ -1,0 +1,496 @@
+{% extends "admin_base.html" %}
+{% load static %}
+{% load humanize %}
+{% load finance_formats %}
+
+{% block title %} Transactions {% endblock %}
+{% block breadcrumb %} 
+  <a href="{% url 'dashboard' %}">Dashboard</a> /  
+  <a href="{% url 'transactions' %}">Transactions</a> 
+{% endblock %}
+{% block breadcrumb_active %} All Transactions {% endblock %}
+{% block dashboard_title %} All Loan Transactions {% endblock %}
+
+{% block css %}
+<!-- DataTables LOCAL CSS -->
+<link rel="stylesheet" type="text/css" href="{% static 'DataTables/datatables.min.css' %}"/>   
+<!-- link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs5/jq-3.6.0/jszip-2.5.0/dt-1.12.1/b-2.2.3/b-colvis-2.2.3/b-html5-2.2.3/b-print-2.2.3/cr-1.5.6/kt-2.7.0/sp-2.0.2/datatables.min.css"/ -->
+<!-- Font Awesome Icons -->
+<script src="{% static 'fontawesomefree/js/all.min.js' %}"></script> 
+<!-- FLEX BOX Styles -->
+<style>
+  .flex-container {
+    display: flex;
+  }
+  .flex-child {
+    flex: 1;
+  }  
+  .flex-child:first-child {
+    margin-right: 5px;
+  } 
+  .flex-child:last-child {
+    margin-left: 5px;
+  } 
+</style>
+{% endblock %}
+
+{% block content %}
+
+  <!-- Content Goes Here -->
+
+  <!-- Content Goes Here -->
+  <div class="row mt-2">
+    <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-xs-12 mb-1">
+      <div>
+        <div class="card p-0 m-0 text-center button button2 btn-sm">
+          <a href="{% url 'transactions_all' %}">
+            <h6 class="p-1 m-0 text-light text-xs">All Transactions &nbsp;</span></h6>
+          </a> 
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-xs-12 mb-1">
+      <div>
+        <div class="card p-0 m-0 text-center button button2 btn-sm">
+          <a href="{% url 'transactions_payments' %}">
+            <h6 class="p-1 m-0 text-light text-xs">Payments &nbsp;</h6>
+          </a> 
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-xs-12 mb-1">
+      <div>
+        <div class="card p-0 m-0 text-center button button2 btn-sm">
+          <a href="{% url 'transactions_defaults' %}">
+            <h6 class="p-1 m-0 text-light text-xs">Defaults &nbsp;</h6>
+          </a> 
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-xs-12 mb-1">
+      <div>
+        <div class="card p-0 m-0 text-center button button2 btn-sm">
+          <a href="{% url 'transactions_expected' %}">
+            <h6 class="p-1 m-0 text-light text-xs">Expected Payments &nbsp;</h6>
+          </a> 
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-2">
+    <div class="container p-2 mb-2 text-center bg-secondary text-light opacity-7" style="border-radius: 10px;">
+        <h4 class="p-0 m-0 text-center bg-secondary text-light" style="border-radius: 10px;">Transactions Overview</h4>
+    </div>
+  </div>
+
+  <div class="row mt-1">
+    <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-xs-12 mb-1">
+        <div class="card p-1 m-0">
+          <div class="card-header bg-dark pt-2 pr-1 pl-1 pb-0 mb-0 mt-0 mr-0 ml-0">
+            <h6 class="p-0 text-light" style="font-weight: 700;">Overview</h6>
+          </div>
+          <div class="card-body p-2">
+            <p class="p-0 m-0 text-sm">Funded: <span class="text-primary text-sm"><b>{% if fundedsum.fundedsum %}K{{ fundedsum.fundedsum|default_if_none:"0"|currency }}{% else %}0{% endif %}</b></span></p>
+            <p class="p-0 m-0 text-sm">Payments: <span class="text-primary text-sm"><b>{% if payments_sum.paymentsum %}K{{ payments_sum.paymentsum|default_if_none:"0"|currency }}{% else %}0{% endif %}</b></span></p>
+            <p class="p-0 m-0 text-sm">Default Interests: <span class="text-primary text-sm"><b>{% if default_ic.dicsum %}K{{ default_ic.dicsum|default_if_none:"0"|currency }}{% else %}0{% endif %}</b></span></p>
+            <p class="p-0 m-0 text-sm">In Recovery: <span class="text-primary text-sm"><b>{% if inrecovery.recoverysum %}K{{ inrecovery.recoverysum|default_if_none:"0"|currency }}{% else %}0{% endif %}</b></span></p>
+            
+          </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-xs-12 mb-1">
+      <div class="card p-1 m-0">
+        <div class="card-header bg-dark pt-2 pr-1 pl-1 pb-0 mb-0 mt-0 mr-0 ml-0">
+          <h6 class="p-0 text-light" style="font-weight: 700;"><span class="text-info">Personal</span> Loans Overview</h6>
+        </div>
+        <div class="card-body p-2">
+            <p class="p-0 m-0 text-sm">Funded: <span class="text-primary text-sm"><b>{% if pl_fundedsum.fundedsum %}K{{ pl_fundedsum.fundedsum|default_if_none:"0"|currency }}{% else %}0{% endif %}</b></span></p>
+            <p class="p-0 m-0 text-sm">Payments: <span class="text-primary text-sm"><b>{% if pl_payments_sum.paymentsum %}K{{ pl_payments_sum.paymentsum|default_if_none:"0"|currency }}{% else %}0{% endif %}</b></span></p>
+            <p class="p-0 m-0 text-sm">Default Interests: <span class="text-primary text-sm"><b>{% if pl_default_ic.dicsum %}K{{ pl_default_ic.dicsum|default_if_none:"0"|currency }}{% else %}0{% endif %}</b></span></p>
+            <p class="p-0 m-0 text-sm">In Recovery: <span class="text-primary text-sm"><b>{% if pl_inrecovery.recoverysum %}K{{ pl_inrecovery.recoverysum|default_if_none:"0"|currency }}{% else %}0{% endif %}</b></span></p>
+            
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-xs-12 mb-1">
+      <div class="card p-1 m-0">
+        <div class="card-header bg-dark pt-2 pr-1 pl-1 pb-0 mb-0 mt-0 mr-0 ml-0">
+          <h6 class="p-0 text-light" style="font-weight: 700;"><span class="text-info">SME</span> Loans Overview</h6>
+        </div>
+        <div class="card-body p-2">
+          <p class="p-0 m-0 text-sm">Funded: <span class="text-primary text-sm"><b>{% if sme_fundedsum.fundedsum %}K{{ sme_fundedsum.fundedsum|default_if_none:"0"|currency }}{% else %}0{% endif %}</b></span></p>
+            <p class="p-0 m-0 text-sm">Payments: <span class="text-primary text-sm"><b>{% if sme_payments_sum.paymentsum %}K{{ sme_payments_sum.paymentsum|default_if_none:"0"|currency }}{% else %}0{% endif %}</b></span></p>
+            <p class="p-0 m-0 text-sm">Default Interests: <span class="text-primary text-sm"><b>{% if sme_default_ic.dicsum %}K{{ sme_default_ic.dicsum|default_if_none:"0"|currency }}{% else %}0{% endif %}</b></span></p>
+            <p class="p-0 m-0 text-sm">In Recovery: <span class="text-primary text-sm"><b>{% if sme_inrecovery.recoverysum %}K{{ sme_inrecovery.recoverysum|default_if_none:"0"|currency }}{% else %}0{% endif %}</b></span></p>
+            
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-xs-12 mb-1">
+      <div class="card p-1 m-0">
+        <div class="card-header bg-dark pt-2 pr-1 pl-1 pb-0 mb-0 mt-0 mr-0 ml-0">
+          <h6 class="p-0 text-light" style="font-weight: 700;">Performance Overview</h6>
+        </div>
+        <div class="card-body p-2">
+          <p class="p-0 m-0 text-sm">Total Expected: <span class="text-primary text-sm"><b>{% if total_expected.sum %}K{{ total_expected.sum|default_if_none:"0"|currency }}{% else %}0{% endif %}</b></span></p>
+          <p class="p-0 m-0 text-sm">Total Collected: <span class="text-primary text-sm"><b>{% if payments_sum.paymentsum %}K{{ payments_sum.paymentsum|default_if_none:"0"|currency }}{% else %}0{% endif %}</b></span></p>
+          <p class="p-0 m-0 text-sm">Total Arrears: <span class="text-primary text-sm"><b>{% if total_arrears.sum %}K{{ total_arrears.sum|default_if_none:"0"|currency }}{% else %}0{% endif %}</b></span></p>
+          <p class="p-0 m-0 text-sm">Total Outstanding: <span class="text-primary text-sm"><b>{% if total_outstanding.sum %}K{{ total_outstanding.sum|default_if_none:"0"|currency }}{% else %}0{% endif %}</b></span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  
+  <div class="card mt-5 pb-2 z-index-2 text-center">
+    <div class="card-header p-1 position-relative mt-n4 mx-3 z-index-2 bg-secondary">
+      <h5 class="pb-0 text-light">Monthly Transactions Outlook</h5>
+    </div>
+    <div class="card-body p-2 m-0">
+      <div class="row">
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-xs-12 mt-2">
+          <div class="bg-gradient-light shadow-light border-radius-lg py-3 pe-1">
+            <div class="chart">
+              <h6 class="text-primary text-sm">Payments by Week</h5>
+                <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+              <canvas id="default1CJS" width="400" height="400"></canvas>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-xs-12 mt-2">
+          <div class="bg-gradient-light shadow-light border-radius-lg py-3 pe-1">
+            <div class="chart">
+              <h6 class="text-primary text-sm">Defaults by Week</h5>
+                <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+              <canvas id="dummy1CJS" width="400" height="400"></canvas>
+            </div>
+          </div>
+        </div>
+        
+        
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-xs-12 mt-2">
+          <div class="bg-gradient-light shadow-light border-radius-lg py-3 pe-1">
+            <div class="chart">
+              <h6 class="text-primary text-sm">Payments by Location</h5>
+                <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+              <canvas id="paymentsbylocation" class="chart-canvas" height="100"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-xs-12 mt-2">
+          <div class="bg-gradient-light shadow-light border-radius-lg py-3 pe-1">
+            <div class="chart">
+              <h6 class="text-primary text-sm">Payments vs Defaults</h5>
+                <hr style="border: 1px solid blue" class="mt-1 mb-1 p-0">
+              <canvas id="transbreakupdj" class="chart-canvas" height="100"></canvas>
+            </div>
+          </div>         
+        </div>
+      </div>
+    </div> 
+  </div>
+   
+
+
+
+{% endblock %}
+
+
+
+{% block scripts %}
+
+
+<!-- DATATables LOCAL JS -->
+<script defer type="text/javascript" src="{% static 'DataTables/datatables.min.js' %}"></script>   
+<!--
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/v/bs5/jq-3.6.0/jszip-2.5.0/dt-1.12.1/b-2.2.3/b-colvis-2.2.3/b-html5-2.2.3/b-print-2.2.3/cr-1.5.6/kt-2.7.0/sp-2.0.2/datatables.min.js"></script>
+-->
+<script>
+    $("#allLoansTable").DataTable({
+        // DataTable configurations
+        paging: true,
+        pageLength: 10,
+        lengthChange: true,
+        autoWidth: true,
+        searching: true,
+        bInfo: true,
+        bSort: true,
+
+        dom: 'lBfrtip',
+        buttons: [
+            {
+                extend: 'copy',
+                text: '<i class="fa fa-solid fa-copy"></i>',
+                className: 'btn btn-secondary',
+                titleAttr: 'Copy Data',
+                // Choose Columns
+                exportOptions: {
+                  columns: [0,1,2,3,4,5,6,7,8]
+                }
+            },
+            {
+              extend: 'excel',
+              text: '<i class="fa fa-solid fa-file-excel"></i>',
+              className: 'btn btn-secondary',
+              titleAttr: 'Export to Excel',
+              // Choose Columns
+              exportOptions: {
+                columns: [0,1,2,3,4,5,6,7,8]
+              }
+            },
+            {
+              extend: 'print',
+              text: '<i class="fa fa-solid fa-print"></i>',
+              className: 'btn btn-secondary',
+              titleAttr: 'Print Table',
+              // Choose Columns
+              exportOptions: {
+                columns: [0,1,2,3,4,5,6,7,8]
+              },
+              // Font size when printing
+              customize: function ( win ) {
+                $(win.document.body).css('font-size', '10pt')
+                $(win.document.body).find('table')
+                  .addClass('compact')
+                  .css('font-size', 'inherit');
+              }
+            },
+            {
+              extend: 'pdf',
+              text: '<i class="fa fa-solid fa-file-pdf"></i>',
+              className: 'btn btn-secondary',
+              titleAttr: 'Export to PDF',
+              orientation: 'landscape',
+              pageSize: 'A4',
+              
+              // Choose Columns
+              exportOptions: {
+                columns: [0,1,2,3,4,5,6,7,8]
+              },
+              
+              // center the table
+              tableHeader: {
+                alignment: 'left'
+              },
+              // Font size & Customization
+              customize: function (doc) {
+              //      doc.style.tableHeader.alignment = 'center'; // Header position 
+                   // doc.style.tableBodyOdd.alignment = 'center';
+                  // doc.style.tableBodyEven.alignment = 'center';
+              //      doc.style.tableHeader.fontSize = 7;
+               //     doc.defaultStyle.fontSize = 6;
+              //      // TO GET 100% width on table
+                   doc.content[1].table.widths = Array(doc.content[1].table.body[1].length + 1).join('*').split('');
+              },
+              
+            },
+            {
+              extend: 'collection',
+              className: 'custom-html-collection',
+              buttons: [
+                  '<h6>Export</h6>',
+                  'csv',
+                  '<h6 class="not-top-heading">Hide/Show Columns</h6>',
+                  'colvis',
+              ]
+          }
+
+        ]
+    });
+</script>
+
+
+
+<!-- CHART JS -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+
+<script>
+  const lb_data = {
+    labels: {{ labels|safe }},
+    datasets: [{
+      label: 'Loan Breakup',
+      data: [{{ data.0 }}, {{ data.1 }},{{ data.2 }}, {{ data.3 }}],
+      backgroundColor: [
+        'rgb(25, 123, 252)',
+        'rgb(252, 40, 252)',
+        'rgb(255, 192, 35)',
+        'rgb(8, 214, 8)',
+
+      ],
+      hoverOffset: 4
+    }]
+  };
+
+  const lb_config = {
+    type: 'doughnut',
+    data: lb_data,
+  };
+
+  const loanbreakupdj = new Chart(
+    document.getElementById('loanbreakupdj'),
+    lb_config
+  );
+
+</script>
+
+<!---- DUMMY CHARTS -->
+<!-- doughnut payments vs defaults -->
+<script>
+  const lbx_data = {
+    labels: ['Payments','Defaults'],
+    datasets: [{
+      label: 'Transaction Breakup',
+      data: [{{monthpayments}}, {{monthdefaults}}],
+      backgroundColor: [
+        'rgb(25, 255, 125)',
+        'rgb(255, 40, 21)',
+        
+
+      ],
+      hoverOffset: 4
+    }]
+  };
+
+  const lbx_config = {
+    type: 'doughnut',
+    data: lbx_data,
+  };
+
+  const transbreakupdj = new Chart(
+    document.getElementById('transbreakupdj'),
+    lbx_config
+  );
+
+</script>
+
+<!-- PIE CHART -->
+<script>
+  const datax = {
+    labels: {{ locpaylabel|safe }},
+    datasets: [{
+      label: 'My First Dataset',
+      data: {{ locpay|safe }},
+      backgroundColor: [
+        'rgb(255, 99, 132)',
+        'rgb(54, 162, 235)',
+        'rgb(255, 205, 86)',
+        'rgb(255, 99, 132)',
+        'rgb(54, 162, 235)',
+        'rgb(255, 205, 86)',
+        'rgb(25, 99, 132)',
+        'rgb(54, 162, 235)',
+        'rgb(255, 5, 26)',
+        'rgb(5, 190, 132)',
+        'rgb(59, 12, 235)',
+        'rgb(155, 205, 186)',
+        'rgb(25, 99, 32)',
+        'rgb(54, 12, 35)',
+        'rgb(255, 25, 6)',
+        'rgb(215, 129, 132)',
+        'rgb(154, 62, 235)',
+        'rgb(25, 5, 6)',
+        'rgb(5, 10, 132)',
+        'rgb(59, 12, 25)',
+        'rgb(155, 25, 186)'
+      ],
+      hoverOffset: 4
+    }]
+  };
+  const configx = {
+    type: 'pie',
+    data: datax,
+  };
+
+  const paymentsbylocation = new Chart(
+    document.getElementById('paymentsbylocation'),
+    configx
+  );
+</script>
+
+
+<!-- CHART JS DUMMY -->
+<script>
+const ctxz = document.getElementById('default1CJS').getContext('2d');
+const myChartz = new Chart(ctxz, {
+    type: 'bar',
+    data: {
+        labels: ['Week 1', 'Week 2','Week 3', 'Week 4'],
+        datasets: [{
+            label: 'Payments',
+            data: {{ weekpayments|safe }},
+            backgroundColor: [
+              'rgba(54, 162, 235, 0.5)',
+              'rgba(75, 192, 192, 0.5)',   
+              'rgba(255, 206, 86, 0.5)',
+              'rgba(255, 159, 64, 0.5)',
+        
+            ],
+            borderColor: [
+                'rgba(54, 162, 235, 1)',
+                'rgba(75, 192, 192, 1)',   
+                'rgba(255, 206, 86, 1)',
+                'rgba(255, 159, 64, 1)',
+               
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
+
+<!-- CHART JS DUMMY -->
+<script>
+  const ctx = document.getElementById('dummy1CJS').getContext('2d');
+  const myChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+          labels: ['Week 1', 'Week 2','Week 3', 'Week 4'],
+          datasets: [{
+              label: 'Defaults',
+              data: {{ weekdefaults|safe }},
+              backgroundColor: [
+              
+                'rgba(255, 159, 64, 0.5)',
+                'rgba(255, 99, 132, 0.5)',
+                'rgba(54, 162, 235, 0.5)',
+                'rgba(75, 192, 192, 0.5)',   
+                
+                
+              ],
+              borderColor: [
+              
+                  'rgba(255, 159, 64, 1)',
+                  'rgba(255, 99, 132, 1)',
+                  'rgba(54, 162, 235, 1)',
+                  'rgba(75, 192, 192, 1)',   
+                  
+                 
+              ],
+              borderWidth: 1
+          }]
+      },
+      options: {
+          scales: {
+              y: {
+                  beginAtZero: true
+              }
+          }
+      }
+  });
+</script>
+
+
+{% endblock %}

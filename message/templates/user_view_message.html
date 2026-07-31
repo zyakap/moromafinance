@@ -1,0 +1,69 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %} My Profile {% endblock %}
+
+{% block breadcrumb %} <a href="{% url 'dashboard' %}">Dashboard</a>  /  <a href="{% url 'profile' %}">Profile</a> {% endblock %}
+{% block breadcrumb_active %} Message {% endblock %}
+{% block dashboard_title %} Message: {{message.subject}} {% endblock %}
+
+{% block content %}
+ <!-- Content Goes Here -->
+<div class="row mt-3 p-2">
+  <div class="col-xl-8 col-lg-8 col-md-12 col-sm-12 col-xs-12 mb-2">
+    <div class="card p-3 mt-3">
+      <br >
+      <p>Category: <span class="badge bg-success">{{ message.category }}</span></p>
+      <h5>Subject: <span class="text-primary">{{ message.subject }}</span></h5>
+    
+      <hr style="border: 1px solid #0cf;">
+      {{ message.content|safe }}
+      <hr style="border: 1px solid #0cf;">
+      {% if message.attachment_url %}
+      <p class="p-0 m-0">Attachment: <a href="{{ message.attachment_url }}" target="_blank" class="text-primary">{{ message.attachment_name }}</a></p>
+      <hr style="border: 1px solid #0cf;">
+      {% endif %}
+      <p>Sent by: {{ message.sender }}</p> 
+    </div>
+  </div>
+  <div class="col-xl-4 col-lg-4 col-md-12 col-sm-12 col-xs-12 mb-2">
+    <div class="card mt-3">
+      <div class="card-header bg-secondary pt-2 pr-2 pb-0 pl-2">
+        <h4 class="text-light">Unread Messages</h4>
+      </div>
+      <div class="card-body mt-2 p-2">
+        {% if recent_message_count != 0 %}
+        <ul class="">
+          {% for msg in recent_messages %}
+          <a href="{% url 'user_view_message' msg.id %}" target="_blank">
+            <li><h6 class="text-primary">{{ msg.subject }}</h6></li>
+          </a>
+          {% endfor %}
+          </ul>
+        {% else %}
+            <p>There are no unread messages.</p>
+        {% endif %}
+      </div>
+    </div>
+    <div class="card mt-3">
+      <div class="card-header bg-secondary pt-2 pr-2 pb-0 pl-2">
+        <h4 class="text-light">Recent Messages</h4>
+      </div>
+      <div class="card-body mt-2 p-2">
+        {% if read_message_count != 0 %}
+        <ul class="">
+          {% for msg in read_messages %}
+          <a href="{% url 'user_view_message' msg.id %}" target="_blank">
+            <li><h6 class="text-primary">{{ msg.subject }}</h6></li>
+          </a>
+          {% endfor %}
+          </ul>
+        {% else %}
+            <p>There are no unread messages.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+  <!-- Content Ends Here -->
+
+{% endblock %}
