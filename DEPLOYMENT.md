@@ -27,11 +27,19 @@ Moroma's own data before taking real applications:
       **Settings → AdminSettings** screen overrides the settings.py fallback.
 - [x] **Loan limits** — DONE: K500–K5,000, K50 steps, 7–36 fortnights in
       `moromafinance/settings.py` and across website copy.
-- [ ] **Logo artwork** — `static_files/clientfiles/moroma_logo.svg`,
-      `static_files/img/moroma_favicon.svg` and
-      `static_files/clientfiles/brandlogo.png` are recreated approximations of
-      the client mark (`client_documents/5.Moroma Logo.jpg`). Swap in
-      professional artwork when supplied, keeping the same file names/paths.
+- [x] **Logo artwork** — DONE: extracted from the client's own artwork
+      (`client_documents/5.Moroma Logo.jpg`), background removed, transparent:
+      `static_files/clientfiles/brandlogo.png` (full lockup, used across the
+      client dashboard, admin, emails and PDFs), `brandmark.png` (emblem only,
+      website masthead) and `static_files/img/favicon.png` (browser icon).
+      The earlier hand-drawn `moroma_logo.svg` / `moroma_favicon.svg`
+      approximations are superseded and no longer referenced.
+- [x] **Letterhead & document logos** — DONE: `static_files/img/letterhead.jpeg`
+      and `static_files/generate/loan_disbursment_notice/imgs/letterhead.*` were
+      inherited **WinCorp Finance** artwork (competitor name, address, phone and
+      email); `static_files/img/logo.png` and `img/favicon.png` were **LoanMasta**
+      artwork. All replaced with Moroma's letterhead
+      (`client_documents/4. Moses Tosa Letter head.jpg`) and mark.
 - [x] **ALESCO deduction code** — DONE: `DMAWE` (printed on the client's in-use
       application form) is the settings.py default; override via `.env` if it
       changes.

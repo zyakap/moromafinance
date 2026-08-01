@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+from django.conf import settings
 from django.test import TestCase
 
 from admin1.models import AdminSettings
@@ -9,11 +10,17 @@ from staff.forms import CreateLoanForm
 
 
 class CreateLoanFormAmountChoicesTests(TestCase):
-    def test_default_minimum_loan_amount_is_k100(self):
+    def test_default_minimum_loan_amount_falls_back_to_settings(self):
+        # With no AdminSettings row the form falls back to LOAN_MIN_AMOUNT.
+        # Assert against the setting rather than a literal: this tenant's
+        # published schedule starts at K500, not the engine default of K100.
         form = CreateLoanForm()
 
         first_value, _label = list(form.fields['amount'].choices)[0]
-        self.assertEqual(Decimal(str(first_value)), Decimal('100'))
+        self.assertEqual(
+            Decimal(str(first_value)),
+            Decimal(str(settings.LOAN_MIN_AMOUNT)),
+        )
 
     def test_initial_form_uses_current_configured_loan_amount_limits(self):
         AdminSettings.objects.create(

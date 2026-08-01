@@ -8,8 +8,9 @@
   <meta name="description" content="{% block meta_desc %}Moroma Finance Ltd is your local finance partner in Papua New Guinea — accessible, responsible lending for salaried employees, with branches in Port Moresby, Mt Hagen, Mendi, Madang, Banz and Goroka.{% endblock %}">
   <meta name="keywords" content="personal loan PNG, cash loan Papua New Guinea, Moroma Finance, payroll loan Port Moresby, salary deduction loan PNG, fast loan approval PNG">
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/svg+xml" href="{% static 'img/moroma_favicon.svg' %}">
+  <!-- Favicon (Moroma emblem, from the client's supplied artwork) -->
+  <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+  <link rel="apple-touch-icon" sizes="76x76" href="{% static 'img/favicon.png' %}">
 
   <!-- Type: Fraunces (display serif) · Archivo (text) · IBM Plex Mono (figures) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -44,7 +45,7 @@
   <header class="mf-mast">
     <div class="mf-wrap">
       <a class="mf-brand" href="{% url 'home' %}" aria-label="Moroma Finance home">
-        <img src="{% static 'clientfiles/moroma_logo.svg' %}" alt="Moroma Finance">
+        <img src="{% static 'clientfiles/brandmark.png' %}" alt="Moroma Finance">
         <span>
           <span class="b-name">Moroma Finance</span><br>
           <span class="b-sub">Ltd · Papua New Guinea</span>
