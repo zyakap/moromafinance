@@ -4,18 +4,26 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f6e3a">
   <title>{% block title %}Moroma Finance Ltd — Your Local Finance Partner in PNG{% endblock %}</title>
   <meta name="description" content="{% block meta_desc %}Moroma Finance Ltd is your local finance partner in Papua New Guinea — accessible, responsible lending for salaried employees, with branches in Port Moresby, Mt Hagen, Mendi, Madang, Banz and Goroka.{% endblock %}">
   <meta name="keywords" content="personal loan PNG, cash loan Papua New Guinea, Moroma Finance, payroll loan Port Moresby, salary deduction loan PNG, fast loan approval PNG">
+
+  {% comment %}
+    Marks the document as script-capable before any CSS is applied. The
+    scroll-reveal styles are scoped to .js, so if scripting is unavailable or
+    fails the content simply renders visible instead of staying at opacity:0.
+  {% endcomment %}
+  <script>document.documentElement.className += ' js';</script>
 
   <!-- Favicon (Moroma emblem, from the client's supplied artwork) -->
   <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
   <link rel="apple-touch-icon" sizes="76x76" href="{% static 'img/favicon.png' %}">
 
-  <!-- Type: Fraunces (display serif) · Archivo (text) · IBM Plex Mono (figures) -->
+  <!-- Type: Plus Jakarta Sans (UI) · Instrument Serif (accents) · JetBrains Mono (figures) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Fraunces:ital,wght@0,480;0,560;0,640;1,480;1,560&family=IBM+Plex+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 
   <!-- Bootstrap Icons (icon font only) -->
   <link href="{% static 'website/bizland/assets/vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
@@ -37,24 +45,33 @@
   <div class="mf-topstrip">
     <div class="mf-wrap">
       <span class="ts-left">Your True Partner for a Better Tomorrow</span>
-      <span class="ts-right">Sales <a href="tel:+67570107473">7010 7473</a> &nbsp;·&nbsp; <a href="mailto:sales@moromafinance.com.pg">sales@moromafinance.com.pg</a></span>
+      <span class="ts-right">
+        <a href="tel:+67570107473"><i class="bi bi-telephone-fill"></i> 7010 7473</a>
+        <a href="mailto:sales@moromafinance.com.pg"><i class="bi bi-envelope-fill"></i> sales@moromafinance.com.pg</a>
+      </span>
     </div>
   </div>
 
   <!-- ======= Masthead ======= -->
-  <header class="mf-mast">
+  <header class="mf-mast" id="mfMast">
     <div class="mf-wrap">
       <a class="mf-brand" href="{% url 'home' %}" aria-label="Moroma Finance home">
-        <img src="{% static 'clientfiles/brandmark.png' %}" alt="Moroma Finance">
+        <img src="{% static 'clientfiles/brandmark.png' %}" alt="" width="46" height="46">
         <span>
-          <span class="b-name">Moroma Finance</span><br>
+          <span class="b-name">Moroma Finance</span>
           <span class="b-sub">Ltd · Papua New Guinea</span>
         </span>
       </a>
 
-      <button class="mf-burger" id="mfBurger" aria-label="Menu"><i class="bi bi-list"></i></button>
-
-      <nav class="mf-nav" id="mfNav">
+      {% comment %}
+        The drawer is wrapped so that, on mobile, it can be clipped inside a
+        viewport-sized box. A bare position:fixed drawer parked at
+        translateX(100%) is NOT clipped by overflow-x on <body>, so it stretches
+        the document ~360px wider and the whole page scrolls sideways.
+        On desktop the wrapper is display:contents and disappears from layout.
+      {% endcomment %}
+      <div class="mf-navwrap">
+      <nav class="mf-nav" id="mfNav" aria-label="Main">
         <ul>
           <li><a class="navlink {% if nav == 'home' %}active{% endif %}" href="{% url 'home' %}">Home</a></li>
           <li><a class="navlink {% if nav == 'features' %}active{% endif %}" href="{% url 'features' %}">Loans</a></li>
@@ -64,17 +81,23 @@
         </ul>
         <div class="mf-nav-cta">
           <a href="{% url 'login_user' %}" class="login-link">Log in</a>
-          <a href="{% url 'register' %}" class="mf-btn mf-btn--gold">Apply Now</a>
+          <a href="{% url 'register' %}" class="mf-btn mf-btn--ink">Apply Now</a>
         </div>
       </nav>
+      </div>
+
+      <button class="mf-burger" id="mfBurger" aria-label="Open menu" aria-expanded="false" aria-controls="mfNav">
+        <i class="bi bi-list" aria-hidden="true"></i>
+      </button>
     </div>
   </header>
+  <div class="mf-navscrim" id="mfScrim" hidden></div>
 
   {% block hero %}{% endblock %}
 
   <main>
     {% if messages %}
-    <div class="mf-wrap" style="padding-top:1.5rem;">
+    <div class="mf-wrap" style="padding-top:1.75rem;">
       {% for message in messages %}
       <div class="mf-alert mf-alert-{{ message.tags }}">{{ message }}</div>
       {% endfor %}
@@ -92,8 +115,8 @@
       <div class="mf-foot__grid">
         <div>
           <h5>The Company</h5>
-          <p style="font-size:.92rem; color:rgba(207,227,212,.8); margin:0 0 1rem;">Accessible, responsible, customer-focused finance for Papua New Guinea's salaried workforce. Head Office Port Moresby — branches in Mt Hagen, Mendi, Madang, Banz and Goroka.</p>
-          <a href="{% url 'register' %}" class="mf-btn mf-btn--gold">Become a Client</a>
+          <p>Accessible, responsible, customer-focused finance for Papua New Guinea's salaried workforce. Head Office Port Moresby — branches in Mt Hagen, Mendi, Madang, Banz and Goroka.</p>
+          <a href="{% url 'register' %}" class="mf-btn mf-btn--gold" style="margin-top:.6rem;">Become a Client</a>
         </div>
         <div>
           <h5>Loans</h5>
@@ -130,21 +153,78 @@
     </div>
   </footer>
 
-  <a href="#" class="mf-btt" id="mfBtt" aria-label="Back to top"><i class="bi bi-arrow-up-short"></i></a>
+  <button class="mf-btt" id="mfBtt" aria-label="Back to top"><i class="bi bi-arrow-up-short" aria-hidden="true"></i></button>
 
   <script>
-    var btt = document.getElementById('mfBtt');
-    window.addEventListener('scroll', function () {
-      btt.classList.toggle('show', window.scrollY > 420);
+  (function () {
+    var mast   = document.getElementById('mfMast');
+    var nav    = document.getElementById('mfNav');
+    var burger = document.getElementById('mfBurger');
+    var scrim  = document.getElementById('mfScrim');
+    var btt    = document.getElementById('mfBtt');
+
+    /* Sticky masthead shadow + back-to-top visibility */
+    function onScroll() {
+      var y = window.scrollY;
+      if (mast) mast.classList.toggle('is-stuck', y > 8);
+      if (btt) btt.classList.toggle('show', y > 420);
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    /* Mobile navigation drawer */
+    function setNav(open) {
+      if (!nav) return;
+      nav.classList.toggle('open', open);
+      scrim.classList.toggle('show', open);
+      scrim.hidden = !open;
+      document.body.classList.toggle('mf-lock', open);
+      burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+      burger.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+      burger.innerHTML = open
+        ? '<i class="bi bi-x-lg" aria-hidden="true"></i>'
+        : '<i class="bi bi-list" aria-hidden="true"></i>';
+    }
+    if (burger) {
+      burger.addEventListener('click', function () {
+        setNav(!nav.classList.contains('open'));
+      });
+    }
+    if (scrim) scrim.addEventListener('click', function () { setNav(false); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') setNav(false);
     });
-    document.getElementById('mfBurger').addEventListener('click', function () {
-      document.getElementById('mfNav').classList.toggle('open');
+    /* Close the drawer after tapping a link, and whenever we return to desktop */
+    nav && nav.querySelectorAll('a').forEach(function (a) {
+      a.addEventListener('click', function () { setNav(false); });
     });
-    btt.addEventListener('click', function (e) { e.preventDefault(); window.scrollTo({top:0,behavior:'smooth'}); });
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
-    }, { threshold: .12 });
-    document.querySelectorAll('.rv').forEach(function (el) { io.observe(el); });
+    window.addEventListener('resize', function () {
+      if (window.innerWidth > 940) setNav(false);
+    });
+
+    if (btt) {
+      btt.addEventListener('click', function () {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+
+    /* Reveal on scroll */
+    var items = document.querySelectorAll('.rv');
+    function revealAll() { items.forEach(function (el) { el.classList.add('in'); }); }
+    if (!('IntersectionObserver' in window)) {
+      revealAll();
+    } else {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
+        });
+      }, { threshold: .12, rootMargin: '0px 0px -40px 0px' });
+      items.forEach(function (el) { io.observe(el); });
+      /* Failsafe: never leave content stuck invisible (e.g. deep-link to an
+         anchor, or an observer that doesn't fire on this browser). */
+      setTimeout(revealAll, 2500);
+    }
+  })();
   </script>
 
   {% block extra_js %}{% endblock %}

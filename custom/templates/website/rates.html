@@ -8,7 +8,7 @@
 <section class="mf-phero">
   <div class="mf-wrap">
     <span class="mf-kick">Rates &amp; Fees</span>
-    <h1 class="mf-h1">No fine print.<br>No <em>surprises</em>.</h1>
+    <h1 class="mf-h1">No fine print. No <em>surprises</em>.</h1>
     <p>Every figure we quote comes straight from our published repayment schedule. Here's how it works — in plain language.</p>
   </div>
 </section>
@@ -21,26 +21,26 @@
   <div class="mf-wrap mf-split">
     <div class="rv">
       <span class="mf-kick">How our pricing works</span>
-      <h2 class="mf-h2">Priced from the schedule, not a flat rate</h2>
+      <h2 class="mf-h2">Priced from the schedule, not a <em>flat rate</em></h2>
       <p class="mf-lede">Moroma Finance does not use a single flat rate. Your interest is set by our published <strong>Personal Loan Repayment Schedule</strong>, based on how much you borrow and how many fortnights you repay over. A shorter term carries less interest; a longer term carries more.</p>
       <p class="mf-lede">Whatever you choose, the fortnightly repayment and total repayable are agreed with you <strong>before you sign</strong>.</p>
       <div class="mf-btnrow">
         <a href="#calculator" class="mf-btn mf-btn--ink">Check your repayment <i class="bi bi-arrow-down"></i></a>
       </div>
     </div>
-    <div class="mf-cells rv" style="grid-template-columns:1fr;">
+    <div class="mf-cells rv">
       <div class="mf-cell">
-        <span class="cell-no">PRINCIPLE / 1</span>
+        <span class="cell-no">Principle / 1</span>
         <h3>Shown up front</h3>
         <p>Before you accept, you'll see your loan amount, your fortnightly repayment and your total repayable — in writing.</p>
       </div>
       <div class="mf-cell mf-cell--gold">
-        <span class="cell-no">PRINCIPLE / 2</span>
+        <span class="cell-no">Principle / 2</span>
         <h3>Matched to your pay</h3>
         <p>Repayments are spread across fortnights and matched to your pay cycle, so they stay manageable.</p>
       </div>
       <div class="mf-cell">
-        <span class="cell-no">PRINCIPLE / 3</span>
+        <span class="cell-no">Principle / 3</span>
         <h3>No hidden charges</h3>
         <p>What we quote is what you repay. Any fee that ever applies to your loan is disclosed to you before you sign.</p>
       </div>
@@ -52,7 +52,7 @@
 <section class="mf-sec mf-sec--paper2" id="calculator">
   <div class="mf-wrap">
     <div class="mf-head-row rv">
-      <span class="mf-num">CALC /</span>
+      <span class="mf-num">Calculator /</span>
       <h2 class="mf-h2">Work out your repayment</h2>
     </div>
 
@@ -70,7 +70,7 @@
           <input type="range" class="mf-range" id="calcTerm" min="0" max="0" step="1" value="0" aria-label="Repayment term in fortnights">
           <div class="mf-cscale"><span id="calcTermMin">7</span><span id="calcTermMax">36</span></div>
         </div>
-        <p style="font-family:var(--mf-mono); font-size:.7rem; letter-spacing:.06em; color:var(--mf-ink-60); margin:0;">AMOUNTS IN K50 STEPS · MINIMUM TERM VARIES BY AMOUNT</p>
+        <p class="mf-note" style="margin:0;">AMOUNTS IN K50 STEPS · MINIMUM TERM VARIES BY AMOUNT</p>
       </div>
 
       <div class="mf-calc__out">
@@ -78,12 +78,12 @@
         <div class="mf-slip__head"><span>Your fortnightly repayment</span><span>MFL</span></div>
         <div class="mf-bigfig" id="calcPmt">K151.11</div>
         <div class="mf-bigfig-sub" id="calcPmtSub">every fortnight for 9 fortnights</div>
-        <div style="margin-top:1.6rem;">
+        <div style="margin-top:1.7rem;">
           <div class="mf-slip__row"><span>Loan amount</span><span class="mf-dots"></span><span class="v" id="calcRowAmt">K1,000.00</span></div>
           <div class="mf-slip__row"><span>Interest</span><span class="mf-dots"></span><span class="v" id="calcRowInt">K360.00</span></div>
           <div class="mf-slip__total"><span>Total repayable</span><span class="mf-dots"></span><span class="v" id="calcRowTotal">K1,360.00</span></div>
         </div>
-        <a href="{% url 'register' %}" class="mf-btn mf-btn--gold" style="margin-top:1.8rem;">Apply for this loan <i class="bi bi-arrow-right"></i></a>
+        <a href="{% url 'register' %}" class="mf-btn mf-btn--gold mf-btn--block" style="margin-top:1.8rem;">Apply for this loan <i class="bi bi-arrow-right"></i></a>
       </div>
     </div>
 
@@ -98,22 +98,24 @@
 <section class="mf-sec">
   <div class="mf-wrap">
     <div class="mf-head-row rv">
-      <span class="mf-num">TABLE /</span>
+      <span class="mf-num">Schedule /</span>
       <h2 class="mf-h2">Straight from the schedule</h2>
     </div>
-    <div class="rv" style="overflow-x:auto;">
-      <table class="mf-table">
-        <thead>
-          <tr><th>Loan amount</th><th>7 F/N</th><th>12 F/N</th><th>18 F/N</th><th>24 F/N</th><th>30 F/N</th><th>36 F/N</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>K500</td><td>—</td><td>—</td><td>47.78</td><td>40.83</td><td>36.67</td><td>33.89</td></tr>
-          <tr><td>K1,000</td><td>—</td><td>123.33</td><td>95.56</td><td>81.67</td><td>73.33</td><td>67.78</td></tr>
-          <tr><td>K2,000</td><td>365.71</td><td>246.67</td><td>191.11</td><td>163.33</td><td>146.67</td><td>135.56</td></tr>
-          <tr><td>K3,000</td><td>548.57</td><td>370.00</td><td>286.67</td><td>245.00</td><td>220.00</td><td>203.33</td></tr>
-          <tr><td>K5,000</td><td>914.29</td><td>616.67</td><td>477.78</td><td>408.33</td><td>366.67</td><td>338.89</td></tr>
-        </tbody>
-      </table>
+    <div class="rv">
+      <div class="mf-tablewrap">
+        <table class="mf-table">
+          <thead>
+            <tr><th>Loan amount</th><th>7 F/N</th><th>12 F/N</th><th>18 F/N</th><th>24 F/N</th><th>30 F/N</th><th>36 F/N</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>K500</td><td>—</td><td>—</td><td>47.78</td><td>40.83</td><td>36.67</td><td>33.89</td></tr>
+            <tr><td>K1,000</td><td>—</td><td>123.33</td><td>95.56</td><td>81.67</td><td>73.33</td><td>67.78</td></tr>
+            <tr><td>K2,000</td><td>365.71</td><td>246.67</td><td>191.11</td><td>163.33</td><td>146.67</td><td>135.56</td></tr>
+            <tr><td>K3,000</td><td>548.57</td><td>370.00</td><td>286.67</td><td>245.00</td><td>220.00</td><td>203.33</td></tr>
+            <tr><td>K5,000</td><td>914.29</td><td>616.67</td><td>477.78</td><td>408.33</td><td>366.67</td><td>338.89</td></tr>
+          </tbody>
+        </table>
+      </div>
       <p class="mf-table-note">FORTNIGHTLY REPAYMENT IN KINA · “—” = TERM NOT OFFERED FOR THAT AMOUNT (MINIMUM 14 F/N BELOW K1,000, 9 F/N BELOW K2,000) · FULL SCHEDULE AVAILABLE AT ANY BRANCH</p>
     </div>
     <div class="mf-btnrow mf-mt rv">

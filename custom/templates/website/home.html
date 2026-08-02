@@ -8,24 +8,29 @@
 <section class="mf-hero">
   <div class="mf-wrap">
     <div class="rv">
-      <span class="mf-kick">Moroma Finance Ltd · Est. Papua New Guinea</span>
-      <h1 class="mf-h1">Your pay,<br>working <span class="mf-underline">harder</span><br>for you.</h1>
-      <p class="mf-lede">Personal loans from <b>K500 to K5,000</b> for eligible salaried employees — assessed responsibly, approved the same day, repaid in fortnightly instalments that match your pay cycle.</p>
+      <span class="mf-kick">Moroma Finance Ltd · Papua New Guinea</span>
+      <h1 class="mf-h1">Your pay, working <span class="mf-underline">harder</span> for <em>you</em>.</h1>
+      <p class="mf-lede">Personal loans from <strong>K500 to K5,000</strong> for eligible salaried employees — assessed responsibly, approved the same day, repaid in fortnightly instalments that match your pay cycle.</p>
       <div class="mf-btnrow">
         <a href="{% url 'register' %}" class="mf-btn mf-btn--ink mf-btn--lg">Apply for a Loan <i class="bi bi-arrow-right"></i></a>
-        <a href="{% url 'rates' %}" class="mf-btn mf-btn--lg">Repayment Schedule</a>
+        <a href="{% url 'rates' %}" class="mf-btn mf-btn--lg">Check your repayment</a>
+      </div>
+      <div class="mf-trust">
+        <span class="mf-chip"><i class="bi bi-lightning-charge-fill"></i> Same-day approvals</span>
+        <span class="mf-chip"><i class="bi bi-clipboard-check-fill"></i> Published schedule</span>
+        <span class="mf-chip"><i class="bi bi-geo-alt-fill"></i> 6 branches nationwide</span>
       </div>
     </div>
 
     <!-- Sample pay advice -->
-    <div class="mf-slip rv hero-figure">
-      <div class="mf-stamp">Approved</div>
+    <div class="mf-slip rv">
+      <div class="mf-stamp"><i class="bi bi-check-circle-fill"></i> Approved</div>
       <div class="mf-slip__head"><span>Pay Advice — Sample</span><span>MFL-2026</span></div>
       <div class="mf-slip__row"><span>Loan amount</span><span class="mf-dots"></span><span class="v">K2,000.00</span></div>
       <div class="mf-slip__row"><span>Term</span><span class="mf-dots"></span><span class="v">12 fortnights</span></div>
       <div class="mf-slip__row"><span>Interest</span><span class="mf-dots"></span><span class="v">K960.04</span></div>
       <div class="mf-slip__total"><span>Fortnightly deduction</span><span class="mf-dots"></span><span class="v">K246.67</span></div>
-      <p style="font-family:var(--mf-mono); font-size:.66rem; letter-spacing:.08em; color:var(--mf-ink-60); margin:1rem 0 0;">PER PUBLISHED REPAYMENT SCHEDULE · EFFECTIVE 1 DEC 2025</p>
+      <p class="mf-note" style="margin:1.1rem 0 0;">PER PUBLISHED REPAYMENT SCHEDULE · EFFECTIVE 1 DEC 2025</p>
     </div>
   </div>
 </section>
@@ -89,22 +94,22 @@
     </div>
     <div class="mf-cells mf-cells--3 rv">
       <div class="mf-cell">
-        <span class="cell-no">PRODUCT / A</span>
+        <span class="cell-no">Product / A</span>
         <h3>Personal Loan</h3>
         <p>Finance for approved personal, family, education, medical, emergency and other lawful needs. K500–K5,000 over 7–36 fortnights.</p>
-        <div class="mf-btnrow" style="margin-top:1.2rem;"><a href="{% url 'features' %}" class="mf-btn">Details</a></div>
+        <div class="mf-btnrow"><a href="{% url 'features' %}" class="mf-btn mf-btn--ghost">Details <i class="bi bi-arrow-right"></i></a></div>
       </div>
       <div class="mf-cell mf-cell--gold">
-        <span class="cell-no">PRODUCT / B</span>
+        <span class="cell-no">Product / B</span>
         <h3>Refinancing</h3>
         <p>Internal refinancing of your Moroma loan, or external refinancing of a qualifying loan with another finance company.</p>
-        <div class="mf-btnrow" style="margin-top:1.2rem;"><a href="{% url 'features' %}" class="mf-btn">Details</a></div>
+        <div class="mf-btnrow"><a href="{% url 'features' %}" class="mf-btn mf-btn--ghost">Details <i class="bi bi-arrow-right"></i></a></div>
       </div>
       <div class="mf-cell">
-        <span class="cell-no">PRODUCT / C</span>
+        <span class="cell-no">Product / C</span>
         <h3>Top-Up Loans</h3>
         <p>Additional finance for existing clients with a good repayment record — subject to our current credit policy.</p>
-        <div class="mf-btnrow" style="margin-top:1.2rem;"><a href="{% url 'features' %}" class="mf-btn">Details</a></div>
+        <div class="mf-btnrow"><a href="{% url 'features' %}" class="mf-btn mf-btn--ghost">Details <i class="bi bi-arrow-right"></i></a></div>
       </div>
     </div>
   </div>
@@ -134,10 +139,10 @@
         <div class="mf-stat"><div class="n">Same day</div><div class="l">Approvals</div></div>
         <div class="mf-stat"><div class="n">6</div><div class="l">Branches nationwide</div></div>
       </div>
-      <div class="mf-slip" style="margin-top:2rem;">
+      <div class="mf-slip" style="margin-top:1.4rem;">
         <div class="mf-slip__head"><span>Client note</span><span>Verified</span></div>
-        <blockquote class="mf-quote" style="font-size:1.25rem;">"They told me exactly what I'd repay before I signed. That honesty is why I keep coming back."</blockquote>
-        <div class="mf-quote-attr">— Trusted client · Port Moresby</div>
+        <blockquote class="mf-quote">"They told me exactly what I'd repay before I signed. That honesty is why I keep coming back."</blockquote>
+        <div class="mf-quote-attr">Trusted client · Port Moresby</div>
       </div>
     </div>
   </div>
@@ -164,12 +169,11 @@
 <!-- CTA -->
 <section class="mf-sec">
   <div class="mf-wrap">
-    <div class="mf-cta rv">
-      <div class="mf-zig mf-zig--thin zig-top"></div>
+    <div class="mf-cta mf-center rv">
       <span class="mf-kick">Ready when you are</span>
-      <h2 class="mf-h2">See your real numbers before you commit.</h2>
+      <h2 class="mf-h2">See your real numbers before you <em>commit</em>.</h2>
       <p>Apply online and we'll show you your exact repayment schedule up front. No fine print, no surprises — that's the Moroma way.</p>
-      <div class="mf-btnrow mf-mt">
+      <div class="mf-btnrow mf-mt" style="justify-content:center;">
         <a href="{% url 'register' %}" class="mf-btn mf-btn--gold mf-btn--lg">Apply Now <i class="bi bi-arrow-right"></i></a>
         <a href="{% url 'contact' %}" class="mf-btn mf-btn--ghostLight mf-btn--lg">Ask a question</a>
       </div>
