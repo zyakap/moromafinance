@@ -1094,6 +1094,123 @@ Profile |
                 </div>
                 {% endif %}
 
+                <!-- AFFORDABILITY: what this client already repays to every OTHER lender -->
+                {% with a=dcc_report.affordability v=dcc_report.velocity %}
+                {% if a %}
+                <div class="row mt-1">
+                  <div class="col-12 mb-2">
+                    <div class="card border-0 bg-gray-100 p-3">
+                      <h6 class="mt-0 mb-1 text-md text-primary">
+                        <i class="fa-solid fa-scale-balanced"></i>&nbsp; Affordability across all lenders
+                        {% if v.level and v.level != 'NORMAL' %}
+                        <span class="badge {% if v.level == 'HIGH' %}bg-gradient-danger{% else %}bg-gradient-warning{% endif %} ms-2">
+                          LOAN STACKING: {{ v.level }}
+                        </span>
+                        {% endif %}
+                      </h6>
+                      <hr class="p-0 mt-1 mb-3" style="border: solid 1px green">
+
+                      {% if a.assessable %}
+                      <div class="row text-center">
+                        <div class="col-md-3 col-6 mb-2">
+                          <div class="text-xs text-secondary text-uppercase">Verified income /fn</div>
+                          <h5 class="mb-0">K{{ a.income_fortnightly }}</h5>
+                          <div class="text-xs text-secondary">{{ a.income_source }}</div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-2">
+                          <div class="text-xs text-secondary text-uppercase">Already committed /fn</div>
+                          <h5 class="mb-0">K{{ a.commitment_fortnightly }}</h5>
+                          <div class="text-xs text-secondary">{{ a.active_loans }} loan(s) · {{ a.lenders }} lender(s)</div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-2">
+                          <div class="text-xs text-secondary text-uppercase">Debt service ratio</div>
+                          <h5 class="mb-0 {% if a.dsr_band == 'HEALTHY' %}text-success{% elif a.dsr_band == 'CAUTION' %}text-warning{% else %}text-danger{% endif %}">{{ a.dsr_percent }}%</h5>
+                          <div class="text-xs text-secondary">{{ a.dsr_band }} · limit {{ a.max_dsr_percent }}%</div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-2">
+                          <div class="text-xs text-secondary text-uppercase">Can still afford /fn</div>
+                          <h5 class="mb-0 text-success">K{{ a.affordable_headroom_fortnightly }}</h5>
+                          <div class="text-xs text-secondary">within policy</div>
+                        </div>
+                      </div>
+                      {% else %}
+                      <div class="alert alert-warning pt-2 pb-2 mb-2" style="font-size:.85rem;">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        No verified income on file at the bureau — affordability cannot be assessed.
+                        This client is committed to <strong>K{{ a.commitment_fortnightly }}/fn</strong>
+                        across {{ a.active_loans }} active loan(s) at {{ a.lenders }} lender(s).
+                      </div>
+                      {% endif %}
+
+                      {% if v.flags %}
+                      <div class="alert alert-danger pt-2 pb-2 mt-2 mb-2" style="font-size:.85rem;">
+                        <i class="fa-solid fa-gauge-high"></i> <strong>Loan stacking alert —</strong>
+                        {% for f in v.flags %}{{ f }}{% if not forloop.last %}; {% endif %}{% endfor %}.
+                      </div>
+                      {% endif %}
+
+                      {% if a.commitments %}
+                      <div class="table-responsive mt-2">
+                        <table class="table table-sm align-items-center mb-0">
+                          <thead>
+                            <tr>
+                              <th class="text-uppercase text-secondary text-xs">Lender</th>
+                              <th class="text-uppercase text-secondary text-xs">Loan Ref</th>
+                              <th class="text-uppercase text-secondary text-xs text-end">Repayment /fn</th>
+                              <th class="text-uppercase text-secondary text-xs text-end">Outstanding</th>
+                              <th class="text-uppercase text-secondary text-xs text-end">Arrears</th>
+                              <th class="text-uppercase text-secondary text-xs">Since</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for c in a.commitments %}
+                            <tr>
+                              <td class="text-xs">{{ c.lender }}</td>
+                              <td class="text-xs"><code>{{ c.ref }}</code></td>
+                              <td class="text-xs text-end">K{{ c.repayment_fortnightly }}</td>
+                              <td class="text-xs text-end">K{{ c.outstanding }}</td>
+                              <td class="text-xs text-end {% if c.arrears %}text-danger fw-bold{% endif %}">K{{ c.arrears }}</td>
+                              <td class="text-xs">{{ c.funding_date|default:"—" }}</td>
+                            </tr>
+                            {% endfor %}
+                          </tbody>
+                        </table>
+                      </div>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+                {% endif %}
+
+                <!-- Why the score is what it is -->
+                {% if dcc_report.reason_codes %}
+                <div class="row">
+                  <div class="col-12 mb-2">
+                    <div class="card border-0 bg-gray-100 p-3">
+                      <h6 class="mt-0 mb-1 text-md text-primary">
+                        <i class="fa-solid fa-list-check"></i>&nbsp; Why this score
+                        {% if dcc_report.trend.direction and dcc_report.trend.direction != 'NEW' %}
+                        <span class="badge ms-2 {% if dcc_report.trend.direction == 'IMPROVING' %}bg-gradient-success{% elif dcc_report.trend.direction == 'DETERIORATING' %}bg-gradient-danger{% else %}bg-gradient-secondary{% endif %}">
+                          {{ dcc_report.trend.direction }} {{ dcc_report.trend.change }} pts
+                        </span>
+                        {% endif %}
+                      </h6>
+                      <hr class="p-0 mt-1 mb-2" style="border: solid 1px green">
+                      {% for rc in dcc_report.reason_codes %}
+                      <p class="p-0 m-0 text-sm">
+                        <span class="badge {% if rc.effect == 'POSITIVE' %}bg-gradient-success{% else %}bg-gradient-danger{% endif %}">{{ rc.code }}</span>
+                        {{ rc.label }}
+                      </p>
+                      {% endfor %}
+                      <p class="text-xs text-secondary mt-2 mb-0">
+                        Use these reasons when explaining a decline to the applicant.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                {% endif %}
+                {% endwith %}
+
                 <div class="row mt-1">
                   <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 mb-2">
                     <ul class="list-group">

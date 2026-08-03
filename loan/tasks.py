@@ -346,6 +346,42 @@ def auto_run_defaults():
     return created
 
 @shared_task
+def report_defaults_to_dcc():
+    """File formal default notices with the credit bureau (Settings -> DCC).
+
+    The continuous feed already tells DCC a loan's status, but listing a
+    borrower on a bureau is a deliberate act of reporting, not a side effect
+    of a data sync — so it is filed explicitly and attributed to this lender.
+
+    Runs on a schedule rather than at the moment of default because the
+    tenant's "report after N days" grace period only becomes true with the
+    passage of time. Each loan is reported once."""
+    from django.utils import timezone
+
+    from dcc.decisions import report_default
+
+    loans = (Loan.objects.select_related('owner')
+             .filter(status='DEFAULTED', category='FUNDED', dcc_default_reported_at__isnull=True)
+             .exclude(funded_category='COMPLETED'))
+
+    reported = skipped = failed = 0
+    for loan in loans:
+        attempted, ok, message = report_default(loan)
+        if not attempted:
+            skipped += 1
+            continue
+        if ok:
+            loan.dcc_default_reported_at = timezone.now()
+            loan.save(update_fields=['dcc_default_reported_at'])
+            reported += 1
+        else:
+            # Leave the marker unset so the next run retries — a bureau
+            # outage must not silently drop a default from being reported.
+            failed += 1
+    return {'reported': reported, 'skipped': skipped, 'failed': failed}
+
+
+@shared_task
 def auto_send_test_email():
     
     #send email to user

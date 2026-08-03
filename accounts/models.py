@@ -181,7 +181,13 @@ class UserProfile(models.Model):
     dcc_score = models.PositiveIntegerField(null=True, blank=True, help_text='Last DCC benchmark credit score (0-1000) fetched from the bureau.')
     dcc_grade = models.CharField(max_length=5, null=True, blank=True, help_text='Letter grade that came with the last DCC score.')
     dcc_score_at = models.DateTimeField(null=True, blank=True, help_text='When the DCC score was last fetched.')
-
+    # Cross-lender risk signals cached alongside the score, so staff screens and
+    # automatic decisions can use them without re-billing a bureau call.
+    dcc_dsr_percent = models.DecimalField(max_digits=6, decimal_places=1, null=True, blank=True, help_text="Debt Service Ratio: what the client repays across ALL lenders as a percentage of verified income, per DCC.")
+    dcc_dsr_band = models.CharField(max_length=12, null=True, blank=True, help_text='HEALTHY / CAUTION / OVER_LIMIT / CRITICAL / UNKNOWN, per DCC affordability policy.')
+    dcc_headroom = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text='Additional fortnightly repayment DCC assesses this client can still afford.')
+    dcc_velocity_level = models.CharField(max_length=10, null=True, blank=True, help_text='NORMAL / ELEVATED / HIGH — DCC loan-stacking verdict at the last check.')
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     login_timestamp =  models.DateTimeField(null=True, blank = True)

@@ -339,6 +339,24 @@ def suspend_user(request, uid):
 def activate_user(request, uid):
 
     user = UserProfile.objects.get(pk=uid)
+
+    # Screen against the credit bureau before activating (Settings -> DCC).
+    # This is the door: catching a known-bad borrower here costs far less than
+    # discovering them at loan application. A client below the minimum is HELD
+    # for manual review, never auto-rejected — staff can still activate them
+    # deliberately by re-running this action once they have reviewed the file.
+    from dcc.decisions import screen_registration
+    screening = screen_registration(user)
+    if not screening.allowed and not request.GET.get('override'):
+        messages.warning(
+            request,
+            f'{user.first_name} {user.last_name} was NOT activated — {screening.reason} '
+            f'Review their DCC credit report, then use Activate (Override) to proceed anyway.',
+            extra_tags='warning')
+        return redirect('view_client', uid)
+    for flag in screening.flags:
+        messages.info(request, f'DCC: {flag}', extra_tags='info')
+
     user.activation = 1
     # Apply the admin-configured default repayment limit if set (and only if not already set)
     _default_limit = get_default_repayment_limit()

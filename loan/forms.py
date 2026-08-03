@@ -2,7 +2,7 @@
 from django import forms
 from django.conf import settings
 from admin1.models import AdminSettings, get_loan_config, get_effective_max_loan_amount
-from loan.models import Loan, LoanFile, Payment, PaymentUploads, generate_amount_choices
+from loan.models import Loan, LoanFile, Payment, PaymentUploads, generate_amount_choices, generate_fortnight_choices
 from .widgets import DatePickerInput
 from .open_repayment import clear_open_repayment, install_open_repayment_handlers, set_open_repayment
 
@@ -38,6 +38,11 @@ class LoanApplicationForm(forms.ModelForm):
         if 'amount' in self.fields:
             self._effective_max = get_effective_max_loan_amount(user_profile)
             self.fields['amount'].choices = generate_amount_choices(self._effective_max)
+        # Same reasoning for the term: Loan.number_of_fortnights' choices are
+        # evaluated once at import, so without this an admin changing the
+        # min/max fortnights in Loan Settings sees no change until a restart.
+        if 'number_of_fortnights' in self.fields:
+            self.fields['number_of_fortnights'].choices = generate_fortnight_choices()
 
     def _resolve_mode(self, user_profile):
         if user_profile and getattr(user_profile, 'max_loan_amount', None):

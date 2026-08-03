@@ -91,7 +91,7 @@ class Loan(models.Model):
     loan_type = models.CharField("Loan Type:", max_length=30, blank=True, null=True,choices=[('PERSONAL', 'PERSONAL'),('SME','SME')], default="PERSONAL")
     classification = models.CharField("Loan Classification:", max_length=30, blank=True, null=True,choices=[('ADDITIONAL', 'ADDITIONAL'),('REFINANCED', 'REFINANCED'),('NEW','NEW')], default="NEW")
     purpose_of_loan = models.CharField("Purpose of Loan:", max_length=255, blank=True, null=True)
-    
+
     application_date = models.DateField(auto_now=True, null=True)
     amount = models.DecimalField(verbose_name='LOAN AMOUNT:', max_digits=8, decimal_places=2, null=True, choices=generate_amount_choices())
     processing_fee = models.DecimalField(verbose_name='PROCESSING FEE:', max_digits=7, decimal_places=2, blank=True, null=True)
@@ -174,6 +174,10 @@ class Loan(models.Model):
     opt5 = models.CharField(max_length=255, blank=True, null=True)
 
     dcc = models.CharField(max_length=255, blank=True, null=True,default='')
+    # When a formal default notice for this loan was filed with the bureau.
+    # Set once so the nightly reporting run does not re-file the same default;
+    # DCC is idempotent per (tenant, loan ref) too, this just avoids the calls.
+    dcc_default_reported_at = models.DateTimeField(null=True, blank=True)
     notes = models.TextField(blank=True, null=True)
 
     # Manager review workflow: contract generation + approval tracking
@@ -441,6 +445,7 @@ class AlescoPayLine(models.Model):
 
     def __str__(self):
         return f'{self.employee_file_number} - {self.report_name} ({self.this_period})'
+
 
 # Define a function to delete associated files when a loan is deleted
 @receiver(pre_delete, sender=Loan)

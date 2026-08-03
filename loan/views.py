@@ -1,4 +1,5 @@
 import datetime
+import logging
 import random
 from decimal import Decimal
 from django.conf import settings
@@ -49,6 +50,8 @@ if test_receiver != '':
 
 domain = settings.DOMAIN_DNS
 domain_full = settings.DOMAIN
+
+logger = logging.getLogger(__name__)
 
 from custom.functions import combination_check, fn_limits
 
@@ -462,6 +465,25 @@ def loan_application(request):
                     loan.delete()
                     messages.error(request, f'The repayment amount of K{rounded_repayment_amount} for this loan is greater than your personal repayment limit of K{repayment_limit}. Please apply again within your repayment limit.', extra_tags='danger')
                     return redirect('loan_application')
+
+            # Cross-lender affordability (Settings -> DCC). The repayment limit
+            # above only knows about OUR loans; DCC knows what this client also
+            # repays to every other lender, which is the number that decides
+            # whether they can genuinely service this. Fails open.
+            if loan_setting.credit_check == 'YES':
+                from dcc.decisions import assess_application
+                _assessment = assess_application(user, rounded_repayment_amount)
+                if not _assessment.allowed:
+                    loan.delete()
+                    messages.error(
+                        request,
+                        'Your application cannot proceed at this time based on your credit bureau '
+                        'assessment. Please contact us for assistance.',
+                        extra_tags='danger')
+                    logger.info('DCC declined application for %s: %s', user.uid, _assessment.reason)
+                    return redirect('loan_application')
+                for _flag in _assessment.flags:
+                    logger.info('DCC flag for %s: %s', user.uid, _flag)
 
             loan.interest = rounded_interest
             loan.repayment_frequency = 'FORTNIGHLTY'

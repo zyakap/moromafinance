@@ -64,6 +64,45 @@
               Rating-only checks are billed by DCC at the rating-check price, separate from pay-per-view report unlocks.
             </p>
 
+            <h6 class="sx-sec">Affordability &amp; Over-Indebtedness</h6>
+            <div class="row g-2 mb-2">
+              <div class="col-md-4">{{ dcc_form.dcc_affordability_enabled|as_crispy_field }}</div>
+              <div class="col-md-4">{{ dcc_form.dcc_max_dsr_percent|as_crispy_field }}</div>
+              <div class="col-md-4">{{ dcc_form.dcc_stacking_action|as_crispy_field }}</div>
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-md-8">{{ dcc_form.dcc_block_on_no_income|as_crispy_field }}</div>
+            </div>
+            <p class="text-muted" style="font-size:.78rem;">
+              DCC knows what this client already repays to <em>every other lender</em> reporting to the bureau.
+              Before approving, {{ appearance.brand_name }} can ask whether the proposed repayment still fits inside their income —
+              the check that prevents lending to someone who is already over-committed elsewhere. It also flags
+              <strong>loan stacking</strong>: a client applying at several lenders in the same week.
+            </p>
+
+            <h6 class="sx-sec">Screening at Client Registration</h6>
+            <div class="row g-2 mb-2">
+              <div class="col-md-5">{{ dcc_form.dcc_screen_registration|as_crispy_field }}</div>
+              <div class="col-md-4">{{ dcc_form.dcc_registration_min_score|as_crispy_field }}</div>
+            </div>
+            <p class="text-muted" style="font-size:.78rem;">
+              Catch a known-bad borrower when they register rather than at loan application. Clients below the
+              minimum are held for manual review instead of being activated — they are never rejected outright,
+              and if the bureau is unreachable registration proceeds normally.
+            </p>
+
+            <h6 class="sx-sec">Reporting Defaults to the Bureau</h6>
+            <div class="row g-2 mb-2">
+              <div class="col-md-5">{{ dcc_form.dcc_auto_report_defaults|as_crispy_field }}</div>
+              <div class="col-md-4">{{ dcc_form.dcc_default_report_after_days|as_crispy_field }}</div>
+            </div>
+            <p class="text-muted" style="font-size:.78rem;">
+              Your loan data already reaches DCC through the continuous feed. This additionally files a
+              <em>formal default notice</em> — the deliberate act of listing a borrower — so your defaults are
+              reported without anyone remembering to do it. DCC still notifies the borrower and runs its grace
+              period before the default appears on their credit file.
+            </p>
+
             <button type="submit" class="btn btn-primary"><i class="fa fa-save me-1"></i> Save DCC Settings</button>
           </form>
         </div>
