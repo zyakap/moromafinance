@@ -6,6 +6,7 @@ from staff.alesco_views import (staff_alesco_update, staff_alesco_confirm, staff
                                 staff_alesco_rollback_line, staff_alesco_rollback, staff_alesco_cancel,
                                 staff_regenerate_schedule, staff_alesco_unmatched)
 from staff.credit_views import staff_client_credits, staff_attribute_credit_and_close
+from staff.blackrose_views import blackrose_statements, blackrose_review, blackrose_discard
 
 urlpatterns = [
     
@@ -70,6 +71,11 @@ urlpatterns = [
 
     path('run_defaults/', views.run_defaults, name='run_defaults'),
     path('upload-statements/', views.add_existing_statements, name='add_existing_statements'),
+
+    # Blackrose LMS migration
+    path('blackrose/', blackrose_statements, name='blackrose_statements'),
+    path('blackrose/<int:pk>/', blackrose_review, name='blackrose_review'),
+    path('blackrose/<int:pk>/discard/', blackrose_discard, name='blackrose_discard'),
 
     # Alesco payroll update
     path('alesco/', staff_alesco_update, name='staff_alesco_update'),

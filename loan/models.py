@@ -447,6 +447,57 @@ class AlescoPayLine(models.Model):
         return f'{self.employee_file_number} - {self.report_name} ({self.this_period})'
 
 
+class BlackroseImport(models.Model):
+    """One uploaded Blackrose statement PDF, parsed and awaiting import.
+
+    Statements are parsed on upload and held here so staff can check (and
+    correct) what was read before any client or loan is created — the parse is
+    kept in ``parsed`` so the review screen never has to re-read the PDF, and
+    the record stays afterwards as the audit trail linking a migrated loan back
+    to the statement it came from. See loan/blackrose.py.
+    """
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    file = models.FileField(upload_to='blackrose', null=True, blank=True)
+    file_name = models.CharField(max_length=255, null=True, blank=True)
+    # sha256 of the upload — the same statement loaded twice is caught here.
+    file_hash = models.CharField(max_length=64, db_index=True, null=True, blank=True)
+
+    lender_name = models.CharField(max_length=255, null=True, blank=True)
+    client_name = models.CharField(max_length=255, null=True, blank=True)
+    client_code = models.CharField(max_length=50, null=True, blank=True)
+    employer = models.CharField(max_length=255, null=True, blank=True)
+    address = models.CharField(max_length=255, null=True, blank=True)
+    phone = models.CharField(max_length=30, null=True, blank=True)
+
+    # The full parse: client block, every row, and any parser warnings.
+    parsed = models.JSONField(null=True, blank=True)
+    row_count = models.IntegerField(default=0)
+    closing_balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+
+    status = models.CharField(max_length=20, default='PENDING',
+                              choices=[('PENDING', 'PENDING'), ('IMPORTED', 'IMPORTED'),
+                                       ('FAILED', 'FAILED'), ('SKIPPED', 'SKIPPED')])
+    error = models.TextField(null=True, blank=True)
+
+    owner = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, null=True, blank=True)
+    loan = models.ForeignKey(Loan, on_delete=models.SET_NULL, null=True, blank=True,
+                             related_name='blackrose_imports')
+    client_created = models.BooleanField(default=False)
+
+    uploaded_by = models.ForeignKey(StaffProfile, on_delete=models.SET_NULL, null=True, blank=True)
+    imported_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Blackrose Statement Import'
+        verbose_name_plural = 'Blackrose Statement Imports'
+
+    def __str__(self):
+        return f'{self.client_name or self.file_name} ({self.status})'
+
+
 # Define a function to delete associated files when a loan is deleted
 @receiver(pre_delete, sender=Loan)
 def delete_loan_files(sender, instance, **kwargs):

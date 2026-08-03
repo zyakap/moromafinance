@@ -1,5 +1,6 @@
 import datetime
 import decimal
+import logging
 import random
 from django.conf import settings
 from django.contrib import messages
@@ -27,6 +28,8 @@ from staff.forms import ( MemberInfoForm, PersonalInfoForm, ContactInfoForm, Add
 from accounts.forms import RefereeInfoForm, PreviousEmployerInfoForm, StatementOfPositionForm
 from .tokens import loan_tc_agreement_token
 from .functions import id_generator
+
+logger = logging.getLogger(__name__)
 sender = settings.DEFAULT_SENDER_EMAIL
 
 domain = settings.DOMAIN
@@ -4383,20 +4386,22 @@ def add_existing_loan(request):
         messages.error(request, f"Loan Administrator needs to update their settings first. Please contact issues@{domain}.com", extra_tags="danger")
         return redirect('staff_dashboard')
 
-    #try: 
-    if request.method == 'POST' and request.FILES['uploadedloans']:      
-        uploadedloans = request.FILES['uploadedloans']
-        fs = FileSystemStorage()
-        filename = fs.save(uploadedloans.name, uploadedloans)
-        uploaded_file_url = fs.url(filename)
-        full_path = settings.DOMAIN + uploaded_file_url        
-        loanexceldata = pd.read_excel(full_path)
+    if request.method == 'POST':
+        uploadedloans = request.FILES.get('uploadedloans')
+        if not uploadedloans:
+            messages.error(request, 'Choose a spreadsheet to upload.', extra_tags='danger')
+            return render(request, 'import_existing_loans.html', {'nav': 'add_existing_loan'})
+        try:
+            # Read the upload directly. Saving it and re-fetching it from
+            # settings.DOMAIN + MEDIA_URL cannot work: /media/ is behind the
+            # authentication gate (see moromafinance/media_views).
+            loanexceldata = pd.read_excel(uploadedloans)
+        except Exception as exc:
+            messages.error(request, f'That file could not be read as a spreadsheet ({exc}).',
+                           extra_tags='danger')
+            return render(request, 'import_existing_loans.html', {'nav': 'add_existing_loan'})
         upload_existing_loans(request, loanexceldata)
-        messages.success(request, f"DONE", extra_tags="info") 
-    
-    #except:
-    #    messages.error(request, f"You did not upload any file...", extra_tags="danger") 
-    #    return render(request, 'import_existing_loans.html',{'nav': 'add_existing_loan'})  
+        messages.success(request, f"DONE", extra_tags="info")
 
     return render(request, 'import_existing_loans.html',{'nav': 'add_existing_loan'})
 
@@ -4408,77 +4413,69 @@ def add_existing_loan_statement(request):
 
 @check_staff
 def upload_statement(request, loanref):
-    loan = Loan.objects.get(ref=loanref)
-    owner = loan.owner 
-    repayment_amount = loan.repayment_amount
+    """Replay one loan's historical statement from an uploaded spreadsheet.
+
+    Every row is applied inside a single transaction: either the whole
+    statement lands or none of it does, so a bad row halfway down never leaves
+    the loan half-updated.
+    """
+    from django.db import transaction
+    from loan.functions import (StatementUploadError, apply_statement_row,
+                                read_statement_upload, reconcile_receivables)
+
+    loan = get_object_or_404(Loan, ref=loanref)
+    context = {'nav': 'add_existing_loan_statement', 'loan': loan}
+
+    if request.method != 'POST':
+        return render(request, 'upload_statement.html', context)
+
+    uploaded = request.FILES.get('uploadedstatement')
+    if not uploaded:
+        messages.error(request, 'Choose a statement spreadsheet to upload.', extra_tags='danger')
+        return render(request, 'upload_statement.html', context)
 
     try:
-        if request.method == 'POST' and request.FILES['uploadedstatement']:
-            uploadedstatement = request.FILES['uploadedstatement']
-            fs = FileSystemStorage()
-            filename = fs.save(uploadedstatement.name, uploadedstatement)
-            uploaded_file_url = fs.url(filename)
-            full_path = settings.DOMAIN + uploaded_file_url        
-            statementexceldata = pd.read_excel(full_path)
-            dbframe = statementexceldata
+        rows = read_statement_upload(uploaded)
+    except StatementUploadError as exc:
+        messages.error(request, str(exc), extra_tags='danger')
+        return render(request, 'upload_statement.html', context)
 
-            for dbframe in dbframe.itertuples():
-                date = dbframe.date
-                comment = dbframe.comment
-                mode = dbframe.mode
-                debit = dbframe.debit
-                credit = dbframe.credit
+    try:
+        with transaction.atomic():
+            locked = Loan.objects.select_for_update().get(pk=loan.pk)
+            officer = _officer_for(request)
+            for row in rows:
+                try:
+                    apply_statement_row(locked, row['date'], row['comment'], row['mode'],
+                                        row['debit'], row['credit'], officer=officer)
+                except StatementUploadError as exc:
+                    raise StatementUploadError(f"Row {row['row_number']}: {exc}.") from exc
+            reconcile_receivables(locked)
+            locked.save()
+    except StatementUploadError as exc:
+        messages.error(request, f'{exc} Nothing was imported — fix the file and upload it again.',
+                       extra_tags='danger')
+        return render(request, 'upload_statement.html', context)
+    except Exception as exc:
+        logger.exception('Statement upload failed for %s', loanref)
+        messages.error(request, f'The statement could not be imported and nothing was saved: {exc}',
+                       extra_tags='danger')
+        return render(request, 'upload_statement.html', context)
 
-                if debit == 0 and credit == 0:
-                    from loan.engine import default_interest_for
-                    from admin1.models import get_loan_config as _glc
-                    default_interest = default_interest_for(loan, repayment_amount, _glc())
-                    loan.last_default_date = date
-                    loan.number_of_defaults += 1
-                    loan.last_default_amount = repayment_amount
-                    if loan.total_arrears < loan.total_outstanding:
-                        loan.total_arrears += repayment_amount
-                    else:
-                        loan.total_arrears = loan.total_outstanding
-                    loan.total_outstanding += default_interest
-                    loan.status = 'DEFAULTED'
-                    loan.save()
+    loan.refresh_from_db()
+    messages.success(
+        request,
+        f'{len(rows)} statement line(s) imported for {loanref}. '
+        f'Balance is now K{loan.total_outstanding:,.2f}.', extra_tags='info')
+    return render(request, 'upload_statement.html', {**context, 'loan': loan})
 
-                    stat = Statement.objects.create(owner=owner, ref = f'{loanref}D{loan.number_of_defaults}', loanref = loan, type="DEFAULT", statement=comment, debit=0, credit=0, arrears=loan.total_arrears, balance=loan.total_outstanding, date = date, default_amount=repayment_amount, interest_on_default=default_interest)
-                    stat.save()
-                    #if this is finished, go to next statement
-                    continue
-                
-                elif debit == 0 and credit > 0:
-                    loan.total_outstanding += credit
-                    loan.save()
-                    stat = Statement.objects.create(owner=owner, ref = f'{loanref}OF', loanref = loan, type="OTHER", statement=comment, credit=credit, balance=loan.total_outstanding, date=date)
-                    stat.save()
-                    #if this is finished, go to next statement
-                    continue
 
-                elif debit > 0 and credit == 0:
-                    
-                    try:
-                        stat, loan = create_payment(loanref, debit, date, mode=mode, statement=comment)
-                        stat.save()
-                        loan.save()
-                        continue
-                    except BaseException as e:
-                        logging.error(f'Error creating statement for {loanref}: ' + str(e))
-                        return redirect('userloans')
-                else:
-                    messages.error(request, f"There are some 'FORMAT ERROR' in the Excel spreadsheet you uploaded. Check for correct formating of all cells.", extra_tags="danger")
-                    return render(request, 'upload_statement.html',{'nav': 'add_existing_loan_statement', 'loan': loan})
-                    
-            messages.success(request, f"All Statement for {loanref} has been uploaded & created successfully...")
-            return render(request, 'upload_statement.html',{'nav': 'add_existing_loan_statement', 'loan': loan})
-        
-    except:
-        messages.error(request, f"You did not upload any file...", extra_tags="danger") 
-        return render(request, 'upload_statement.html',{'nav': 'add_existing_loan_statement', 'loan': loan})
-
-    return render(request, 'upload_statement.html',{'nav': 'add_existing_loan_statement', 'loan': loan})
+def _officer_for(request):
+    """The StaffProfile of the signed-in user, or None."""
+    try:
+        return StaffProfile.objects.get(user=UserProfile.objects.get(user=request.user.id))
+    except (UserProfile.DoesNotExist, StaffProfile.DoesNotExist):
+        return None
 
 @check_staff
 def send_repayment_reminder(request):
@@ -4650,14 +4647,21 @@ def run_defaults(request):
 @check_staff
 def add_existing_statements(request):
 
-    if request.method == 'POST' and request.FILES['uploadedstatementsfile']:
-        uploadedstatement = request.FILES['uploadedstatementsfile']
-        fs = FileSystemStorage()
-        filename = fs.save(uploadedstatement.name, uploadedstatement)
-        uploaded_file_url = fs.url(filename)
-        full_path = settings.DOMAIN + uploaded_file_url        
-        statementexceldata = pd.read_excel(full_path)
+    if request.method == 'POST':
+        uploadedstatement = request.FILES.get('uploadedstatementsfile')
+        if not uploadedstatement:
+            messages.error(request, 'Choose a spreadsheet to upload.', extra_tags='danger')
+            return render(request, 'import_existing_statements.html',
+                          {'nav': 'add_existing_statements'})
+        try:
+            # Read the upload directly — see the note in add_existing_loan.
+            statementexceldata = pd.read_excel(uploadedstatement)
+        except Exception as exc:
+            messages.error(request, f'That file could not be read as a spreadsheet ({exc}).',
+                           extra_tags='danger')
+            return render(request, 'import_existing_statements.html',
+                          {'nav': 'add_existing_statements'})
         upload_existing_statement(request, statementexceldata)
         messages.success(request, f"DONE", extra_tags="info")
-    
+
     return render(request, 'import_existing_statements.html',{'nav': 'add_existing_statements'})
