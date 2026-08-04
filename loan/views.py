@@ -394,7 +394,10 @@ def loan_application(request):
                 max_fn = combination_check(loan.amount, num_fns)
                 if max_fn != 0:
                     loan.delete()
-                    messages.error(request, f"Number of fortnights must be between {get_loan_config()['min_fn']} and {max_fn} for an amount of K{loan.amount:,.2f}. Please refer to the repayment table below. Click on 'Show Repayment Table'.", extra_tags='danger')
+                    from custom.functions import term_range as _term_range
+                    _range = _term_range(loan.amount)
+                    _low, _high = _range if _range else (get_loan_config()['min_fn'], max_fn)
+                    messages.error(request, f"Number of fortnights must be between {_low} and {_high} for an amount of K{loan.amount:,.2f}. Please refer to the repayment table below. Click on 'Show Repayment Table'.", extra_tags='danger')
                     return redirect('loan_application')
             #COMBINATIONS CHECK _END
 

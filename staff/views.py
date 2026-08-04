@@ -46,7 +46,7 @@ def generate_pdf(templatefile, data):
     from moromafinance.pdf import render_pdf
     return render_pdf(templatefile, data, 'custom/templates')
 
-from custom.functions import repayment, combination_check, upload_existing_loans, upload_existing_statement
+from custom.functions import repayment, combination_check, fn_limits, term_range, upload_existing_loans, upload_existing_statement
 
 
 ############### 
@@ -1829,7 +1829,9 @@ def create_loan(request):
                 max_fn = combination_check(amount, num_fns)
                 if max_fn != 0:
                     loan.delete()
-                    messages.error(request, f"Number of fortnights must be between 3 and {max_fn} for an amount of K{amount:,.2f}. Please refer to the repayment table below. Click on 'Show Repayment Table'.", extra_tags='danger')
+                    _range = term_range(amount)
+                    _low, _high = _range if _range else (get_loan_config()['min_fn'], max_fn)
+                    messages.error(request, f"Number of fortnights must be between {_low} and {_high} for an amount of K{amount:,.2f}. Please refer to the repayment table below. Click on 'Show Repayment Table'.", extra_tags='danger')
                     return redirect('userloans_unfinished')
             #COMBINATIONS CHECK _END
 
@@ -1845,9 +1847,13 @@ def create_loan(request):
                 messages.error(request, f'Loan amount must be less than {_effective_max}', extra_tags='danger')
                 return redirect('create_loan')
 
-            if num_fns < 1 or num_fns > 30:
+            # Bounds come from Loan Settings, not a literal: a hardcoded 1-30
+            # here refused 31-36 even though both the settings and the printed
+            # schedule allow them.
+            if fn_limits(num_fns) != 1:
                 loan.delete()
-                messages.error(request, "Number of fortnights must be between 1 and 30.", extra_tags='danger')
+                _cfg = get_loan_config()
+                messages.error(request, f"Number of fortnights must be between {_cfg['min_fn']} and {_cfg['max_fn']}.", extra_tags='danger')
                 return redirect('userloans_unfinished')
             
             loan.number_of_fortnights = num_fns

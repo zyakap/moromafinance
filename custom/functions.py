@@ -252,6 +252,27 @@ def combination_check(amount, num_fns):
     return max(terms)
 
 
+def term_range(amount):
+    """``(min, max)`` fortnights actually published for ``amount``, else None.
+
+    The schedule's minimum term rises as the amount falls -- 14 fortnights below
+    K1000, 9 below K2000, 7 above -- so no single global figure describes it.
+    Quoting the wrong one just sends staff round the loop again: told "3 to 36"
+    on a K500 loan, everything they pick under 14 is refused a second time.
+    """
+    terms = REPAYMENT_TABLE.get(amount)
+    if not terms:
+        return None
+    try:
+        floor = int(get_loan_config()['min_fn'])
+    except Exception:
+        floor = min(terms)
+    allowed = [t for t in terms if t >= floor]
+    if not allowed:
+        return None
+    return min(allowed), max(allowed)
+
+
 #moroma_repayment
 def repayment(amount, interest_type, fns):
     """Fortnightly repayment for a loan, read from the MOROMA repayment schedule.
