@@ -1,0 +1,145 @@
+{% extends "staff_base.html" %}
+{% load humanize %}
+
+{% block title %} Upload Existing Loan from Blackrose Statement {% endblock %}
+
+{% block breadcrumb %} <a href="{% url 'staff_dashboard' %}">Dashboard</a> / <a href="{% url 'existing_loan_functions' %}">Existing Loan Functions</a> {% endblock %}
+{% block breadcrumb_active %} Blackrose Statements {% endblock %}
+{% block dashboard_title %} Upload Existing Loan from Blackrose Statement {% endblock %}
+
+{% block css %}
+<style>
+  .br-card { background:#fff; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,.06); padding:18px 20px; }
+  .br-card h6 { font-size:.95rem; font-weight:800; color:#344767; }
+  .br-steps { list-style:none; padding-left:0; font-size:.8rem; color:#67748e; }
+  .br-steps li { padding:4px 0 4px 26px; position:relative; }
+  .br-steps li span { position:absolute; left:0; top:3px; width:18px; height:18px; border-radius:50%;
+                      background:#e91e63; color:#fff; font-size:.65rem; font-weight:700;
+                      display:inline-flex; align-items:center; justify-content:center; }
+  .br-table td, .br-table th { font-size:.78rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mt-3">
+
+  <div class="col-lg-5 col-md-12 mb-4">
+    <div class="br-card">
+      <h6><i class="fa-solid fa-file-import me-1 text-danger"></i> Upload statements</h6>
+      <p class="text-sm text-secondary mb-3">
+        Select one or more Blackrose statement PDFs. <strong>One file is one loan.</strong>
+        Nothing is created yet — each statement is read first so you can check it.
+      </p>
+      <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label for="statements" class="form-label text-sm">Blackrose Statement PDFs</label>
+          <input class="form-control" type="file" id="statements" name="statements"
+                 accept="application/pdf" multiple required>
+          <small class="text-xs text-secondary">Hold Ctrl (or Cmd) to pick several files at once.</small>
+        </div>
+        <button type="submit" class="btn btn-danger w-100">
+          <i class="fa-solid fa-upload me-1"></i> Read Statements
+        </button>
+      </form>
+
+      <hr class="horizontal dark my-3">
+      <ul class="br-steps mb-0">
+        <li><span>1</span> Upload the PDFs — the client, the loan and every payment line are read out of each one.</li>
+        <li><span>2</span> Review what was read. Correct the client details, the fortnightly repayment and the next pay date.</li>
+        <li><span>3</span> Import — the client account, the loan and its full statement history are created.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="col-lg-7 col-md-12 mb-4">
+    <div class="br-card">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6 class="mb-0"><i class="fa-solid fa-list-check me-1 text-warning"></i> Waiting for review
+          <span class="badge bg-gradient-warning ms-1">{{ pending|length }}</span></h6>
+        {% if pending %}
+        <span class="text-xs text-secondary">Total balance: <strong>K{{ pending_total|floatformat:2|intcomma }}</strong></span>
+        {% endif %}
+      </div>
+
+      {% if pending %}
+      <div class="table-responsive">
+        <table class="table align-items-center mb-0 br-table">
+          <thead>
+            <tr>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder">Client</th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder">Code</th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder text-center">Lines</th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder text-end">Balance</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for record in pending %}
+            <tr>
+              <td>
+                <span class="text-sm font-weight-bold">{{ record.client_name|default:"(name not read)" }}</span><br>
+                <span class="text-xs text-secondary">{{ record.file_name }}</span>
+              </td>
+              <td class="text-sm">{{ record.client_code|default:"—" }}</td>
+              <td class="text-sm text-center">{{ record.row_count }}</td>
+              <td class="text-sm text-end">K{{ record.closing_balance|floatformat:2|intcomma }}</td>
+              <td class="text-end">
+                <a href="{% url 'blackrose_review' record.pk %}" class="btn btn-sm btn-primary mb-0">Review &amp; Import</a>
+                <a href="{% url 'blackrose_discard' record.pk %}" class="btn btn-sm btn-outline-secondary mb-0"
+                   onclick="return confirm('Discard this statement without importing it?')">Discard</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p class="text-sm text-secondary mb-0">Nothing waiting. Upload some statements to get started.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if recent %}
+  <div class="col-12 mb-4">
+    <div class="br-card">
+      <h6><i class="fa-solid fa-clock-rotate-left me-1 text-secondary"></i> Recently processed</h6>
+      <div class="table-responsive">
+        <table class="table align-items-center mb-0 br-table">
+          <thead>
+            <tr>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder">Client</th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder">File</th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder">Status</th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder">Loan</th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder">When</th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder">Note</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for record in recent %}
+            <tr>
+              <td class="text-sm">{{ record.client_name|default:"—" }}</td>
+              <td class="text-xs text-secondary">{{ record.file_name }}</td>
+              <td>
+                {% if record.status == 'IMPORTED' %}<span class="badge bg-gradient-success">IMPORTED</span>
+                {% elif record.status == 'FAILED' %}<span class="badge bg-gradient-danger">FAILED</span>
+                {% else %}<span class="badge bg-gradient-secondary">{{ record.status }}</span>{% endif %}
+              </td>
+              <td class="text-sm">
+                {% if record.loan %}<a href="{% url 'view_loan_staff' record.loan.ref %}">{{ record.loan.ref }}</a>
+                {% else %}—{% endif %}
+              </td>
+              <td class="text-xs text-secondary">{{ record.updated_at|date:"d/m/Y H:i" }}</td>
+              <td class="text-xs text-secondary">{{ record.error|default:"" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

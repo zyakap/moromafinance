@@ -18,6 +18,8 @@ Credit reports are PAY-PER-VIEW on the DCC side:
 What DCC returns (loans / transactions sections) depends on the subscription
 plan and access restrictions DCC has configured for this tenant.
 """
+from decimal import Decimal
+
 import requests
 from django.conf import settings
 from django.utils import timezone
@@ -40,19 +42,12 @@ def _verify_ssl():
     return getattr(settings, 'DCC_VERIFY_SSL', True)
 
 
-def _scheme():
-    return getattr(settings, 'DCC_SCHEME', 'https') or 'https'
-
-
 def _request(method, path, timeout):
-    """Use Moroma' configured scheme, with an optional HTTPS-to-HTTP fallback."""
+    """Call the bureau over HTTPS, with an explicitly enabled HTTP fallback."""
     import logging
     logger = logging.getLogger(__name__)
     last_exc = None
-    primary_scheme = _scheme()
-    schemes = (primary_scheme,)
-    if primary_scheme == 'https' and getattr(settings, 'DCC_ALLOW_HTTP_FALLBACK', False):
-        schemes += ('http',)
+    schemes = ('https', 'http') if getattr(settings, 'DCC_ALLOW_HTTP_FALLBACK', False) else ('https',)
     for scheme in schemes:
         endpoint = f'{scheme}://{settings.DCC_ENDPOINT}/API/{path}'
         try:
@@ -74,6 +69,25 @@ def _get(path, timeout=REQUEST_TIMEOUT):
 
 def _post(path):
     return _request('POST', path, REQUEST_TIMEOUT)
+
+
+def _post_json(path, payload):
+    """POST a JSON body to the bureau (used for filing default notices)."""
+    import json
+    import logging
+    logger = logging.getLogger(__name__)
+    headers = {**_headers(), 'Content-Type': 'application/json'}
+    schemes = ('https', 'http') if getattr(settings, 'DCC_ALLOW_HTTP_FALLBACK', False) else ('https',)
+    last_exc = None
+    for scheme in schemes:
+        endpoint = f'{scheme}://{settings.DCC_ENDPOINT}/API/{path}'
+        try:
+            return requests.post(endpoint, data=json.dumps(payload), headers=headers,
+                                 timeout=REQUEST_TIMEOUT, verify=_verify_ssl())
+        except requests.RequestException as exc:
+            last_exc = exc
+            logger.warning('DCC POST failed over %s: %s', scheme, exc)
+    raise last_exc
 
 
 def _report_result(response):
@@ -186,10 +200,56 @@ def credit_tab_context(user):
     return ctx
 
 
+def check_serviceability(uid, repayment):
+    """Ask DCC whether the client can afford a proposed fortnightly repayment,
+    measured against their commitments at EVERY lender, not just ours.
+
+    Returns the payload dict, or None when unavailable/not found. Callers must
+    fail open on None — the bureau being unreachable is not evidence of
+    unaffordability."""
+    try:
+        response = _get(f'serviceability/{uid}/?repayment={repayment}')
+    except requests.RequestException:
+        return None
+    if response.status_code != 200:
+        return None
+    return response.json()
+
+
+def submit_default_notice(uid, loan_ref, amount, days_in_default, reason=''):
+    """Formally report a defaulted loan to the bureau.
+
+    The hourly feed already carries loan status, but a bureau listing is a
+    deliberate act by the lender, not a side effect of a data sync — so
+    defaults are also filed explicitly. Returns (ok, message)."""
+    try:
+        response = _post_json(f'default_notice/{uid}/', {
+            'loan_ref': loan_ref,
+            'amount': str(amount or 0),
+            'days_in_default': int(days_in_default or 0),
+            'reason': reason or '',
+        })
+    except requests.RequestException:
+        return False, 'DCC is offline or unreachable.'
+    if response.status_code in (200, 201):
+        return True, 'Default reported to DCC.'
+    if response.status_code == 404:
+        return False, 'Client has no DCC record yet — the next feed sync will create one.'
+    try:
+        detail = response.json().get('detail')
+    except Exception:
+        detail = None
+    return False, detail or f'DCC returned {response.status_code}.'
+
+
 def refresh_dcc_score(user, save=True):
     """Fetch the client's benchmark score from DCC and cache it on the
     profile. Returns the score int, or None when DCC is unreachable or the
-    client has no bureau record (callers must fail open)."""
+    client has no bureau record (callers must fail open).
+
+    Also caches the decision signals that come back with the rating —
+    cross-lender debt service ratio and the loan-stacking verdict — so
+    automatic credit checks can weigh affordability, not just the score."""
     payload = get_credit_rating(user.uid)
     if not payload or not payload.get('found'):
         return None
@@ -199,8 +259,19 @@ def refresh_dcc_score(user, save=True):
     user.dcc_score = int(score)
     user.dcc_grade = payload.get('grade') or ''
     user.dcc_score_at = timezone.now()
+
+    fields = ['dcc_score', 'dcc_grade', 'dcc_score_at']
+    dsr = payload.get('dsr_percent')
+    if hasattr(user, 'dcc_dsr_percent'):
+        user.dcc_dsr_percent = Decimal(str(dsr)) if dsr is not None else None
+        user.dcc_dsr_band = payload.get('dsr_band') or ''
+        user.dcc_velocity_level = payload.get('velocity_level') or ''
+        headroom = payload.get('affordable_headroom_fortnightly')
+        user.dcc_headroom = Decimal(str(headroom)) if headroom is not None else None
+        fields += ['dcc_dsr_percent', 'dcc_dsr_band', 'dcc_velocity_level', 'dcc_headroom']
+
     if save:
-        user.save(update_fields=['dcc_score', 'dcc_grade', 'dcc_score_at'])
+        user.save(update_fields=fields)
     return user.dcc_score
 
 

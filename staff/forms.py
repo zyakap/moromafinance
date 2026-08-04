@@ -2,7 +2,7 @@ from django import forms
 from accounts.models import UserProfile, SMEProfile
 from accounts.forms import BankAccountInfoMixin, apply_form_field_settings
 from admin1.models import AdminSettings, get_loan_config, get_effective_max_loan_amount
-from loan.models import Loan, LoanFile, generate_amount_choices
+from loan.models import Loan, LoanFile, generate_amount_choices, generate_fortnight_choices
 from loan.open_repayment import clear_open_repayment, install_open_repayment_handlers, set_open_repayment
 from .widgets import DatePickerInput
 
@@ -215,12 +215,18 @@ class CreateLoanForm(forms.ModelForm):
             self.fields['repayment_amount'].required = True
         # Rebuild the choices from the current loan settings on every request.
         # The choices declared on Loan.amount are evaluated when Django starts,
-        # so using them on the initial GET leaves the form showing stale limits.
+        # so using them on the initial GET leaves the form showing stale limits
+        # (an admin changing Loan Settings sees no effect until a restart).
         # Once a client is selected, get_effective_max_loan_amount also applies
         # that client's optional maximum override.
         if 'amount' in self.fields:
             self._effective_max = get_effective_max_loan_amount(user_profile)
             self.fields['amount'].choices = generate_amount_choices(self._effective_max)
+        # Same reasoning for the term: Loan.number_of_fortnights' choices are
+        # evaluated once at import, so without this an admin changing the
+        # min/max fortnights in Loan Settings sees no change until a restart.
+        if 'number_of_fortnights' in self.fields:
+            self.fields['number_of_fortnights'].choices = generate_fortnight_choices()
 
     def _resolve_mode(self, user_profile):
         if user_profile and getattr(user_profile, 'max_loan_amount', None):

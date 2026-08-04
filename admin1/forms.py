@@ -171,6 +171,17 @@ class DccSettingsForm(forms.ModelForm):
             'dcc_enabled',
             'dcc_autocredit_enabled',
             'dcc_min_score',
+            # Affordability & stacking
+            'dcc_affordability_enabled',
+            'dcc_max_dsr_percent',
+            'dcc_block_on_no_income',
+            'dcc_stacking_action',
+            # Registration screening
+            'dcc_screen_registration',
+            'dcc_registration_min_score',
+            # Default reporting
+            'dcc_auto_report_defaults',
+            'dcc_default_report_after_days',
             'dcc_autoset_limits',
             'dcc_limit_max_repayment',
             'dcc_limit_max_ceiling',

@@ -11,6 +11,7 @@
   .elf-card { background:#fff; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,.06); padding:18px 20px; height:100%; }
   .elf-card h6 { font-size:.95rem; font-weight:800; color:#344767; margin-bottom:6px; }
   .elf-card p { font-size:.8rem; color:#67748e; margin-bottom:14px; min-height:56px; }
+  .elf-card-feature { border:1px solid #e91e63; }
 </style>
 {% endblock %}
 
@@ -21,6 +22,16 @@
       Everything for entering a client's existing/historical loan data, or adding a loan for a client the normal
       way, all in one place.
     </p>
+  </div>
+
+  <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12 mb-4">
+    <div class="elf-card elf-card-feature">
+      <h6><i class="fa-solid fa-file-import me-1 text-danger"></i> Upload Existing Loan from Blackrose Statement</h6>
+      <p>Migrating off Blackrose? Upload the client statement PDFs — one file per loan — and the
+        system reads the client, the loan and every line of the payment history, then creates the
+        account, the loan and its full statement for you.</p>
+      <a href="{% url 'blackrose_statements' %}" class="btn btn-danger btn-block w-100">Upload Blackrose Statements</a>
+    </div>
   </div>
 
   <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12 mb-4">

@@ -25,6 +25,22 @@ class AdminSettings(models.Model):
     dcc_limit_max_repayment = models.DecimalField(verbose_name="Repayment Limit at Score 1000 (K):", max_digits=10, decimal_places=2, null=True, blank=True, help_text="A client with a perfect DCC score of 1000 gets this repayment limit; lower scores scale down proportionally.")
     dcc_limit_max_ceiling = models.DecimalField(verbose_name="Loan Ceiling at Score 1000 (K):", max_digits=10, decimal_places=2, null=True, blank=True, help_text="A client with a perfect DCC score of 1000 gets this maximum loan amount; lower scores scale down proportionally.")
 
+    # ── DCC affordability & stacking rules ──────────────────────────────────
+    # The bureau knows what this client already repays to EVERY other lender.
+    # These settings turn that into automatic decisions.
+    dcc_affordability_enabled = models.CharField(verbose_name="Enforce DCC Affordability (DSR):", max_length=3, choices=[('YES','YES - Decline applications the client cannot service'),('NO','NO - Do not check affordability')], null=True, blank=True, default='NO', help_text="Before approving, ask DCC whether the client can service the proposed repayment given everything they already repay to other lenders. Applications above the debt-service limit are declined automatically.")
+    dcc_max_dsr_percent = models.PositiveIntegerField(verbose_name="Maximum Debt Service Ratio (%):", default=40, help_text="Total fortnightly repayments across ALL lenders (including the new loan) must stay below this percentage of the client's verified income.")
+    dcc_block_on_no_income = models.BooleanField(verbose_name="Decline When Income Cannot Be Verified:", default=False, help_text="When DCC holds no verified income for the client, affordability cannot be assessed. ON declines the application; OFF lets it through for manual review (the application is still flagged).")
+    dcc_stacking_action = models.CharField(verbose_name="On Loan-Stacking Alert:", max_length=10, choices=[('IGNORE','Ignore - no action'),('FLAG','Flag for manual review'),('DECLINE','Decline automatically')], null=True, blank=True, default='FLAG', help_text="What to do when DCC reports the client is shopping at several lenders at once or has taken multiple loans recently — the pattern that precedes most defaults.")
+
+    # ── DCC screening at client registration ────────────────────────────────
+    dcc_screen_registration = models.CharField(verbose_name="Screen New Clients Against DCC:", max_length=3, choices=[('YES','YES - Check the bureau when a client registers'),('NO','NO - Do not screen at registration')], null=True, blank=True, default='NO', help_text="Run a DCC benchmark-score check as soon as a client registers, so bad risk is caught at the door rather than at loan application. Each check is billed at the DCC rating-check price.")
+    dcc_registration_min_score = models.PositiveIntegerField(verbose_name="Minimum DCC Score at Registration:", default=300, help_text="New clients scoring below this are held for manual review instead of being activated automatically.")
+
+    # ── Automatic default reporting to DCC ──────────────────────────────────
+    dcc_auto_report_defaults = models.CharField(verbose_name="Auto-Report Defaults to DCC:", max_length=3, choices=[('YES','YES - File a default notice automatically'),('NO','NO - Report defaults manually')], null=True, blank=True, default='NO', help_text="When a loan is classified as DEFAULTED, automatically file a formal default notice with the bureau. Listing a borrower is a deliberate act, so DCC still runs its notification and grace period before the default appears on their file.")
+    dcc_default_report_after_days = models.PositiveIntegerField(verbose_name="Report Defaults After (days):", default=30, help_text="Only file the notice once the loan has been in default for at least this many days, so a short payroll delay is never reported as a default.")
+
     # Roles & Access: which account roles/portals are active for this tenant.
     role_user_enabled = models.CharField(verbose_name="Client Self-Registration:", max_length=3, choices=[('YES','YES - Allow new clients to register online'),('NO','NO - Staff must create client accounts')], null=True, blank=True, default='YES')
     role_staff_enabled = models.CharField(verbose_name="Staff Portal:", max_length=3, choices=[('YES','YES - Staff portal enabled'),('NO','NO - Staff portal disabled')], null=True, blank=True, default='YES')

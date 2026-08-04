@@ -28,6 +28,7 @@ six
 sqlparse
 pandas
 openpyxl
+pdfplumber
 gunicorn
 psycopg2-binary
 django-wkhtmltopdf

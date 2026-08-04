@@ -91,7 +91,7 @@ class Loan(models.Model):
     loan_type = models.CharField("Loan Type:", max_length=30, blank=True, null=True,choices=[('PERSONAL', 'PERSONAL'),('SME','SME')], default="PERSONAL")
     classification = models.CharField("Loan Classification:", max_length=30, blank=True, null=True,choices=[('ADDITIONAL', 'ADDITIONAL'),('REFINANCED', 'REFINANCED'),('NEW','NEW')], default="NEW")
     purpose_of_loan = models.CharField("Purpose of Loan:", max_length=255, blank=True, null=True)
-    
+
     application_date = models.DateField(auto_now=True, null=True)
     amount = models.DecimalField(verbose_name='LOAN AMOUNT:', max_digits=8, decimal_places=2, null=True, choices=generate_amount_choices())
     processing_fee = models.DecimalField(verbose_name='PROCESSING FEE:', max_digits=7, decimal_places=2, blank=True, null=True)
@@ -174,6 +174,10 @@ class Loan(models.Model):
     opt5 = models.CharField(max_length=255, blank=True, null=True)
 
     dcc = models.CharField(max_length=255, blank=True, null=True,default='')
+    # When a formal default notice for this loan was filed with the bureau.
+    # Set once so the nightly reporting run does not re-file the same default;
+    # DCC is idempotent per (tenant, loan ref) too, this just avoids the calls.
+    dcc_default_reported_at = models.DateTimeField(null=True, blank=True)
     notes = models.TextField(blank=True, null=True)
 
     # Manager review workflow: contract generation + approval tracking
@@ -441,6 +445,58 @@ class AlescoPayLine(models.Model):
 
     def __str__(self):
         return f'{self.employee_file_number} - {self.report_name} ({self.this_period})'
+
+
+class BlackroseImport(models.Model):
+    """One uploaded Blackrose statement PDF, parsed and awaiting import.
+
+    Statements are parsed on upload and held here so staff can check (and
+    correct) what was read before any client or loan is created — the parse is
+    kept in ``parsed`` so the review screen never has to re-read the PDF, and
+    the record stays afterwards as the audit trail linking a migrated loan back
+    to the statement it came from. See loan/blackrose.py.
+    """
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    file = models.FileField(upload_to='blackrose', null=True, blank=True)
+    file_name = models.CharField(max_length=255, null=True, blank=True)
+    # sha256 of the upload — the same statement loaded twice is caught here.
+    file_hash = models.CharField(max_length=64, db_index=True, null=True, blank=True)
+
+    lender_name = models.CharField(max_length=255, null=True, blank=True)
+    client_name = models.CharField(max_length=255, null=True, blank=True)
+    client_code = models.CharField(max_length=50, null=True, blank=True)
+    employer = models.CharField(max_length=255, null=True, blank=True)
+    address = models.CharField(max_length=255, null=True, blank=True)
+    phone = models.CharField(max_length=30, null=True, blank=True)
+
+    # The full parse: client block, every row, and any parser warnings.
+    parsed = models.JSONField(null=True, blank=True)
+    row_count = models.IntegerField(default=0)
+    closing_balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+
+    status = models.CharField(max_length=20, default='PENDING',
+                              choices=[('PENDING', 'PENDING'), ('IMPORTED', 'IMPORTED'),
+                                       ('FAILED', 'FAILED'), ('SKIPPED', 'SKIPPED')])
+    error = models.TextField(null=True, blank=True)
+
+    owner = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, null=True, blank=True)
+    loan = models.ForeignKey(Loan, on_delete=models.SET_NULL, null=True, blank=True,
+                             related_name='blackrose_imports')
+    client_created = models.BooleanField(default=False)
+
+    uploaded_by = models.ForeignKey(StaffProfile, on_delete=models.SET_NULL, null=True, blank=True)
+    imported_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Blackrose Statement Import'
+        verbose_name_plural = 'Blackrose Statement Imports'
+
+    def __str__(self):
+        return f'{self.client_name or self.file_name} ({self.status})'
+
 
 # Define a function to delete associated files when a loan is deleted
 @receiver(pre_delete, sender=Loan)

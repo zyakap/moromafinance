@@ -775,3 +775,198 @@ def update_defaults(request):
             created += 1
     messages.success(request, f'Processed {created} overdue default(s).', extra_tags='info')
     return redirect('staff_dashboard')
+
+
+# ── Historical statement upload ──────────────────────────────────────────────
+# Replaying a loan's past statement onto an existing loan (staff "Add a Loan
+# Statement"). This is deliberately NOT process_repayment/process_default: those
+# run the live business flow and email the client, which is wrong for history
+# that already happened. The money rules are the same, the notifications are not.
+
+STATEMENT_UPLOAD_COLUMNS = ('date', 'comment', 'mode', 'debit', 'credit')
+
+
+class StatementUploadError(Exception):
+    """A row in an uploaded statement cannot be applied."""
+
+
+def _money2(value):
+    """Quantize to whole toea."""
+    return Decimal(str(value or 0)).quantize(Decimal('0.01'))
+
+
+def reconcile_receivables(loan):
+    """Snap the receivable buckets so they add up to total_outstanding.
+
+    Each repayment splits pro-rata across principal / ordinary interest /
+    default interest and each share is rounded, so a long statement leaves a few
+    toea between the three buckets and the balance. The balance is the figure
+    the client is shown, so it wins and the residual lands on the largest bucket.
+    """
+    parts = [_money2(loan.principal_loan_receivable),
+             _money2(loan.ordinary_interest_receivable),
+             _money2(loan.default_interest_receivable)]
+    drift = _money2(loan.total_outstanding) - sum(parts)
+    if drift:
+        biggest = max(range(len(parts)), key=lambda i: parts[i])
+        parts[biggest] += drift
+    (loan.principal_loan_receivable, loan.ordinary_interest_receivable,
+     loan.default_interest_receivable) = parts
+    return loan
+
+
+def apply_statement_row(loan, date, comment, mode, debit, credit, officer=None):
+    """Apply one uploaded statement row to ``loan`` and return its Statement line.
+
+    The row's shape says what it is, matching the upload template:
+
+      ``debit = 0, credit = 0``   a missed repayment — default interest is charged
+      ``debit = 0, credit > 0``   an adjustment that increases the balance
+      ``debit > 0, credit = 0``   a repayment
+
+    The loan and the new statement line are saved; a repayment also writes a
+    Payment record. The caller owns the transaction and must lock the loan.
+    """
+    from loan import schedule as _sched
+    from loan.engine import default_interest_for
+    from loan.models import Payment, Statement
+
+    debit, credit = _money2(debit), _money2(credit)
+    if debit > 0 and credit > 0:
+        raise StatementUploadError('a row cannot have both a debit and a credit')
+    if debit < 0 or credit < 0:
+        raise StatementUploadError('debit and credit cannot be negative')
+    if date is None:
+        raise StatementUploadError('the date is missing or not a date')
+
+    owner = loan.owner
+    count = Statement.objects.filter(loanref=loan).count() + 1
+    common = dict(owner=owner, loanref=loan, uid=getattr(owner, 'uid', None),
+                  luid=settings.LUID, date=date, s_count=count)
+
+    # ── missed repayment ────────────────────────────────────────────────────
+    if debit == 0 and credit == 0:
+        missed = _money2(loan.repayment_amount)
+        interest = default_interest_for(loan, missed, get_loan_config())
+        # Arrears can never exceed what is actually still owed.
+        loan.total_arrears = min(_money2(loan.total_arrears) + missed,
+                                 _money2(loan.total_outstanding))
+        loan.default_interest_receivable = _money2(loan.default_interest_receivable) + interest
+        loan.total_outstanding = _money2(loan.total_outstanding) + interest
+        loan.number_of_defaults = (loan.number_of_defaults or 0) + 1
+        loan.last_default_date = date
+        loan.last_default_amount = missed
+        loan.status = 'DEFAULTED'
+        _sched.settle(loan, 1)
+        loan.save()
+        return Statement.objects.create(
+            ref=f'{loan.ref}SD{count}', type='DEFAULT',
+            statement=comment or 'Loan Defaulted', debit=0, credit=interest,
+            default_amount=missed, default_interest=interest,
+            arrears=loan.total_arrears, balance=loan.total_outstanding, **common)
+
+    # ── adjustment that adds to the balance ─────────────────────────────────
+    if debit == 0:
+        loan.total_outstanding = _money2(loan.total_outstanding) + credit
+        # Nothing in the row says what the adjustment is made of, so it is
+        # carried as principal — otherwise the receivable buckets stop adding
+        # up to the balance and every later repayment splits wrongly.
+        loan.principal_loan_receivable = _money2(loan.principal_loan_receivable) + credit
+        loan.save()
+        return Statement.objects.create(
+            ref=f'{loan.ref}SO{count}', type='OTHER',
+            statement=comment or 'Adjustment', debit=0, credit=credit,
+            arrears=loan.total_arrears, balance=loan.total_outstanding, **common)
+
+    # ── repayment ───────────────────────────────────────────────────────────
+    balance = _money2(loan.total_outstanding)
+    if balance > 0:
+        principal = _money2(debit * (_money2(loan.principal_loan_receivable) / balance))
+        interest = _money2(debit * (_money2(loan.ordinary_interest_receivable) / balance))
+        default = _money2(debit * (_money2(loan.default_interest_receivable) / balance))
+    else:
+        principal = interest = default = Decimal('0.00')
+
+    loan.principal_loan_receivable = _money2(loan.principal_loan_receivable) - principal
+    loan.ordinary_interest_receivable = _money2(loan.ordinary_interest_receivable) - interest
+    loan.default_interest_receivable = _money2(loan.default_interest_receivable) - default
+    loan.principal_loan_paid = _money2(loan.principal_loan_paid) + principal
+    loan.interest_paid = _money2(loan.interest_paid) + interest
+    loan.default_interest_paid = _money2(loan.default_interest_paid) + default
+
+    arrears = _money2(loan.total_arrears)
+    loan.total_arrears = Decimal('0.00') if arrears < debit else arrears - debit
+    loan.total_outstanding = balance - debit
+    loan.total_paid = _money2(loan.total_paid) + debit
+    loan.number_of_repayments = (loan.number_of_repayments or 0) + 1
+    loan.fortnights_paid = (loan.fortnights_paid or 0) + 1
+    loan.last_repayment_date = date
+    loan.last_repayment_amount = debit
+    if loan.total_arrears <= 0 and loan.status == 'DEFAULTED':
+        loan.status = 'RUNNING'
+    _sched.settle(loan, 1)
+
+    if loan.total_outstanding <= 0:
+        # Closed off by history — no completion email, this already happened.
+        loan.total_outstanding = Decimal('0.00')
+        loan.status = 'COMPLETED'
+        loan.funded_category = 'COMPLETED'
+    loan.save()
+
+    stat = Statement.objects.create(
+        ref=f'{loan.ref}SP{count}', type='PAYMENT',
+        statement=comment or 'Repayment', debit=debit, credit=0,
+        principal_collected=principal, interest_collected=interest,
+        default_interest_collected=default,
+        arrears=loan.total_arrears, balance=loan.total_outstanding, **common)
+    Payment.objects.create(
+        owner=owner, loanref=loan, ref=f'{loan.ref}P{loan.number_of_repayments}',
+        p_count=loan.number_of_repayments, date=date, amount=debit,
+        type='NORMAL REPAYMENT', mode=mode or 'PAYROLL DEDUCTION',
+        statement=comment or 'Repayment', officer=officer)
+    return stat
+
+
+def read_statement_upload(fileobj):
+    """Read an uploaded statement spreadsheet into normalised row dicts.
+
+    The file object is read directly — the upload is never round-tripped
+    through MEDIA_ROOT and re-fetched over HTTP, which cannot work now that
+    /media/ is behind the authentication gate (see moromafinance/media_views).
+    """
+    try:
+        frame = pd.read_excel(fileobj)
+    except Exception as exc:
+        raise StatementUploadError(
+            f'That file could not be read as an Excel spreadsheet ({exc}).') from exc
+
+    frame.columns = [str(c).strip().lower() for c in frame.columns]
+    missing = [c for c in STATEMENT_UPLOAD_COLUMNS if c not in frame.columns]
+    if missing:
+        raise StatementUploadError(
+            f"The spreadsheet is missing the column(s): {', '.join(missing)}. "
+            f"It needs a header row of: {', '.join(STATEMENT_UPLOAD_COLUMNS)}.")
+
+    rows = []
+    for position, record in enumerate(frame.to_dict('records'), start=2):
+        date = record.get('date')
+        if pd.isna(date):
+            continue  # blank trailing row
+        # The column may hold real Excel dates or text. Text is read day-first,
+        # because a hand-typed 05/03/2026 in PNG means 5 March, not 3 May —
+        # except for ISO (2026-03-05), which is never ambiguous.
+        day_first = isinstance(date, str) and not date[:4].isdigit()
+        parsed = pd.to_datetime(date, errors='coerce', dayfirst=day_first)
+        if pd.isna(parsed):
+            raise StatementUploadError(f'Row {position}: "{date}" is not a date.')
+        rows.append({
+            'row_number': position,   # spreadsheet row, so errors point somewhere
+            'date': parsed.date(),
+            'comment': '' if pd.isna(record.get('comment')) else str(record['comment']).strip(),
+            'mode': '' if pd.isna(record.get('mode')) else str(record['mode']).strip(),
+            'debit': Decimal('0') if pd.isna(record.get('debit')) else Decimal(str(record['debit'])),
+            'credit': Decimal('0') if pd.isna(record.get('credit')) else Decimal(str(record['credit'])),
+        })
+    if not rows:
+        raise StatementUploadError('The spreadsheet has no dated rows to import.')
+    return rows
