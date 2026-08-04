@@ -2902,6 +2902,11 @@ def add_user(request):
             user_profile.uid = f'{prefix}{random_num}'
             user_profile.modeofregistration = 'OTC'
             user_profile.luid = settings.LUID
+            # Signed up over the counter: the client agreed to the terms and to
+            # the credit check on the paper form in front of the staff member,
+            # so there is no online consent step left for them to complete.
+            user_profile.terms_consent = 'YES'
+            user_profile.credit_consent = 'YES'
             user_profile.save()
 
             #activate user and apply admin-configured default repayment limit

@@ -6,7 +6,8 @@ from staff.alesco_views import (staff_alesco_update, staff_alesco_confirm, staff
                                 staff_alesco_rollback_line, staff_alesco_rollback, staff_alesco_cancel,
                                 staff_regenerate_schedule, staff_alesco_unmatched)
 from staff.credit_views import staff_client_credits, staff_attribute_credit_and_close
-from staff.blackrose_views import blackrose_statements, blackrose_review, blackrose_discard
+from staff.blackrose_views import (blackrose_statements, blackrose_review, blackrose_discard,
+                                   blackrose_import_all)
 
 urlpatterns = [
     
@@ -74,6 +75,7 @@ urlpatterns = [
 
     # Blackrose LMS migration
     path('blackrose/', blackrose_statements, name='blackrose_statements'),
+    path('blackrose/import-all/', blackrose_import_all, name='blackrose_import_all'),
     path('blackrose/<int:pk>/', blackrose_review, name='blackrose_review'),
     path('blackrose/<int:pk>/discard/', blackrose_discard, name='blackrose_discard'),
 

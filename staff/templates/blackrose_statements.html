@@ -58,7 +58,16 @@
         <h6 class="mb-0"><i class="fa-solid fa-list-check me-1 text-warning"></i> Waiting for review
           <span class="badge bg-gradient-warning ms-1">{{ pending|length }}</span></h6>
         {% if pending %}
-        <span class="text-xs text-secondary">Total balance: <strong>K{{ pending_total|floatformat:2|intcomma }}</strong></span>
+        <div class="d-flex align-items-center gap-2">
+          <span class="text-xs text-secondary">Total balance: <strong>K{{ pending_total|floatformat:2|intcomma }}</strong></span>
+          <form method="post" action="{% url 'blackrose_import_all' %}" class="d-inline mb-0"
+                onsubmit="return confirm('Import all {{ pending|length }} statement{{ pending|length|pluralize }} now?\n\nClient accounts, loans and full statement history will be created. Any statement that needs a human decision is left in this list.');">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm bg-gradient-warning mb-0 ms-1">
+              <i class="fa-solid fa-bolt me-1"></i> Review &amp; Import ALL
+            </button>
+          </form>
+        </div>
         {% endif %}
       </div>
 

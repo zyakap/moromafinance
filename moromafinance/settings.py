@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 import os
+import sys
 from pathlib import Path
 from celery.schedules import crontab
 from decimal import Decimal
@@ -334,6 +335,16 @@ if os.name != 'nt':
     WKHTMLTOPDF_CMD = '/usr/bin/wkhtmltopdf'
 else:
     WKHTMLTOPDF_DEBUG = True
+
+# WeasyPrint fallback (used when wkhtmltopdf is absent). gunicorn runs under
+# systemd's PATH, which does not include the virtualenv's bin/, so a bare
+# shutil.which('weasyprint') finds nothing there even though the package is
+# installed. Point at the running interpreter's own bin/ so the fallback
+# resolves whatever the PATH is; override with WEASYPRINT_CMD in .env.
+WEASYPRINT_CMD = os.environ.get(
+    'WEASYPRINT_CMD',
+    os.path.join(os.path.dirname(sys.executable), 'weasyprint'),
+)
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases

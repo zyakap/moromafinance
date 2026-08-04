@@ -45,6 +45,7 @@ class AdminSettings(models.Model):
     role_user_enabled = models.CharField(verbose_name="Client Self-Registration:", max_length=3, choices=[('YES','YES - Allow new clients to register online'),('NO','NO - Staff must create client accounts')], null=True, blank=True, default='YES')
     role_staff_enabled = models.CharField(verbose_name="Staff Portal:", max_length=3, choices=[('YES','YES - Staff portal enabled'),('NO','NO - Staff portal disabled')], null=True, blank=True, default='YES')
     role_manager_enabled = models.CharField(verbose_name="Manager Role:", max_length=3, choices=[('YES','YES - Enable manager review workflow'),('NO','NO - Managers behave as regular staff')], null=True, blank=True, default='NO', help_text="When enabled, staff assigned the Manager role get a review portal for approving/rejecting/holding pending loans and payment uploads, with optional auto-generated loan contracts.")
+    role_staff_can_borrow = models.CharField(verbose_name="Staff As Borrowers:", max_length=3, choices=[('YES','YES - Staff may be selected as the client on a loan'),('NO','NO - Hide staff from the client list')], null=True, blank=True, default='NO', help_text="Staff members have a client profile of their own, which otherwise shows up in the client dropdown when creating a loan. Leave this off unless staff are allowed to borrow.")
 
     # Manager review workflow: loan-approval contract generation.
     contract_generation_enabled = models.CharField(verbose_name="Auto-Generate Loan Contract on Approval:", max_length=3, choices=[('YES','YES'),('NO','NO')], null=True, blank=True, default='NO', help_text="When a manager approves a pending loan, automatically generate a contract PDF and email it to the client and lending officer.")
@@ -620,10 +621,13 @@ class Employer(models.Model):
 
 class Location(models.Model):
     
+    # All 22 provinces of Papua New Guinea. 'GULF' was missing until locations
+    # were seeded, which left Gulf clients with nowhere to sit.
     PROVINCE = [('AROB','AROB'),('CENTRAL','CENTRAL'),('ENGA','ENGA'),('EAST SEPIK','EAST SEPIK'),('EHP','EHP'),('ENB','ENBP'),
+    ('GULF','GULF'),
     ('HELA','HELA'), ('JIWAKA','JIWAKA'),('MADANG','MADANG'),('MANUS','MANUS'),('MILNE BAY','MILNE BAY'), ('MOROBE', 'MOROBE'),('NCD','NCD'),('NEW IRELAND','NEW IRELAND'),('ORO','ORO'),
     ('SHP','SHP'),('SIMBU','SIMBU'), ('WESTERN','WESTERN'), ('WEST SEPIK','WEST SEPIK'), ('WHP','WHP'), ('WNB','WNBP'),
-    ]  
+    ]
     
     name = models.CharField(max_length=255, blank=True, null=True)
     province = models.CharField(max_length=20, choices=PROVINCE)

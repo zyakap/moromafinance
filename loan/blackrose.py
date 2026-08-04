@@ -78,6 +78,9 @@ _HEADER_ALIASES = {
 
 _MONEY_RE = re.compile(r'^-?[\d,]*\.?\d+$')
 _DATE_RE = re.compile(r'^(\d{1,2})/(\d{1,2})/(\d{4})$')
+#: The same shape, found anywhere in a blob of text (used to sniff the order
+#: the statement prints its dates in).
+_DATE_SCAN_RE = re.compile(r'(?<!\d)(\d{1,2})/(\d{1,2})/(\d{4})(?!\d)')
 _PNO_RE = re.compile(r'^\d{1,3}/\d{2,4}$')
 #: A standalone client code: mostly digits, optionally prefixed, no separators
 #: (which is what keeps the lender's "70392811/76525470/72246391" phone line out).
@@ -85,6 +88,12 @@ _CLIENT_CODE_RE = re.compile(r'^[A-Za-z]{0,4}\d{3,}[A-Za-z]{0,2}$')
 
 #: Rows within this many points of each other belong to the same printed line.
 _ROW_TOLERANCE = 3.0
+#: A page carrying fewer real words than this is treated as a scan and OCR'd.
+_MIN_WORDS_PER_PAGE = 5
+#: Render scanned pages at this DPI before handing them to tesseract.
+_OCR_DPI = 300
+#: Drop OCR words tesseract is less sure about than this (0-100).
+_OCR_MIN_CONF = 40.0
 #: A horizontal gap this wide inside a header line means a new column block.
 _COLUMN_GAP = 40.0
 
@@ -108,18 +117,46 @@ def to_decimal(text, default=ZERO):
         return default
 
 
-def to_date(text):
-    """'04/07/2024' -> date(2024, 7, 4) (Blackrose prints day-first). Else None."""
+def to_date(text, day_first=True):
+    """'04/07/2024' -> date(2024, 7, 4) when day-first, date(2024, 4, 7) when not.
+
+    Blackrose prints either order depending on the regional settings of the
+    machine the report was run on, so the caller passes what
+    :func:`detect_day_first` worked out for the statement as a whole. Returns
+    None when the text is not a date, or names a day that does not exist.
+    """
     if not text:
         return None
     m = _DATE_RE.match(str(text).strip())
     if not m:
         return None
-    day, month, year = (int(g) for g in m.groups())
+    first, second, year = (int(g) for g in m.groups())
+    day, month = (first, second) if day_first else (second, first)
     try:
         return datetime.date(year, month, day)
     except ValueError:
         return None
+
+
+def detect_day_first(text):
+    """Work out which way round a statement prints its dates.
+
+    A component above 12 can only be a day, so a single unambiguous date
+    settles the whole document. Statements where every date could be read
+    either way fall back to day-first, which is what the older exports use.
+
+    This matters more than it looks: read the wrong way round, '10/31/2025'
+    is not a wrong date but *no* date, and the row it sits on is dropped
+    without complaint -- so half a ledger can go missing quietly.
+    """
+    day_first_hits = month_first_hits = 0
+    for first, second, _year in _DATE_SCAN_RE.findall(str(text or '')):
+        first, second = int(first), int(second)
+        if first > 12 >= second:
+            day_first_hits += 1
+        elif second > 12 >= first:
+            month_first_hits += 1
+    return month_first_hits <= day_first_hits
 
 
 def money(value):
@@ -346,9 +383,9 @@ def _assign_columns(row, columns):
     return {key: ' '.join(parts).strip() for key, parts in cells.items()}
 
 
-def _cells_to_txn(cells, line_no):
+def _cells_to_txn(cells, line_no, day_first=True):
     """A column dict -> Txn, or None when the row is not a transaction."""
-    date = to_date(cells.get('date'))
+    date = to_date(cells.get('date'), day_first)
     if date is None:
         return None
     return Txn(
@@ -357,7 +394,7 @@ def _cells_to_txn(cells, line_no):
         loan=to_decimal(cells.get('loan')),
         repayable=to_decimal(cells.get('repayable')),
         pno=(cells.get('pno') or '').strip(),
-        paydate=to_date(cells.get('paydate')),
+        paydate=to_date(cells.get('paydate'), day_first),
         repayment=to_decimal(cells.get('repayment')),
         refund=to_decimal(cells.get('refund')),
         default_fee=to_decimal(cells.get('default_fee')),
@@ -441,8 +478,80 @@ def _parse_client_block(rows, statement):
         statement.warnings.append('Client name could not be read — enter it by hand.')
 
 
+def _ocr_words(image, scale):
+    """A rendered page image -> pdfplumber-shaped word dicts.
+
+    Tesseract reports pixel boxes at whatever scale the page was rendered at;
+    dividing by that scale puts them back into PDF points, so ``_ROW_TOLERANCE``
+    and ``_COLUMN_GAP`` keep meaning what they mean everywhere else.
+    """
+    import pytesseract
+
+    data = pytesseract.image_to_data(image, output_type=pytesseract.Output.DICT)
+    words = []
+    for index, text in enumerate(data['text']):
+        text = (text or '').strip()
+        if not text:
+            continue
+        try:
+            confidence = float(data['conf'][index])
+        except (TypeError, ValueError):
+            confidence = -1.0
+        if confidence < _OCR_MIN_CONF:
+            continue
+        left, top = data['left'][index], data['top'][index]
+        words.append({
+            'text': text,
+            'x0': left / scale,
+            'x1': (left + data['width'][index]) / scale,
+            'top': top / scale,
+            'bottom': (top + data['height'][index]) / scale,
+        })
+    return words
+
+
+def _ocr_pages(fileobj, page_numbers):
+    """OCR the given pages of a scanned statement -> ``{number: [row, ...]}``."""
+    try:
+        import pypdfium2
+        import pytesseract
+    except ImportError as exc:
+        raise BlackroseError(
+            'This statement is a scan with no text layer, so it has to be read '
+            'with OCR. Install the "pytesseract" package and the tesseract-ocr '
+            'engine, then try again.') from exc
+
+    try:
+        fileobj.seek(0)
+    except (AttributeError, OSError):
+        pass
+    data = fileobj.read()
+
+    scale = _OCR_DPI / 72.0
+    rows_by_page = {}
+    document = pypdfium2.PdfDocument(data)
+    try:
+        for number in page_numbers:
+            image = document[number].render(scale=scale).to_pil()
+            try:
+                rows_by_page[number] = _group_rows(_ocr_words(image, scale))
+            except pytesseract.TesseractNotFoundError as exc:
+                raise BlackroseError(
+                    'This statement is a scan, and the tesseract OCR engine is '
+                    'not installed on the server (apt install tesseract-ocr).'
+                ) from exc
+    finally:
+        document.close()
+    return rows_by_page
+
+
 def _extract_pages(fileobj):
-    """``[[row, ...], ...]`` of pdfplumber words, one list per page."""
+    """``([[row, ...], ...], {ocr'd page numbers})`` -- one row list per page.
+
+    Statements printed straight out of Blackrose carry a text layer. Ones that
+    have been through a scanner do not, and pdfplumber reads nothing off them,
+    so those pages are rendered and passed through OCR instead.
+    """
     try:
         import pdfplumber
     except ImportError as exc:  # pragma: no cover - depends on the deployment
@@ -455,15 +564,24 @@ def _extract_pages(fileobj):
     except (AttributeError, OSError):
         pass
     pages = []
+    scanned = []
     with pdfplumber.open(fileobj) as pdf:
-        for page in pdf.pages:
-            pages.append(_group_rows(page.extract_words()))
-    return pages
+        for number, page in enumerate(pdf.pages):
+            words = page.extract_words()
+            if len(words) < _MIN_WORDS_PER_PAGE:
+                scanned.append(number)
+                words = []
+            pages.append(_group_rows(words))
+
+    if scanned:
+        for number, rows in _ocr_pages(fileobj, scanned).items():
+            pages[number] = rows
+    return pages, set(scanned)
 
 
 def parse_pdf(fileobj):
     """Parse an uploaded Blackrose statement PDF into a :class:`Statement`."""
-    pages = _extract_pages(fileobj)
+    pages, ocr_pages = _extract_pages(fileobj)
     if not pages:
         raise BlackroseError('The PDF has no pages.')
 
@@ -474,6 +592,11 @@ def parse_pdf(fileobj):
             '"Date / Code / ... / Balance" table header was found.')
 
     statement = Statement()
+    if ocr_pages:
+        statement.warnings.append(
+            f'{"Page" if len(ocr_pages) == 1 else "Pages"} '
+            f'{", ".join(str(n + 1) for n in sorted(ocr_pages))} had no text layer and '
+            'was read with OCR — check every figure against the paper copy.')
     if pages[0] and pages[0][0]:
         statement.lender_name = ' '.join(
             w['text'] for w in pages[0][0] if w['text'].strip().lower() != 'statement').strip()
@@ -482,13 +605,16 @@ def parse_pdf(fileobj):
     _parse_client_block([r for r in pages[0] if r[0]['top'] < header_top - _ROW_TOLERANCE],
                         statement)
 
+    day_first = detect_day_first(
+        ' '.join(w['text'] for page in pages for row in page for w in row))
+
     line_no = 0
     for page_rows in pages:
         for row in page_rows:
             if row is header_row:
                 continue
             line_no += 1
-            txn = _cells_to_txn(_assign_columns(row, columns), line_no)
+            txn = _cells_to_txn(_assign_columns(row, columns), line_no, day_first)
             if txn is not None:
                 statement.txns.append(txn)
 
@@ -509,8 +635,9 @@ def parse_text(text):
     statement.warnings.append(
         'Read without column positions — check every row, and enter the client details by hand.')
 
+    day_first = detect_day_first(text)
     for line_no, line in enumerate(text.splitlines(), start=1):
-        txn = _text_line_to_txn(line, line_no)
+        txn = _text_line_to_txn(line, line_no, day_first)
         if txn is not None:
             statement.txns.append(txn)
 
@@ -518,7 +645,7 @@ def parse_text(text):
     return statement
 
 
-def _text_line_to_txn(line, line_no):
+def _text_line_to_txn(line, line_no, day_first=True):
     """One flattened line -> Txn, relying on the printed column order.
 
     Blackrose always prints all four money columns (as 0.00 when empty) but
@@ -527,7 +654,7 @@ def _text_line_to_txn(line, line_no):
     tokens = line.split()
     if len(tokens) < 8:
         return None
-    date = to_date(tokens[0])
+    date = to_date(tokens[0], day_first)
     if date is None:
         return None
 
@@ -545,8 +672,8 @@ def _text_line_to_txn(line, line_no):
     if i < len(tokens) and _PNO_RE.match(tokens[i]):
         pno, i = tokens[i], i + 1
     paydate = None
-    if i < len(tokens) and to_date(tokens[i]):
-        paydate, i = to_date(tokens[i]), i + 1
+    if i < len(tokens) and to_date(tokens[i], day_first):
+        paydate, i = to_date(tokens[i], day_first), i + 1
 
     if len(tokens) - i < 4:
         return None
@@ -787,7 +914,15 @@ def _create_client(statement, location=None):
 
 
 def _apply_client_details(profile, statement, phone=None):
-    """Fill in the details the statement carries, without overwriting better data."""
+    """Fill in the details the statement carries, without overwriting better data.
+
+    Consent is recorded rather than merged: a client carrying a loan signed the
+    terms and agreed to the credit check on paper before it was advanced, which
+    is what these two flags exist to record. The same thing happens when a loan
+    is funded through the normal route (see admin1/views/loansView.py).
+    """
+    profile.terms_consent = 'YES'
+    profile.credit_consent = 'YES'
     if statement.employer and not profile.employer:
         profile.employer = statement.employer[:50]
     if statement.address and not profile.residential_address:

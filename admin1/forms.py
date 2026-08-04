@@ -195,6 +195,7 @@ class RolesSettingsForm(forms.ModelForm):
             'role_user_enabled',
             'role_staff_enabled',
             'role_manager_enabled',
+            'role_staff_can_borrow',
         )
 
 

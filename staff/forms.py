@@ -6,6 +6,28 @@ from loan.models import Loan, LoanFile, generate_amount_choices, generate_fortni
 from loan.open_repayment import clear_open_repayment, install_open_repayment_handlers, set_open_repayment
 from .widgets import DatePickerInput
 
+
+def staff_may_borrow():
+    """Whether staff are allowed to be the client on a loan (Roles & Access)."""
+    setting = AdminSettings.objects.filter(settings_name='setting1').first()
+    if setting is None:
+        return False
+    return (setting.role_staff_can_borrow or 'NO').strip().upper() == 'YES'
+
+
+def borrower_queryset():
+    """Clients selectable as the borrower on a staff-created loan.
+
+    Staff carry a client profile of their own so they can sign in, so without
+    this they sit in the dropdown among the real borrowers -- on a small branch
+    that is most of the list. Roles & Access decides whether they belong there.
+    """
+    clients = UserProfile.objects.filter(activation=1)
+    if not staff_may_borrow():
+        clients = clients.filter(staffprofile__isnull=True)
+    return clients
+
+
 class MemberInfoForm(forms.ModelForm):
 
     referred_by = forms.ModelChoiceField(queryset=None, required=False, empty_label='— Not referred —')
@@ -208,7 +230,7 @@ class CreateLoanForm(forms.ModelForm):
         loan_mode = kwargs.pop('loan_mode', None) or self._resolve_mode(user_profile)
         self.loan_mode = loan_mode
         super(CreateLoanForm, self).__init__(*args, **kwargs)
-        self.fields['owner'].queryset = UserProfile.objects.filter(activation=1)
+        self.fields['owner'].queryset = borrower_queryset()
         if loan_mode != 'OPEN_REPAYMENT':
             self.fields.pop('repayment_amount', None)
         else:

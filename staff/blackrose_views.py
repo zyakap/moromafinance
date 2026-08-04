@@ -265,6 +265,105 @@ def _commit(request, record):
     return redirect('view_loan_staff', loan.ref)
 
 
+def _auto_import(record, officer):
+    """Import one parsed statement using exactly what the parser worked out.
+
+    Returns ``(True, '')``, or ``(False, reason)`` when the statement is one a
+    human should look at. Anything the review screen would have asked staff to
+    fill in or correct is refused rather than guessed at — a bulk button is a
+    shortcut past the reading, not past the judgement.
+    """
+    statement = blackrose.Statement.from_dict(record.parsed or {})
+    plan = blackrose.derive(statement)
+
+    if not statement.client_name:
+        return False, 'the client name could not be read'
+    if statement.warnings:
+        # Covers OCR'd scans and any balance the replay could not reconcile.
+        return False, statement.warnings[0].rstrip('.').lower()
+
+    remaining = plan['remaining_fortnights']
+    repayment_amount = plan['repayment_amount']
+    next_payment_date = plan['next_payment_date']
+    if remaining > 0 and repayment_amount <= 0:
+        return False, 'no fortnightly repayment amount could be worked out'
+    if remaining > 0 and next_payment_date < datetime.date.today():
+        return False, 'the next payment date is in the past'
+
+    profile = blackrose.find_client(statement)
+    with transaction.atomic():
+        loan, profile, created = blackrose.import_statement(
+            statement, plan, officer=officer,
+            location=profile.location if profile else None, profile=profile,
+            repayment_amount=repayment_amount, next_payment_date=next_payment_date,
+            remaining_fortnights=remaining,
+            notes=('Bulk-imported from Blackrose statement '
+                   f'(client code {statement.client_code}).'),
+        )
+        record.status = 'IMPORTED'
+        record.owner = profile
+        record.loan = loan
+        record.client_created = created
+        record.imported_at = timezone.now()
+        record.error = None
+        record.client_name = statement.client_name[:255]
+        record.client_code = statement.client_code[:50]
+        record.save()
+    return True, ''
+
+
+@check_staff
+def blackrose_import_all(request):
+    """Import every statement waiting for review in one pass.
+
+    Each statement is written in its own transaction, so one that cannot be
+    imported neither stops nor rolls back the rest — it simply stays in the
+    waiting list for someone to open.
+    """
+    if request.method != 'POST':
+        return redirect('blackrose_statements')
+
+    pending = list(BlackroseImport.objects.filter(status='PENDING'))
+    if not pending:
+        messages.info(request, 'There is nothing waiting for review.', extra_tags='info')
+        return redirect('blackrose_statements')
+
+    officer = _staff_profile(request)
+    imported = 0
+    held = []
+    for record in pending:
+        if not record.parsed:
+            held.append((record, 'the statement could not be read'))
+            continue
+        try:
+            ok, reason = _auto_import(record, officer)
+        except blackrose.BlackroseError as exc:
+            ok, reason = False, str(exc).rstrip('.').lower()
+        except Exception as exc:  # pragma: no cover - surfaced, never swallowed
+            logger.exception('Bulk Blackrose import failed for %s', record.pk)
+            ok, reason = False, f'the import failed and nothing was saved: {exc}'
+        if ok:
+            imported += 1
+        else:
+            held.append((record, reason))
+
+    if imported:
+        messages.success(
+            request,
+            f'Imported {imported} statement{"s" if imported != 1 else ""} — '
+            'client accounts, loans and full statement history created.',
+            extra_tags='info')
+    for record, reason in held:
+        messages.warning(
+            request,
+            f'{record.client_name or record.file_name}: left for review — {reason}.',
+            extra_tags='warning')
+    if not imported:
+        messages.error(request, 'Nothing could be imported without review.',
+                       extra_tags='danger')
+    return redirect('blackrose_statements')
+
+
 @check_staff
 def blackrose_discard(request, pk):
     """Drop a parsed statement that is not going to be imported."""

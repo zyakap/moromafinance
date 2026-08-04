@@ -90,6 +90,24 @@ pipenv run python manage.py createsuperuser
 pipenv run python manage.py collectstatic
 ```
 
+## 2b. System packages for PDF work
+
+Two features shell out to things `pip` cannot install.
+
+```bash
+# HTML -> PDF (statements, reports). WeasyPrint needs pango at runtime;
+# without it every PDF view raises "No PDF renderer is installed".
+sudo apt-get install -y libpango-1.0-0 libpangoft2-1.0-0
+
+# Blackrose statement import. Printed statements carry a text layer and need
+# only pdfplumber; scanned ones are rendered and read with OCR instead.
+sudo apt-get install -y tesseract-ocr tesseract-ocr-eng
+```
+
+`WEASYPRINT_CMD` defaults to the `weasyprint` script inside the virtualenv,
+because gunicorn runs under systemd's PATH, which does not include it. Install
+`wkhtmltopdf` if you would rather use that — it takes precedence when present.
+
 ## 3. Celery + Redis
 
 Reminders, default runs and classification fire via Celery. To enable:
