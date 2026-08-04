@@ -2,296 +2,10 @@
 {% load static %}
 
 {% block title %}Create Account | {{ appearance.brand_name }}{% endblock %}
-{% block meta_description %}Register for a {{ appearance.brand_name }} account. Once registered, an activation link will be sent to your email address to complete your sign-up.{% endblock %}
+{% block meta_desc %}Register for a {{ appearance.brand_name }} account. Once registered, an activation link will be sent to your email address to complete your sign-up.{% endblock %}
 
 {% block extra_head %}
-<style>
-  /* ── Auth page shell ─────────────────────────────────── */
-  .auth-section {
-    min-height: calc(100vh - 76px);
-    display: flex;
-    align-items: flex-start;
-    padding: 3.5rem 0 5rem;
-    background:
-      radial-gradient(ellipse at top right,  rgba(97, 26, 101, 0.12), transparent 55%),
-      radial-gradient(ellipse at bottom left, rgba(245, 157, 31, 0.10), transparent 55%),
-      var(--bg);
-  }
-
-  .auth-wrap {
-    width: min(calc(100% - 3rem), 1060px);
-    margin-inline: auto;
-  }
-
-  .auth-card {
-    display: grid;
-    grid-template-columns: 1.15fr 0.85fr;
-    border-radius: var(--r-xl);
-    overflow: hidden;
-    box-shadow: var(--sh-xl);
-  }
-
-  /* ── Left form panel ──────────────────────────────────── */
-  .auth-form-panel {
-    background: var(--white);
-    padding: 3rem 2.75rem;
-  }
-
-  .auth-form-panel h1 {
-    font-size: 1.75rem;
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    color: var(--ink-900);
-    margin-bottom: 0.4rem;
-    line-height: 1.15;
-  }
-
-  .auth-subtitle {
-    font-size: 0.92rem;
-    color: var(--ink-500);
-    line-height: 1.65;
-    margin-bottom: 2rem;
-  }
-
-  /* ── Django form styling ──────────────────────────────── */
-  .django-form p {
-    margin-bottom: 1.1rem;
-  }
-  .django-form label {
-    display: block;
-    font-size: 0.82rem;
-    font-weight: 700;
-    color: var(--ink-700);
-    letter-spacing: 0.02em;
-    margin-bottom: 0.42rem;
-  }
-  .django-form input[type="text"],
-  .django-form input[type="email"],
-  .django-form input[type="password"],
-  .django-form input[type="number"],
-  .django-form input[type="tel"],
-  .django-form select,
-  .django-form textarea {
-    width: 100%;
-    padding: 0.82rem 1rem;
-    border-radius: var(--r-md);
-    border: 1.5px solid var(--line);
-    background: var(--bg);
-    font-family: inherit;
-    font-size: 0.93rem;
-    color: var(--ink-900);
-    outline: none;
-    transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
-    -webkit-appearance: none;
-    appearance: none;
-  }
-  .django-form input:focus,
-  .django-form select:focus,
-  .django-form textarea:focus {
-    border-color: var(--pu-400);
-    box-shadow: 0 0 0 3px rgba(97, 26, 101, 0.10);
-    background: var(--white);
-  }
-  .django-form input[type="checkbox"] {
-    width: auto;
-    accent-color: var(--pu-500);
-    margin-right: 0.4rem;
-  }
-  .django-form .helptext {
-    display: block;
-    font-size: 0.75rem;
-    color: var(--ink-500);
-    margin-top: 0.35rem;
-    line-height: 1.55;
-  }
-  .django-form ul.errorlist {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 0.5rem;
-  }
-  .django-form ul.errorlist li {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #B91C1C;
-    background: #FEF2F2;
-    border: 1px solid #FECACA;
-    border-radius: var(--r-sm);
-    padding: 0.45rem 0.75rem;
-    margin-bottom: 0.35rem;
-  }
-  .django-form .g-recaptcha,
-  .django-form #div_id_captcha {
-    margin: 0.75rem 0 1rem;
-  }
-
-  /* ── Submit button ────────────────────────────────────── */
-  .auth-submit {
-    width: 100%;
-    padding: 0.95rem;
-    font-size: 1rem;
-    font-weight: 700;
-    border-radius: var(--r-pill);
-    background: linear-gradient(135deg, var(--pu-700), var(--pu-500));
-    color: var(--white);
-    border: none;
-    cursor: pointer;
-    box-shadow: 0 6px 18px rgba(74, 21, 80, 0.32);
-    transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
-    margin-top: 0.75rem;
-    letter-spacing: 0.02em;
-  }
-  .auth-submit:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 12px 28px rgba(74, 21, 80, 0.40);
-  }
-  .auth-submit:active { transform: translateY(0); }
-
-  .auth-links {
-    margin-top: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-  }
-  .auth-links p {
-    font-size: 0.88rem;
-    color: var(--ink-500);
-    text-align: center;
-  }
-  .auth-links a {
-    color: var(--pu-600);
-    font-weight: 700;
-    transition: color var(--dur) var(--ease);
-  }
-  .auth-links a:hover { color: var(--pu-400); text-decoration: underline; }
-
-  .auth-error-banner {
-    background: #FEF2F2;
-    border: 1px solid #FECACA;
-    border-radius: var(--r-md);
-    padding: 0.85rem 1rem;
-    margin-bottom: 1.25rem;
-    font-size: 0.88rem;
-    font-weight: 600;
-    color: #B91C1C;
-  }
-
-  /* ── Right info panel ─────────────────────────────────── */
-  .auth-info {
-    background: linear-gradient(150deg, var(--pu-900) 0%, var(--pu-700) 55%, var(--pu-800) 100%);
-    padding: 3rem 2.25rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    position: relative;
-    overflow: hidden;
-    color: var(--white);
-  }
-  .auth-info::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.04) 1px, transparent 0);
-    background-size: 28px 28px;
-    pointer-events: none;
-  }
-  .auth-info::after {
-    content: "";
-    position: absolute;
-    width: 300px; height: 300px;
-    border-radius: 50%;
-    right: -100px; top: -100px;
-    background: radial-gradient(circle, rgba(245,157,31,0.20) 0%, transparent 65%);
-    pointer-events: none;
-  }
-  .auth-info-inner { position: relative; z-index: 1; }
-
-  .auth-logo-box {
-    background: var(--white);
-    border-radius: var(--r-lg);
-    padding: 1rem 1.4rem;
-    display: inline-flex;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.18);
-    margin-bottom: 1.25rem;
-  }
-  .auth-logo-box img {
-    height: 40px;
-    width: auto;
-    object-fit: contain;
-  }
-
-  .auth-info h3 {
-    font-size: 1.3rem;
-    font-weight: 800;
-    letter-spacing: -0.025em;
-    line-height: 1.25;
-    color: var(--white);
-    margin-bottom: 0;
-  }
-
-  /* Step cards */
-  .reg-steps { display: flex; flex-direction: column; gap: 0; }
-  .reg-step {
-    display: flex;
-    gap: 0.9rem;
-    padding: 1rem 0;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-  }
-  .reg-step:last-child { border-bottom: none; }
-  .reg-step-num {
-    width: 28px; height: 28px;
-    border-radius: 50%;
-    background: rgba(245,157,31,0.22);
-    border: 1.5px solid rgba(245,157,31,0.40);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.72rem;
-    font-weight: 800;
-    color: var(--am-400);
-    flex-shrink: 0;
-    margin-top: 0.05rem;
-  }
-  .reg-step-content h4 {
-    font-size: 0.92rem;
-    font-weight: 700;
-    color: var(--white);
-    margin-bottom: 0.25rem;
-  }
-  .reg-step-content p {
-    font-size: 0.82rem;
-    color: rgba(255,255,255,0.62);
-    line-height: 1.6;
-  }
-
-  /* Info notice box */
-  .auth-notice {
-    background: rgba(245,157,31,0.12);
-    border: 1px solid rgba(245,157,31,0.22);
-    border-radius: var(--r-md);
-    padding: 1rem 1.1rem;
-  }
-  .auth-notice p {
-    font-size: 0.82rem;
-    color: rgba(255,255,255,0.75);
-    line-height: 1.65;
-  }
-  .auth-notice strong { color: var(--am-400); }
-
-  .auth-info-footer {
-    margin-top: auto;
-    padding-top: 1.25rem;
-    border-top: 1px solid rgba(255,255,255,0.10);
-    font-size: 0.78rem;
-    color: rgba(255,255,255,0.40);
-  }
-
-  /* ── Responsive ──────────────────────────────────────── */
-  @media (max-width: 860px) {
-    .auth-card { grid-template-columns: 1fr; }
-    .auth-info  { padding: 2rem 1.75rem; }
-    .auth-form-panel { padding: 2rem 1.75rem; }
-  }
-</style>
+{% include 'appearance_head.html' %}
 {% endblock %}
 
 {% block content %}
@@ -299,15 +13,15 @@
   <div class="auth-wrap">
     <div class="auth-card">
 
-      <!-- ── Form Panel ──────────────────────────────────── -->
+      <!-- ── Form panel ──────────────────────────────────── -->
       <div class="auth-form-panel">
         <span class="eyebrow">New Client</span>
-        <h1>Create Your Account</h1>
+        <h1>Create your account</h1>
         <p class="auth-subtitle">Fill in your details below. Once submitted, an activation link will be sent to your email address to complete your registration.</p>
 
         {% if form.non_field_errors %}
           <div class="auth-error-banner">
-            {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+            {{ form.non_field_errors }}
           </div>
         {% endif %}
 
@@ -320,57 +34,63 @@
           {% endif %}
           {{ form.recaptcha }}
 
-          <button type="submit" class="auth-submit">Create Account →</button>
+          <button type="submit" class="auth-submit">
+            Create account <i class="bi bi-arrow-right"></i>
+          </button>
         </form>
+
+        <div class="auth-divider">or</div>
 
         <div class="auth-links">
           <p>Already registered? <a href="{% url 'login_user' %}">Sign in here</a></p>
-          <p><a href="{% url 'home' %}" style="color:var(--ink-500);font-weight:600;">← Back to Website</a></p>
+          <p><a href="{% url 'home' %}" class="auth-back">← Back to website</a></p>
         </div>
       </div>
 
-      <!-- ── Info Panel ──────────────────────────────────── -->
+      <!-- ── Steps rail ──────────────────────────────────── -->
       <div class="auth-info">
         <div class="auth-info-inner">
           <div class="auth-logo-box">
-            <img src="{% static 'clientfiles/brandlogo.png' %}" alt="{{ appearance.brand_name }}" />
+            <img src="{% if appearance.login_logo_url %}{{ appearance.login_logo_url }}{% else %}{% static 'clientfiles/brandlogo.png' %}{% endif %}"
+                 alt="{{ appearance.brand_name }}">
           </div>
-          <h3>Your Account Activation Steps</h3>
-        </div>
 
-        <div class="reg-steps">
-          <div class="reg-step">
-            <div class="reg-step-num">01</div>
-            <div class="reg-step-content">
-              <h4>Complete the Form</h4>
-              <p>Fill in all required fields with your accurate personal and contact details.</p>
-            </div>
-          </div>
-          <div class="reg-step">
-            <div class="reg-step-num">02</div>
-            <div class="reg-step-content">
-              <h4>Check Your Email</h4>
-              <p>An activation link will be sent to the email address you provide. Click the link to verify your account.</p>
-            </div>
-          </div>
-          <div class="reg-step">
-            <div class="reg-step-num">03</div>
-            <div class="reg-step-content">
-              <h4>Activate Your Account</h4>
-              <p>Once you click the activation link your account will be fully active and ready to use.</p>
-            </div>
-          </div>
-          <div class="reg-step">
-            <div class="reg-step-num">04</div>
-            <div class="reg-step-content">
-              <h4>Log In &amp; Get Started</h4>
-              <p>Sign in to your new portal and start accessing all {{ appearance.brand_name }} digital services.</p>
-            </div>
-          </div>
-        </div>
+          <h3>Your account activation steps</h3>
 
-        <div class="auth-notice">
-          <p><strong>Can't find the email?</strong> Please check your <strong>Spam</strong> or <strong>Junk</strong> folder. The activation email is sent immediately after you submit the form.</p>
+          <div class="reg-steps">
+            <div class="reg-step">
+              <div class="reg-step-num">01</div>
+              <div class="reg-step-content">
+                <h4>Complete the form</h4>
+                <p>Fill in all required fields with your accurate personal and contact details.</p>
+              </div>
+            </div>
+            <div class="reg-step">
+              <div class="reg-step-num">02</div>
+              <div class="reg-step-content">
+                <h4>Check your email</h4>
+                <p>An activation link will be sent to the email address you provide. Click the link to verify your account.</p>
+              </div>
+            </div>
+            <div class="reg-step">
+              <div class="reg-step-num">03</div>
+              <div class="reg-step-content">
+                <h4>Activate your account</h4>
+                <p>Once you click the activation link your account will be fully active and ready to use.</p>
+              </div>
+            </div>
+            <div class="reg-step">
+              <div class="reg-step-num">04</div>
+              <div class="reg-step-content">
+                <h4>Log in &amp; get started</h4>
+                <p>Sign in to your new portal and start accessing all {{ appearance.brand_name }} digital services.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="auth-notice">
+            <p><strong>Can't find the email?</strong> Please check your <strong>spam</strong> or <strong>junk</strong> folder. The activation email is sent immediately after you submit the form.</p>
+          </div>
         </div>
 
         <div class="auth-info-footer">

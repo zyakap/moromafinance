@@ -1,32 +1,26 @@
 {% extends "website/website_base.html" %}
 
-{% block title %} RESET LINK SENT {% endblock %}
-{% block content-header %} RESET LINK SENT {% endblock %}
-{% block breadcrumb-item %} RESET LINK SENT {% endblock %}
-{% block breadcrumb-item-active %} Reset Link Sent {% endblock %}
-
+{% block title %}Reset Link Sent | {{ appearance.brand_name }}{% endblock %}
+{% block meta_desc %}A password reset link has been sent to your email address.{% endblock %}
 
 {% block content %}
+<section class="auth-section">
+  <div class="auth-note-wrap">
+    <div class="auth-note">
+      <div class="auth-note-icon"><i class="bi bi-shield-lock"></i></div>
 
-<div class="col-lg-6">
-  
-  <div class="card">
-      <div class="card-header">
-        <h5 class="m-0">RESET LINK SENT</h5>
-      </div>
-      <div class="card-body">
-        
-        <p class="card-text">Password Reset link has been sent to your email address. Please check your email and click on the link to reset your password.</p>
-        
+      <span class="eyebrow">Check your inbox</span>
+      <h1>Reset link sent</h1>
+      <p>A password reset link has been sent to your email address. Open your inbox and click the link to choose a new password.</p>
+      <p><strong>Can't find it?</strong> Check your spam or junk folder before requesting another link.</p>
+
+      <div class="mf-btnrow">
+        <a href="{% url 'login_user' %}" class="mf-btn mf-btn--ink">
+          Back to sign in <i class="bi bi-arrow-right"></i>
+        </a>
+        <a href="{% url 'reset_password' %}" class="mf-btn mf-btn--ghost">Request another link</a>
       </div>
     </div>
-  
   </div>
-  <!-- /.col-md-6 -->
-  <div class="col-lg-6">  
-
-  </div>
-</div>
-<!-- /.col-md-6 -->
-
+</section>
 {% endblock %}

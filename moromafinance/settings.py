@@ -33,7 +33,20 @@ def _load_dotenv(path):
                     continue
                 key, _, value = line.partition('=')
                 key = key.strip()
-                value = value.strip().strip('"').strip("'")
+                value = value.strip()
+                # A quoted value is taken verbatim, so secrets are free to
+                # contain '#'. An unquoted one ends at the first whitespace-
+                # preceded '#', which is the usual .env inline-comment rule --
+                # without this, `DB_USER=root  # note` sets the user to the
+                # whole line, including the note.
+                if len(value) >= 2 and value[0] == value[-1] and value[0] in ('"', "'"):
+                    value = value[1:-1]
+                else:
+                    for idx, char in enumerate(value):
+                        if char == '#' and idx > 0 and value[idx - 1].isspace():
+                            value = value[:idx]
+                            break
+                    value = value.strip()
                 os.environ.setdefault(key, value)
     except FileNotFoundError:
         pass

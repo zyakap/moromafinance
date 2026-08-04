@@ -323,8 +323,8 @@
                             Overview</a>
                         </li>
                         <li class="text-xs p-0">
-                          <a class="nav-link text-white {% if nav == 'reports' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'reports' %}">
-                            Collections<span class="badge-sm bg-info text-success">0</span></a>
+                          <a class="nav-link text-white {% if nav == 'reports' or nav == 'report_catalog' %} active bg-primary {% endif %} ms-1 p-1" href="{% url 'reports' %}">
+                            All Reports<span class="badge-sm bg-info text-success">0</span></a>
                         </li>
                         
                         <li class="text-xs p-0">

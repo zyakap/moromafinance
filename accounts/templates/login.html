@@ -2,313 +2,10 @@
 {% load static %}
 
 {% block title %}Client Login | {{ appearance.brand_name }}{% endblock %}
-{% block meta_description %}Log in to your {{ appearance.brand_name }} client portal to manage your accounts, view statements, and access all digital banking services.{% endblock %}
+{% block meta_desc %}Log in to your {{ appearance.brand_name }} client portal to manage your accounts, view statements, and access all digital services.{% endblock %}
 
 {% block extra_head %}
 {% include 'appearance_head.html' %}
-<style>
-  /* ── Auth page shell ─────────────────────────────────── */
-  .auth-section {
-    min-height: calc(100vh - 76px);
-    display: flex;
-    align-items: center;
-    padding: 3.5rem 0;
-    background:
-      radial-gradient(ellipse at top left,  rgba(97, 26, 101, 0.12), transparent 55%),
-      radial-gradient(ellipse at bottom right, rgba(245, 157, 31, 0.10), transparent 55%),
-      var(--bg);
-  }
-
-  .auth-wrap {
-    width: min(calc(100% - 3rem), 960px);
-    margin-inline: auto;
-  }
-
-  .auth-card {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    border-radius: var(--r-xl);
-    overflow: hidden;
-    box-shadow: var(--sh-xl);
-  }
-
-  /* ── Left brand panel ─────────────────────────────────── */
-  .auth-brand {
-    background: linear-gradient(150deg, var(--pu-900) 0%, var(--pu-700) 55%, var(--pu-800) 100%);
-    padding: 3rem 2.5rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    position: relative;
-    overflow: hidden;
-    color: var(--white);
-  }
-  .auth-brand::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.04) 1px, transparent 0);
-    background-size: 28px 28px;
-    pointer-events: none;
-  }
-  .auth-brand::after {
-    content: "";
-    position: absolute;
-    width: 360px; height: 360px;
-    border-radius: 50%;
-    right: -140px; bottom: -140px;
-    background: radial-gradient(circle, rgba(245,157,31,0.20) 0%, transparent 65%);
-    pointer-events: none;
-  }
-  .auth-brand-inner { position: relative; z-index: 1; }
-
-  .auth-logo-box {
-    background: var(--white);
-    border-radius: var(--r-lg);
-    padding: 1.1rem 1.5rem;
-    display: inline-flex;
-    margin-bottom: 2rem;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.18);
-  }
-  .auth-logo-box img {
-    height: 44px;
-    width: auto;
-    object-fit: contain;
-  }
-
-  .auth-brand h2 {
-    font-size: 1.6rem;
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    line-height: 1.2;
-    color: var(--white);
-    margin-bottom: 0.75rem;
-  }
-  .auth-brand > .auth-brand-inner > p {
-    font-size: 0.93rem;
-    line-height: 1.75;
-    color: rgba(255,255,255,0.72);
-    margin-bottom: 2rem;
-  }
-
-  .auth-features {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    margin-bottom: 2.5rem;
-  }
-  .auth-feature {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    font-size: 0.88rem;
-    font-weight: 600;
-    color: rgba(255,255,255,0.85);
-  }
-  .auth-feature-dot {
-    width: 22px; height: 22px;
-    border-radius: 50%;
-    background: rgba(245,157,31,0.28);
-    border: 1.5px solid rgba(245,157,31,0.45);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.65rem;
-    color: var(--am-400);
-    font-weight: 900;
-    flex-shrink: 0;
-  }
-
-  .auth-brand-footer {
-    position: relative;
-    z-index: 1;
-    padding-top: 1.5rem;
-    border-top: 1px solid rgba(255,255,255,0.10);
-    font-size: 0.8rem;
-    color: rgba(255,255,255,0.45);
-  }
-
-  /* ── Right form panel ─────────────────────────────────── */
-  .auth-form-panel {
-    background: var(--white);
-    padding: 3rem 2.5rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-
-  .auth-form-panel .eyebrow { margin-bottom: 0.5rem; }
-
-  .auth-form-panel h1 {
-    font-size: 1.75rem;
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    color: var(--ink-900);
-    margin-bottom: 0.4rem;
-    line-height: 1.15;
-  }
-
-  .auth-form-panel .auth-subtitle {
-    font-size: 0.92rem;
-    color: var(--ink-500);
-    line-height: 1.65;
-    margin-bottom: 2rem;
-  }
-
-  /* ── Django form styling ──────────────────────────────── */
-  .django-form p {
-    margin-bottom: 1.1rem;
-  }
-  .django-form label {
-    display: block;
-    font-size: 0.82rem;
-    font-weight: 700;
-    color: var(--ink-700);
-    letter-spacing: 0.02em;
-    margin-bottom: 0.42rem;
-  }
-  .django-form input[type="text"],
-  .django-form input[type="email"],
-  .django-form input[type="password"],
-  .django-form input[type="number"],
-  .django-form input[type="tel"],
-  .django-form select,
-  .django-form textarea {
-    width: 100%;
-    padding: 0.82rem 1rem;
-    border-radius: var(--r-md);
-    border: 1.5px solid var(--line);
-    background: var(--bg);
-    font-family: inherit;
-    font-size: 0.93rem;
-    color: var(--ink-900);
-    outline: none;
-    transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
-    -webkit-appearance: none;
-    appearance: none;
-  }
-  .django-form input:focus,
-  .django-form select:focus,
-  .django-form textarea:focus {
-    border-color: var(--pu-400);
-    box-shadow: 0 0 0 3px rgba(97, 26, 101, 0.10);
-    background: var(--white);
-  }
-  .django-form input[type="checkbox"] {
-    width: auto;
-    accent-color: var(--pu-500);
-    margin-right: 0.4rem;
-  }
-  .django-form .helptext {
-    display: block;
-    font-size: 0.76rem;
-    color: var(--ink-500);
-    margin-top: 0.35rem;
-    line-height: 1.55;
-  }
-  .django-form ul.errorlist {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 0.5rem;
-  }
-  .django-form ul.errorlist li {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #C0392B;
-    background: #FEF2F2;
-    border: 1px solid #FECACA;
-    border-radius: var(--r-sm);
-    padding: 0.45rem 0.75rem;
-    margin-bottom: 0.35rem;
-  }
-  /* reCAPTCHA container */
-  .django-form .g-recaptcha,
-  .django-form #div_id_captcha {
-    margin: 0.5rem 0 1rem;
-  }
-
-  /* ── Submit button ─────────────────────────────────────── */
-  .auth-submit {
-    width: 100%;
-    padding: 0.95rem;
-    font-size: 1rem;
-    font-weight: 700;
-    border-radius: var(--r-pill);
-    background: linear-gradient(135deg, var(--pu-700), var(--pu-500));
-    color: var(--white);
-    border: none;
-    cursor: pointer;
-    box-shadow: 0 6px 18px rgba(74, 21, 80, 0.32);
-    transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
-    margin-top: 0.5rem;
-    letter-spacing: 0.02em;
-  }
-  .auth-submit:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 12px 28px rgba(74, 21, 80, 0.40);
-  }
-  .auth-submit:active { transform: translateY(0); }
-
-  /* ── Auth links ────────────────────────────────────────── */
-  .auth-links {
-    margin-top: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-  }
-  .auth-links p {
-    font-size: 0.88rem;
-    color: var(--ink-500);
-    text-align: center;
-  }
-  .auth-links a {
-    color: var(--pu-600);
-    font-weight: 700;
-    transition: color var(--dur) var(--ease);
-  }
-  .auth-links a:hover { color: var(--pu-400); text-decoration: underline; }
-
-  .auth-divider {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin: 1.25rem 0;
-    color: var(--ink-300);
-    font-size: 0.78rem;
-  }
-  .auth-divider::before,
-  .auth-divider::after {
-    content: "";
-    flex: 1;
-    height: 1px;
-    background: var(--line);
-  }
-
-  /* ── Non-field errors banner ───────────────────────────── */
-  .auth-error-banner {
-    background: #FEF2F2;
-    border: 1px solid #FECACA;
-    border-radius: var(--r-md);
-    padding: 0.85rem 1rem;
-    margin-bottom: 1.25rem;
-    font-size: 0.88rem;
-    font-weight: 600;
-    color: #B91C1C;
-  }
-
-  /* ── Responsive ─────────────────────────────────────────── */
-  @media (max-width: 768px) {
-    .auth-card {
-      grid-template-columns: 1fr;
-    }
-    .auth-brand {
-      padding: 2rem 1.75rem;
-      min-height: auto;
-    }
-    .auth-features { display: none; }
-    .auth-form-panel { padding: 2rem 1.75rem; }
-  }
-</style>
 {% endblock %}
 
 {% block content %}
@@ -316,32 +13,68 @@
   <div class="auth-wrap">
     <div class="auth-card">
 
-      <!-- ── Brand Panel ─────────────────────────────────── -->
+      <!-- ── Form panel ──────────────────────────────────── -->
+      <div class="auth-form-panel">
+        <span class="eyebrow">Client Portal</span>
+        <h1>Sign in</h1>
+        <p class="auth-subtitle">Enter your credentials to access your account.</p>
+
+        {% if form.non_field_errors %}
+          <div class="auth-error-banner">
+            {{ form.non_field_errors }}
+          </div>
+        {% endif %}
+
+        {% comment %}
+          Flash messages are rendered once by website_base.html above
+          {% block content %}. Looping over them again here would print
+          every message twice.
+        {% endcomment %}
+
+        <form method="post" class="django-form" novalidate>
+          {% csrf_token %}
+          {{ form.as_p }}
+          <button type="submit" class="auth-submit">
+            Sign in to portal <i class="bi bi-arrow-right"></i>
+          </button>
+        </form>
+
+        <div class="auth-divider">or</div>
+
+        <div class="auth-links">
+          <p>Forgot your password? <a href="{% url 'reset_password' %}">Reset it here</a></p>
+          <p>Don't have an account? <a href="{% url 'register' %}">Register now</a></p>
+          <p><a href="{% url 'home' %}" class="auth-back">← Back to website</a></p>
+        </div>
+      </div>
+
+      <!-- ── Brand rail ──────────────────────────────────── -->
       <div class="auth-brand">
         <div class="auth-brand-inner">
           <div class="auth-logo-box">
-            <img src="{% if appearance.login_logo_url %}{{ appearance.login_logo_url }}{% else %}{% static 'clientfiles/brandlogo.png' %}{% endif %}" alt="{{ appearance.brand_name }}" />
+            <img src="{% if appearance.login_logo_url %}{{ appearance.login_logo_url }}{% else %}{% static 'clientfiles/brandlogo.png' %}{% endif %}"
+                 alt="{{ appearance.brand_name }}">
           </div>
 
-          <h2>Welcome Back to Your Financial Portal</h2>
-          <p>Sign in to manage your accounts, apply for products, track your investments, and access all {{ appearance.brand_name }} digital services.</p>
+          <h2>Welcome back to your financial portal</h2>
+          <p>Sign in to manage your accounts, apply for products, track your loans and access all {{ appearance.brand_name }} digital services.</p>
 
           <div class="auth-features">
             <div class="auth-feature">
               <span class="auth-feature-dot">✓</span>
-              View real-time account balances &amp; statements
+              View real-time balances &amp; statements
             </div>
             <div class="auth-feature">
               <span class="auth-feature-dot">✓</span>
-              Transfer funds &amp; manage payments
+              Track repayments &amp; manage payments
             </div>
             <div class="auth-feature">
               <span class="auth-feature-dot">✓</span>
-              Apply for loans &amp; track applications
+              Apply for loans &amp; follow applications
             </div>
             <div class="auth-feature">
               <span class="auth-feature-dot">✓</span>
-              Monitor your investment portfolio
+              Upload and update your documents
             </div>
             <div class="auth-feature">
               <span class="auth-feature-dot">✓</span>
@@ -352,41 +85,6 @@
 
         <div class="auth-brand-footer">
           © {% now "Y" %} {{ appearance.brand_name }}. All rights reserved.
-        </div>
-      </div>
-
-      <!-- ── Form Panel ──────────────────────────────────── -->
-      <div class="auth-form-panel">
-        <span class="eyebrow">Client Portal</span>
-        <h1>Sign In</h1>
-        <p class="auth-subtitle">Enter your credentials to access your account.</p>
-
-        {% if form.non_field_errors %}
-          <div class="auth-error-banner">
-            {% for error in form.non_field_errors %}{{ error }}{% endfor %}
-          </div>
-        {% endif %}
-
-        {% if messages %}
-          {% for message in messages %}
-          <div style="padding:10px 14px;border-radius:8px;margin-bottom:12px;font-size:.85rem;font-weight:600;
-                      background:{% if 'danger' in message.tags or 'error' in message.tags %}#fdecea;color:#b3261e;border:1px solid #f5c6c3{% elif 'warning' in message.tags %}#fff8e1;color:#8a6d00;border:1px solid #f0e2a8{% else %}#e8f5e9;color:#1b5e20;border:1px solid #bfe3c2{% endif %};">
-            {{ message }}
-          </div>
-          {% endfor %}
-        {% endif %}
-        <form method="post" class="django-form" novalidate>
-          {% csrf_token %}
-          {{ form.as_p }}
-          <button type="submit" class="auth-submit">Sign In to Portal →</button>
-        </form>
-
-        <div class="auth-divider">or</div>
-
-        <div class="auth-links">
-          <p>Forgot your password? <a href="{% url 'reset_password' %}">Reset it here</a></p>
-          <p>Don't have an account? <a href="{% url 'register' %}">Register now</a></p>
-          <p style="margin-top:0.25rem;"><a href="{% url 'home' %}" style="color:var(--ink-500);font-weight:600;">← Back to Website</a></p>
         </div>
       </div>
 

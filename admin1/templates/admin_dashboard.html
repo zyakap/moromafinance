@@ -92,30 +92,6 @@
   </a>
 </div>
 
-{% if dcc_enabled %}
-<!-- DCC CREDIT BUREAU (pay-per-view running cost) -->
-<div class="sec-h">DCC Credit Bureau <span style="font-weight:500;color:#9aa3b2;text-transform:none;">— this month</span></div>
-<div class="kpi-grid">
-  <a class="kpi k-accent" href="{% url 'dcc_report' %}">
-    <div class="k-ico"><i class="fa fa-building-columns"></i></div>
-    <div class="k-label">DCC Running Cost</div>
-    {% if dcc_billing %}
-    <div class="k-value">{{ dcc_billing.currency }} {{ dcc_billing.total|floatformat:2 }}</div>
-    <div class="k-sub">incl. base fee {{ dcc_billing.currency }} {{ dcc_billing.base_fee|floatformat:2 }}</div>
-    {% else %}
-    <div class="k-value">—</div>
-    <div class="k-sub">bureau unreachable — see DCC Report</div>
-    {% endif %}
-  </a>
-  <a class="kpi" href="{% url 'dcc_report' %}">
-    <div class="k-ico"><i class="fa fa-eye"></i></div>
-    <div class="k-label">Paid Credit Views</div>
-    <div class="k-value">{% if dcc_billing %}{{ dcc_billing.paid_views }}{% else %}{{ dcc_views_month }}{% endif %}</div>
-    <div class="k-sub">billed per view — full log in DCC Report</div>
-  </a>
-</div>
-{% endif %}
-
 <!-- PORTFOLIO HEALTH -->
 <div class="sec-h">Portfolio Health <span style="font-weight:500;color:#9aa3b2;text-transform:none;">— as of today</span></div>
 <div class="kpi-grid">
@@ -274,6 +250,30 @@
     </div>
   </div>
 </div>
+
+{% if dcc_enabled %}
+<!-- DCC CREDIT BUREAU (pay-per-view running cost) -->
+<div class="sec-h">DCC Credit Bureau <span style="font-weight:500;color:#9aa3b2;text-transform:none;">— this month</span></div>
+<div class="kpi-grid">
+  <a class="kpi k-accent" href="{% url 'dcc_report' %}">
+    <div class="k-ico"><i class="fa fa-building-columns"></i></div>
+    <div class="k-label">DCC Running Cost</div>
+    {% if dcc_billing %}
+    <div class="k-value">{{ dcc_billing.currency }} {{ dcc_billing.total|floatformat:2 }}</div>
+    <div class="k-sub">incl. base fee {{ dcc_billing.currency }} {{ dcc_billing.base_fee|floatformat:2 }}</div>
+    {% else %}
+    <div class="k-value">—</div>
+    <div class="k-sub">bureau unreachable — see DCC Report</div>
+    {% endif %}
+  </a>
+  <a class="kpi" href="{% url 'dcc_report' %}">
+    <div class="k-ico"><i class="fa fa-eye"></i></div>
+    <div class="k-label">Paid Credit Views</div>
+    <div class="k-value">{% if dcc_billing %}{{ dcc_billing.paid_views }}{% else %}{{ dcc_views_month }}{% endif %}</div>
+    <div class="k-sub">billed per view — full log in DCC Report</div>
+  </a>
+</div>
+{% endif %}
 
 {{ trend|json_script:"js-trend" }}
 {{ chart_status|json_script:"js-status" }}
